@@ -52,6 +52,14 @@ jobs:
         run: |
           chmod +x android/gradlew
 
+      - name: Ensure Valid Gradle Wrapper
+        run: |
+          cd android
+          if ! java -jar gradle/wrapper/gradle-wrapper.jar --version >/dev/null 2>&1; then
+            echo "gradle-wrapper.jar is corrupt or invalid. Fetching clean wrapper..."
+            curl -sSL -o gradle/wrapper/gradle-wrapper.jar https://raw.githubusercontent.com/gradle/gradle/v8.11.1/gradle/wrapper/gradle-wrapper.jar
+          fi
+
       - name: Build Debug APK
         run: |
           cd android
