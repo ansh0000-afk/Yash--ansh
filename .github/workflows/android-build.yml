@@ -53,7 +53,7 @@ jobs:
           chmod +x android/gradlew
 
             - name: Ensure Valid Gradle Wrapper
-        run: |
+          run: |
           cd android
           mkdir -p gradle/wrapper
           if ! java -jar gradle/wrapper/gradle-wrapper.jar --version >/dev/null 2>&1; then
