@@ -15,8 +15,8 @@ export interface FreeAIModelInfo {
 
 export const FREE_AI_MODELS_SERVER: FreeAIModelInfo[] = [
   {
-    id: 'gemini-2.0-flash',
-    name: 'Gemini 2.0 Flash',
+    id: 'gemini-3.5-flash',
+    name: 'Gemini 3.5 Flash',
     provider: 'google',
     providerLabel: 'Google Gemini',
     description: 'Current stable flagship model for multi-turn chat, reasoning & search grounding.',
@@ -38,11 +38,11 @@ export const FREE_AI_MODELS_SERVER: FreeAIModelInfo[] = [
     supportsImage: true
   },
   {
-    id: 'gemini-3.5-flash',
-    name: 'Gemini 3.5 Flash',
+    id: 'gemini-2.0-flash',
+    name: 'Gemini 2.0 Flash',
     provider: 'google',
     providerLabel: 'Google Gemini',
-    description: 'High-speed versatile model for general dialogue.',
+    description: 'Fast versatile model for multi-turn chat and structured responses.',
     contextWindow: '1M tokens',
     speed: 'Ultra Fast',
     isFree: true,
@@ -315,7 +315,7 @@ export async function executeMultiModelRequest(
   modelUsed: string;
   wasFallback: boolean;
 }> {
-  const primaryModel = settings?.selectedModel || settings?.aiModel || 'gemini-2.0-flash';
+  const primaryModel = settings?.selectedModel || settings?.aiModel || 'gemini-3.5-flash';
   const autoFallback = settings?.autoFallback !== false;
 
   // Define candidate sequence based on user preference
@@ -328,7 +328,6 @@ export async function executeMultiModelRequest(
       'meta-llama/llama-3.3-70b-instruct:free',
       'deepseek/deepseek-r1:free',
       'qwen/qwen-2.5-coder-32b-instruct:free',
-      'gemini-2.0-flash',
       'gemini-3.5-flash',
       'gemini-3.6-flash'
     ];
@@ -336,7 +335,6 @@ export async function executeMultiModelRequest(
     // Gemini primary
     candidates = [
       primaryModel,
-      'gemini-2.0-flash',
       'gemini-3.5-flash',
       'gemini-3.6-flash',
       'gemini-2.0-flash-lite',

@@ -139,7 +139,7 @@ app.get('/api/models', (req, res) => {
     const secStatus = securityKeyManager.getSecurityStatus(req);
     res.json({
       models: FREE_AI_MODELS_SERVER,
-      defaultModel: 'gemini-2.0-flash',
+      defaultModel: 'gemini-3.5-flash',
       geminiConfigured: secStatus.configured,
       openRouterConfigured: secStatus.openRouterConfigured,
       autoFallbackAvailable: true
@@ -259,7 +259,7 @@ When using tools, also summarize what action was taken in friendly text.`;
         groundingSources: [],
         toolExecutions: [],
         generatedImageUrl: undefined,
-        modelUsed: settings?.selectedModel || 'gemini-2.0-flash',
+        modelUsed: settings?.selectedModel || 'gemini-3.5-flash',
         wasFallback: true
       });
     }
@@ -293,14 +293,14 @@ app.post('/api/analyze', async (req, res) => {
       return res.status(400).json({ error: 'Text content is required for analysis' });
     }
 
-    let selectedModel = 'gemini-2.0-flash';
+    let selectedModel = 'gemini-3.5-flash';
     let systemInstruction = 'You are Alpha AI Intelligence Engine.';
 
     if (taskType === 'complex_reasoning' || taskType === 'code_analysis') {
       selectedModel = 'gemini-3.1-pro-preview';
       systemInstruction = 'You are a Senior AI Code & Systems Analyst. Analyze the input thoroughly, identify edge cases, performance bottlenecks, bugs, and provide refactored, optimized code with detailed explanations.';
     } else if (taskType === 'summarize' || taskType === 'general_task') {
-      selectedModel = 'gemini-2.0-flash';
+      selectedModel = 'gemini-3.5-flash';
       systemInstruction = 'You are a versatile AI assistant and executive summarizer. Provide key takeaways, action items, and a structured response.';
     } else if (taskType === 'fast_edit' || taskType === 'auto_category') {
       selectedModel = 'gemini-3.1-flash-lite';
@@ -322,10 +322,10 @@ app.post('/api/analyze', async (req, res) => {
     try {
       const ai = getGenAI(req);
       const fallbackRes = await ai.models.generateContent({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3.5-flash',
         contents: req.body.text || '',
       });
-      res.json({ result: fallbackRes.text || '', modelUsed: 'gemini-2.0-flash' });
+      res.json({ result: fallbackRes.text || '', modelUsed: 'gemini-3.5-flash' });
     } catch (fbErr: any) {
       const isQuota = String(fbErr?.message || '').includes('429') || String(fbErr?.message || '').includes('RESOURCE_EXHAUSTED');
       res.status(isQuota ? 429 : 500).json({ error: fbErr.message || err.message || 'Analysis failed', isRateLimit: isQuota });
@@ -408,6 +408,19 @@ app.post('/api/tts', async (req, res) => {
 // Catch-all 404 handler for /api/* - NEVER return HTML for API routes
 app.all('/api/*', (req, res) => {
   res.status(404).json({ error: `API route ${req.method} ${req.path} not found` });
+});
+
+// Express Global Error Handler for API routes to guarantee JSON response
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error('[Express API Global Error]', err);
+  if (res.headersSent) {
+    return next(err);
+  }
+  const statusCode = err.status || err.statusCode || (err.message?.includes('429') || err.message?.includes('RESOURCE_EXHAUSTED') ? 429 : 500);
+  res.status(statusCode).json({
+    error: err.message || 'An unexpected server error occurred',
+    isRateLimit: statusCode === 429
+  });
 });
 
 // Export Express app for Vercel serverless integration

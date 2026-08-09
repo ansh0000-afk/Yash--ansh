@@ -2,8 +2,8 @@ import { FreeAIModel } from '../types';
 
 export const FREE_AI_MODELS: FreeAIModel[] = [
   {
-    id: 'gemini-2.0-flash',
-    name: 'Gemini 2.0 Flash',
+    id: 'gemini-3.5-flash',
+    name: 'Gemini 3.5 Flash',
     provider: 'google',
     providerLabel: 'Google Gemini',
     description: 'Current stable flagship model for multi-turn chat, reasoning & search grounding.',
@@ -25,11 +25,11 @@ export const FREE_AI_MODELS: FreeAIModel[] = [
     supportsImage: true
   },
   {
-    id: 'gemini-3.5-flash',
-    name: 'Gemini 3.5 Flash',
+    id: 'gemini-2.0-flash',
+    name: 'Gemini 2.0 Flash',
     provider: 'google',
     providerLabel: 'Google Gemini',
-    description: 'High-speed versatile model for general dialogue.',
+    description: 'Fast versatile model for multi-turn chat and structured responses.',
     contextWindow: '1M tokens',
     speed: 'Ultra Fast',
     isFree: true,
@@ -124,4 +124,4 @@ export const FREE_AI_MODELS: FreeAIModel[] = [
   }
 ];
 
-export const DEFAULT_MODEL_ID = 'gemini-2.0-flash';
+export const DEFAULT_MODEL_ID = 'gemini-3.5-flash';

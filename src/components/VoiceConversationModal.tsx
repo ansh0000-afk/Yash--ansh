@@ -106,7 +106,7 @@ export const VoiceConversationModal: React.FC<VoiceConversationModalProps> = ({
         body: JSON.stringify({
           messages: [{ role: 'user', content: speechText }],
           persona: activePersona,
-          settings: { ...settings, aiModel: 'gemini-2.0-flash' }
+          settings: { ...settings, aiModel: 'gemini-3.5-flash' }
         })
       });
 
