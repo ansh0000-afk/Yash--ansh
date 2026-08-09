@@ -5,12 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "vite build && esbuild server.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=dist/server.js",
+    "build": "vite build && esbuild server.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outdir=dist",
     "start": "node dist/server.js",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit"
   },
-    "dependencies": {
+  "dependencies": {
     "@capacitor/android": "^7.0.0",
     "@capacitor/cli": "^7.0.0",
     "@capacitor/core": "^7.0.0",
@@ -21,7 +21,7 @@
     "jspdf": "^4.2.1",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
-    "pdfjs-dist": "^8.2.108",
+    "pdfjs-dist": "^3.11.174",
     "react": "^19.0.1",
     "react-dom": "^19.0.1",
     "react-markdown": "^10.1.0",
@@ -36,6 +36,6 @@
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.3",
-    "@types/express": "^4.17.21"
+    "@types/express": "~4.17.21"
   }
 }
