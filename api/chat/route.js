@@ -13,7 +13,8 @@ export async function POST(req) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // Yahan gemini-2.0-flash use karein
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const result = await model.generateContent(message || "Hello");
     const text = result.response.text();
