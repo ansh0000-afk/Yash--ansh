@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
-import { GoogleGenAI, Type, FunctionDeclaration, Modality } from '@google/genai';
+import { GoogleGenerativeAI, Type, FunctionDeclaration, Modality } from '@google/generative-ai';
 import dotenv from 'dotenv';
 import { securityKeyManager } from './securityKeyManager.js';
 import { FREE_AI_MODELS_SERVER, executeMultiModelRequest } from './serverModelHandler.js';
