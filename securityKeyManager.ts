@@ -258,15 +258,10 @@ class SecurityKeyManager {
     }
 
     try {
-      const ai = new GoogleGenAI({
-        apiKey: apiKey.trim(),
-        httpOptions: { headers: { 'User-Agent': 'aistudio-security-check' } }
-      });
+      const ai = new GoogleGenerativeAI(apiKey.trim());
+      const model = ai.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-      await ai.models.generateContent({
-        model: 'gemini-3.5-flash',
-        contents: 'ping'
-      });
+      await model.generateContent('ping');
 
       return { valid: true, message: 'API key successfully validated with Google Gemini API!' };
     } catch (err: any) {
@@ -320,3 +315,4 @@ class SecurityKeyManager {
 }
 
 export const securityKeyManager = new SecurityKeyManager();
+        
