@@ -4,8 +4,8 @@ import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenerativeAI, Type, FunctionDeclaration, Modality } from '@google/generative-ai';
 import dotenv from 'dotenv';
-import { securityKeyManager } from './securityKeyManager.js';
-import { FREE_AI_MODELS_SERVER, executeMultiModelRequest } from './serverModelHandler.js';
+import { securityKeyManager } from './securityKeyManager.ts';
+import { FREE_AI_MODELS_SERVER, executeMultiModelRequest } from './serverModelHandler.ts';
 
 dotenv.config();
 
@@ -20,7 +20,7 @@ app.use(express.json({ limit: '20mb' }));
 // Lazy/safe initialization of GoogleGenAI SDK with Security Key Manager resolution
 function getGenAI(req?: express.Request) {
   const apiKey = securityKeyManager.getApiKey(req);
-  return new GoogleGenAI({
+  return new GoogleGenerativeAI({
     apiKey,
     httpOptions: {
       headers: {
@@ -298,7 +298,7 @@ app.post('/api/analyze', async (req, res) => {
 
     if (taskType === 'complex_reasoning' || taskType === 'code_analysis') {
       selectedModel = 'gemini-3.1-pro-preview';
-      systemInstruction = 'You are a Senior AI Code & Systems Analyst. Analyze the input thoroughly, identify edge cases, performance bottlenecks, bugs, and provide refactored, optimized code with detailed explanations.';
+      systemInstruction = 'You are a Senior AI Code & Systems Analyst. Analyze the input thoroughly, identify edge cases, performance bottlenecks, bugs, and provide refactored, optimized code wit[...]
     } else if (taskType === 'summarize' || taskType === 'general_task') {
       selectedModel = 'gemini-3.5-flash';
       systemInstruction = 'You are a versatile AI assistant and executive summarizer. Provide key takeaways, action items, and a structured response.';
@@ -450,4 +450,3 @@ async function startServer() {
 if (!process.env.VERCEL) {
   startServer();
 }
-
