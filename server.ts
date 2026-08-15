@@ -298,7 +298,8 @@ app.post('/api/analyze', async (req, res) => {
 
     if (taskType === 'complex_reasoning' || taskType === 'code_analysis') {
       selectedModel = 'gemini-3.1-pro-preview';
-      systemInstruction = 'You are a Senior AI Code & Systems Analyst. Analyze the input thoroughly, identify edge cases, performance bottlenecks, bugs, and provide refactored, optimized code wit[...]
+      systemInstruction = 'You are a Senior AI Code & Systems Analyst. Analyze the input thoroughly, identify edge cases, performance bottlenecks, bugs, and provide refactored, optimized code with best practices and improvements.';
+      
     } else if (taskType === 'summarize' || taskType === 'general_task') {
       selectedModel = 'gemini-3.5-flash';
       systemInstruction = 'You are a versatile AI assistant and executive summarizer. Provide key takeaways, action items, and a structured response.';
