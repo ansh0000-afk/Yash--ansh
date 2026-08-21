@@ -40,13 +40,23 @@ function cors(res: ServerResponse) {
 async function body(req: IncomingMessage & { body?: unknown }): Promise<any> {
   if (req.body !== undefined) {
     if (typeof req.body === 'object' && req.body !== null) return req.body;
-    if (typeof req.body === 'string') { try { return JSON.parse(req.body); } catch { return {}; } }
+    if (typeof req.body === 'string') {
+      try {
+        return JSON.parse(req.body);
+      } catch {
+        return {};
+      }
+    }
   }
   const chunks: Buffer[] = [];
   for await (const chunk of req as any) chunks.push(Buffer.from(chunk));
   const raw = Buffer.concat(chunks).toString('utf8');
   if (!raw) return {};
-  try { return JSON.parse(raw); } catch { return {}; }
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
 }
 
 function getGeminiKey(req: IncomingMessage): string | null {
@@ -89,7 +99,11 @@ async function geminiGenerate(apiKey: string, model: string, payload: any) {
   });
   const text = await response.text();
   let data: any = {};
-  try { data = text ? JSON.parse(text) : {}; } catch { data = {}; }
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    data = {};
+  }
   if (!response.ok) {
     const message = data?.error?.message || text || `Gemini request failed (${response.status})`;
     const err: any = new Error(message);
@@ -127,23 +141,25 @@ function toGeminiContents(messages: any[], attachedImage?: string) {
 }
 
 function toolDeclarations() {
-  return [{ functionDeclarations: [
-    {
-      name: 'create_task',
-      description: 'Create a task on the user action board.',
-      parameters: { type: 'OBJECT', properties: { title: { type: 'STRING' }, description: { type: 'STRING' }, priority: { type: 'STRING' }, dueDate: { type: 'STRING' } }, required: ['title'] }
-    },
-    {
-      name: 'save_note',
-      description: 'Save a useful note to the user knowledge base.',
-      parameters: { type: 'OBJECT', properties: { title: { type: 'STRING' }, content: { type: 'STRING' }, category: { type: 'STRING' } }, required: ['title', 'content'] }
-    },
-    {
-      name: 'save_user_memory',
-      description: 'Save an important user preference, fact, goal or instruction.',
-      parameters: { type: 'OBJECT', properties: { key: { type: 'STRING' }, value: { type: 'STRING' }, category: { type: 'STRING' } }, required: ['key', 'value'] }
-    }
-  ] }];
+  return [{
+    functionDeclarations: [
+      {
+        name: 'create_task',
+        description: 'Create a task on the user action board.',
+        parameters: { type: 'OBJECT', properties: { title: { type: 'STRING' }, description: { type: 'STRING' }, priority: { type: 'STRING' }, dueDate: { type: 'STRING' } }, required: ['title'] },
+      },
+      {
+        name: 'save_note',
+        description: 'Save a useful note to the user knowledge base.',
+        parameters: { type: 'OBJECT', properties: { title: { type: 'STRING' }, content: { type: 'STRING' }, category: { type: 'STRING' } }, required: ['title', 'content'] },
+      },
+      {
+        name: 'save_user_memory',
+        description: 'Save an important user preference, fact, goal or instruction.',
+        parameters: { type: 'OBJECT', properties: { key: { type: 'STRING' }, value: { type: 'STRING' }, category: { type: 'STRING' } }, required: ['key', 'value'] },
+      },
+    ],
+  }];
 }
 
 async function chatWithGemini(req: IncomingMessage, data: any) {
@@ -182,7 +198,10 @@ async function chatWithGemini(req: IncomingMessage, data: any) {
       if (!orKey) continue;
       try {
         return await openRouterChat(orKey, model, data, system);
-      } catch (err) { lastError = err; continue; }
+      } catch (err) {
+        lastError = err;
+        continue;
+      }
     }
 
     try {
@@ -194,16 +213,19 @@ async function chatWithGemini(req: IncomingMessage, data: any) {
         },
       };
       if (data.settings?.enableSearch !== false) payload.tools = [{ googleSearch: {} }];
-      if (model !== 'gemini-3.6-flash' && model !== 'gemini-3.5-flash') payload.tools = [ ...((payload.tools || [])), ...toolDeclarations() ];
-      else payload.tools = [ ...((payload.tools || [])), ...toolDeclarations() ];
+      payload.tools = [...(payload.tools || []), ...toolDeclarations()];
 
       const result = await geminiGenerate(apiKey, model, payload);
       const candidate = result?.candidates?.[0];
       const parts = candidate?.content?.parts || [];
       const text = parts.filter((p: any) => typeof p.text === 'string').map((p: any) => p.text).join('');
-      const functionCalls = parts.filter((p: any) => p.functionCall).map((p: any) => ({ name: p.functionCall.name, args: p.functionCall.args || {} }));
+      const functionCalls = parts
+        .filter((p: any) => p.functionCall)
+        .map((p: any) => ({ name: p.functionCall.name, args: p.functionCall.args || {} }));
       const groundingChunks = candidate?.groundingMetadata?.groundingChunks || [];
-      const groundingSources = groundingChunks.map((c: any) => c?.web ? { title: c.web.title || 'Web Source', url: c.web.uri } : null).filter(Boolean);
+      const groundingSources = groundingChunks
+        .map((c: any) => c?.web ? { title: c.web.title || 'Web Source', url: c.web.uri } : null)
+        .filter(Boolean);
       return {
         text: text || 'Response received.',
         groundingSources,
@@ -244,7 +266,7 @@ async function analyze(req: IncomingMessage, data: any) {
   const result = await chatWithGemini(req, {
     messages: [{ role: 'user', content: data.context ? `Context:\n${data.context}\n\nInput:\n${data.text}` : data.text }],
     persona: { systemPrompt: system },
-    settings: { selectedModel: taskType === 'code_analysis' ? 'gemini-3.1-pro-preview' : 'gemini-3.6-flash', enableSearch: false, maxTokens: 4096 }
+    settings: { selectedModel: taskType === 'code_analysis' ? 'gemini-3.1-pro-preview' : 'gemini-3.6-flash', enableSearch: false, maxTokens: 4096 },
   });
   return { result: result.text, modelUsed: result.modelUsed };
 }
@@ -349,7 +371,7 @@ export default async function handler(req: IncomingMessage & { body?: unknown },
     }
 
     if (req.method === 'POST' && route === 'security/update-key') {
-      return json(res, 400, { success: false, message: 'For Vercel, add GEMINI_API_KEY in Project Settings → Environment Variables. Runtime file storage is not persistent on serverless functions.' });
+      return json(res, 400, { success: false, message: 'For Vercel, add GEMINI_API_KEY in Project Settings -> Environment Variables. Runtime file storage is not persistent on serverless functions.' });
     }
 
     if (req.method === 'POST' && route === 'security/reset-key') {
@@ -372,8 +394,8 @@ export default async function handler(req: IncomingMessage & { body?: unknown },
       error: err?.message || 'Server error',
       isRateLimit,
       text: isRateLimit
-        ? '⚠️ Rate limit reached. Please try again shortly.'
-        : '⚠️ Alpha AI server error. Check the Vercel function logs and environment variables.',
+        ? 'Rate limit reached. Please try again shortly.'
+        : 'Alpha AI server error. Check the Vercel function logs and environment variables.',
       groundingSources: [],
       toolExecutions: [],
     });
