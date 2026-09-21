@@ -1,3 +1,2 @@
-// Compatibility entrypoint for existing Vercel deployments.
-// The actual API handler lives in [...route].ts.
-export { default } from './[...route]';
+// Export default Vercel serverless function handler from api/[...route].ts
+export { default } from './api/[...route].js';
