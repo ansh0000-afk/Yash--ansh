@@ -172,7 +172,6 @@ async function chatWithGemini(req: IncomingMessage, data: any) {
     DEFAULT_MODEL,
     'gemini-3.5-flash',
     'gemini-3.1-flash-lite',
-    'gemini-2.5-flash',
   ])).filter(Boolean);
 
   let lastError: any = null;
@@ -378,4 +377,4 @@ export default async function handler(req: IncomingMessage & { body?: unknown },
       toolExecutions: [],
     });
   }
-}
+    }
