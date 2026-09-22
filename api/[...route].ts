@@ -242,7 +242,7 @@ async function groqChat(apiKey: string, data: any, system: string) {
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages, max_tokens: Number(data.settings?.maxTokens) || 2048 }),
+    body: JSON.stringify({ model: 'llama-3.1-8b-instant', messages, max_tokens: Number(data.settings?.maxTokens) || 2048 }),
   });
   const result: any = await response.json().catch(() => ({}));
   if (!response.ok) throw Object.assign(new Error(result?.error?.message || `Groq error ${response.status}`), { status: response.status });
@@ -250,7 +250,7 @@ async function groqChat(apiKey: string, data: any, system: string) {
     text: result?.choices?.[0]?.message?.content || 'Response received.',
     groundingSources: [],
     toolExecutions: [],
-    modelUsed: 'groq/llama-3.3-70b-versatile',
+    modelUsed: 'groq/llama-3.1-8b-instant',
     wasFallback: true,
   };
 }
