@@ -69,6 +69,10 @@ function getOpenRouterKey(req: IncomingMessage): string | null {
   return process.env.OPENROUTER_API_KEY?.trim() || null;
 }
 
+function getGroqKey(): string | null {
+  return process.env.GROQ_API_KEY?.trim() || null;
+}
+
 function maskKey(key?: string | null) {
   if (!key || key.length < 8) return 'Not Configured';
   return `${key.slice(0, 6)}...${key.slice(-4)}`;
@@ -215,7 +219,40 @@ async function chatWithGemini(req: IncomingMessage, data: any) {
       console.error(`[Alpha AI] Gemini model ${model} failed:`, err?.message || err);
     }
   }
+
+  const groqKey = getGroqKey();
+  if (groqKey) {
+    try {
+      console.warn('[Alpha AI] All Gemini models failed, falling back to Groq.');
+      return await groqChat(groqKey, data, system);
+    } catch (err: any) {
+      lastError = err;
+      console.error('[Alpha AI] Groq fallback also failed:', err?.message || err);
+    }
+  }
+
   throw lastError || new Error('All configured AI models failed.');
+}
+
+async function groqChat(apiKey: string, data: any, system: string) {
+  const messages: any[] = [{ role: 'system', content: system }];
+  for (const msg of Array.isArray(data.messages) ? data.messages.slice(-12) : []) {
+    messages.push({ role: msg.role === 'assistant' ? 'assistant' : 'user', content: String(msg.content || '') });
+  }
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages, max_tokens: Number(data.settings?.maxTokens) || 2048 }),
+  });
+  const result: any = await response.json().catch(() => ({}));
+  if (!response.ok) throw Object.assign(new Error(result?.error?.message || `Groq error ${response.status}`), { status: response.status });
+  return {
+    text: result?.choices?.[0]?.message?.content || 'Response received.',
+    groundingSources: [],
+    toolExecutions: [],
+    modelUsed: 'groq/llama-3.3-70b-versatile',
+    wasFallback: true,
+  };
 }
 
 async function openRouterChat(apiKey: string, model: string, data: any, system: string) {
@@ -366,15 +403,4 @@ export default async function handler(req: IncomingMessage & { body?: unknown },
   } catch (err: any) {
     console.error('[Alpha AI Vercel API]', err);
     const status = Number(err?.status) || errorStatus(String(err?.message || err));
-    const isRateLimit = status === 429;
-    return json(res, status, {
-      error: err?.message || 'Server error',
-      isRateLimit,
-      text: isRateLimit
-        ? '⚠️ Rate limit reached. Please try again shortly.'
-        : '⚠️ Alpha AI server error. Check the Vercel function logs and environment variables.',
-      groundingSources: [],
-      toolExecutions: [],
-    });
-  }
-    }
+    const isR
