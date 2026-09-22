@@ -17,7 +17,8 @@ interface SettingsModalProps {
   onOpenPinModal?: (mode: 'setup-pin' | 'change-pin' | 'test-biometric') => void;
   onToggleLockSession?: (sessionId: string) => void;
 }
-  onOpenLegalPage?: (type: 'terms' | 'privacy') => void;
+    onOpenLegalPage?: (type: 'terms' | 'privacy') => void;
+
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   settings,
