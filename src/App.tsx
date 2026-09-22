@@ -841,6 +841,7 @@ export default function App() {
               }}
               onResetData={handleResetData}
               onOpenPinModal={(mode) => setPinModalState({ isOpen: true, mode })}
+              onOpenLegalPage={(type) => setCurrentView(type)} 
               onToggleLockSession={handleToggleLockSession}
             />
           )}
