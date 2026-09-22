@@ -130,78 +130,60 @@ export const AppLockModal: React.FC<AppLockModalProps> = ({
 
   // Fingerprint Unlock Trigger
   const triggerFingerprintScan = async () => {
+  try {
     setBiometricScanning('fingerprint');
     setScanProgress(0);
-    setScanStatus('Scanning Fingerprint...');
+    setScanStatus('Waiting for device authentication...');
     setErrorMessage('');
 
-    // Native WebAuthn attempt if available
-    try {
-      if (window.PublicKeyCredential && navigator.credentials) {
-        // Run simulated biometric scan progress visually for 1.2s for great UX
-        let progress = 0;
-        const interval = setInterval(() => {
-          progress += 25;
-          setScanProgress(progress);
-          if (progress >= 100) {
-            clearInterval(interval);
-            setScanStatus('Fingerprint Authenticated!');
-            setTimeout(() => {
-              setBiometricScanning('none');
-              onSuccess();
-            }, 400);
-          }
-        }, 200);
-        return;
-      }
-    } catch (err) {
-      console.log('Biometric WebAuthn fallback', err);
-    }
+    await biometricAuth();
 
-    // High fidelity fallback scan animation
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += 25;
-      setScanProgress(progress);
-      if (progress >= 100) {
-        clearInterval(interval);
-        setScanStatus('Fingerprint Verified Successfully!');
-        setTimeout(() => {
-          setBiometricScanning('none');
-          onSuccess();
-        }, 500);
-      }
-    }, 250);
-  };
+    setScanProgress(100);
+    setScanStatus('Authentication successful!');
 
+    setTimeout(() => {
+      setBiometricScanning('none');
+      onSuccess();
+    }, 300);
+  } catch (error: any) {
+    setBiometricScanning('none');
+    setScanProgress(0);
+    setErrorMessage(
+      error?.message || 'Fingerprint authentication failed. Use PIN.'
+    );
+  }
+};
+      
   // Face Unlock Trigger
-  const triggerFaceUnlock = async () => {
+   const triggerFaceUnlock = async () => {
+  try {
     setBiometricScanning('face');
     setScanProgress(0);
-    setScanStatus('Detecting Face Mesh & Lighting...');
+    setScanStatus('Waiting for device authentication...');
     setErrorMessage('');
 
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += 20;
-      setScanProgress(progress);
-      if (progress === 40) setScanStatus('Verifying Facial Geometry...');
-      if (progress === 80) setScanStatus('Face Matched!');
-      if (progress >= 100) {
-        clearInterval(interval);
-        setScanStatus('Face Unlock Confirmed!');
-        setTimeout(() => {
-          setBiometricScanning('none');
-          onSuccess();
-        }, 400);
-      }
-    }, 250);
-  };
+    await biometricAuth();
+
+    setScanProgress(100);
+    setScanStatus('Authentication successful!');
+
+    setTimeout(() => {
+      setBiometricScanning('none');
+      onSuccess();
+    }, 300);
+  } catch (error: any) {
+    setBiometricScanning('none');
+    setScanProgress(0);
+    setErrorMessage(
+      error?.message || 'Face authentication failed. Use PIN.'
+    );
+  }
+};
 
   // Forgot PIN reset handler
   const handleForgotSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (forgotInput.trim().toUpperCase() === 'RESET' || forgotInput.trim() === '1234') {
+    if (forgotInput.trim().toUpperCase() === 'RESET') {
       if (onResetAppLock) {
         onResetAppLock();
       } else {
