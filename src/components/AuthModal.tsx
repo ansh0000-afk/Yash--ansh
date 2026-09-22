@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { UserProfile } from '../types';
-import { 
+import { GoogleLogin3DModal } from './GoogleLogin3DModal';
   auth, 
   googleProvider, 
   signInWithPopup, 
@@ -72,6 +72,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [verificationSent, setVerificationSent] = useState(false);
+const [show3DGoogleModal, setShow3DGoogleModal] = useState(false);
 
   // Sync tab when modal opens or login state changes
   useEffect(() => {
