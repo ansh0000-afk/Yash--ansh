@@ -17,6 +17,7 @@ interface SettingsModalProps {
   onOpenPinModal?: (mode: 'setup-pin' | 'change-pin' | 'test-biometric') => void;
   onToggleLockSession?: (sessionId: string) => void;
 }
+  onOpenLegalPage?: (type: 'terms' | 'privacy') => void;
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   settings,
@@ -26,7 +27,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onUpdateProfile,
   onResetData,
   onOpenPinModal,
-  onToggleLockSession
+onToggleLockSession,
+onOpenLegalPage
 }) => {
   const [activeTab, setActiveTab] = useState<'general' | 'applock' | 'memory' | 'voice' | 'ai' | 'security' | 'account'>('general');
   const [userInstructions, setUserInstructions] = useState(settings.userCustomInstructions || '');
@@ -1132,7 +1134,34 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
               </div>
             </div>
+            {/* Legal & Privacy */}
+<div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
+  <h3 className="font-semibold text-sm text-white flex items-center gap-2">
+    <Shield className="w-4 h-4 text-indigo-400" /> Legal & Privacy
+  </h3>
 
+  <p className="text-xs text-slate-400">
+    Review Alpha AI's Terms of Service and Privacy Policy.
+  </p>
+
+  <div className="flex flex-wrap gap-3">
+    <button
+      type="button"
+      onClick={() => onOpenLegalPage?.('terms')}
+      className="px-4 py-2 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 rounded-xl text-xs font-semibold"
+    >
+      Terms of Service
+    </button>
+
+    <button
+      type="button"
+      onClick={() => onOpenLegalPage?.('privacy')}
+      className="px-4 py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-semibold"
+    >
+      Privacy Policy
+    </button>
+  </div>
+</div>
             {/* Backup, Import, Clear Cache & Delete Account */}
             <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
               <h3 className="font-semibold text-sm text-white flex items-center gap-2">
