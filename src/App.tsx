@@ -17,6 +17,7 @@ import { OnboardingTutorialModal } from './components/OnboardingTutorialModal';
 import { DashboardView } from './components/DashboardView';
 import { AIWorkspaceToolsView } from './components/AIWorkspaceToolsView';
 import { CommerceStudyHubView } from './components/CommerceStudyHubView';
+import { LegalPage } from './components/LegalPage';
 import { DeviceSecurity } from './lib/deviceSecurity';
 import { AnimatePresence, motion } from 'motion/react';
 import { Shield, EyeOff, ShieldAlert } from 'lucide-react';
@@ -812,7 +813,22 @@ export default function App() {
               onSwitchToChat={() => setCurrentView('chat')}
             />
           )}
+          {currentView === 'terms' && (
+  <LegalPage
+    type="terms"
+    onBack={() => setCurrentView('dashboard')}
+    onOpenOther={(type) => setCurrentView(type)}
+  />
+)}
 
+          {currentView === 'privacy' && (
+  <LegalPage
+    type="privacy"
+    onBack={() => setCurrentView('dashboard')}
+    onOpenOther={(type) => setCurrentView(type)}
+  />
+)}
+ 
           {currentView === 'settings' && (
             <SettingsModal
               settings={settings}
