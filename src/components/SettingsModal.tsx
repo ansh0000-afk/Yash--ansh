@@ -6,19 +6,17 @@ import { voiceController, VoiceOption } from '../lib/voiceHelper';
 import { SecurityService, SecurityStatus } from '../lib/securityService';
 import { DeviceSecurity } from '../lib/deviceSecurity';
 import { Settings, Save, Search, RefreshCcw, UserCheck, Moon, Sun, Monitor, Brain, Volume2, Database, Trash2, Plus, Sparkles, User, Globe, Check, Download, Upload, Shield, Cpu, Sliders, Type, HardDrive, Lock, Unlock, Key, CheckCircle, AlertTriangle, KeyRound, ShieldCheck, Fingerprint, ScanFace, Clock, Smartphone } from 'lucide-react';
-
 interface SettingsModalProps {
   settings: AgentSettings;
   userProfile: UserProfile;
-  sessions?: ChatSession[];
+  sessions: ChatSession[];
   onSaveSettings: (newSettings: Partial<AgentSettings>) => void;
   onUpdateProfile: (updated: UserProfile) => void;
   onResetData: () => void;
   onOpenPinModal?: (mode: 'setup-pin' | 'change-pin' | 'test-biometric') => void;
+  onOpenLegalPage?: (type: 'terms' | 'privacy') => void; // <-- Ye wali line andar honi chahiye (jo ki line 17 par hai)
   onToggleLockSession?: (sessionId: string) => void;
 }
-    onOpenLegalPage?: (type: 'terms' | 'privacy') => void;
-
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   settings,
