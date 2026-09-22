@@ -403,7 +403,6 @@ export default async function handler(req: IncomingMessage & { body?: unknown },
   } catch (err: any) {
     console.error('[Alpha AI Vercel API]', err);
     const status = Number(err?.status) || errorStatus(String(err?.message || err));
-    const isR
     const isRateLimit = status === 429;
     return json(res, status, {
       error: err?.message || 'Server error',
