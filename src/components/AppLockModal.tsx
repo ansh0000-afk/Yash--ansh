@@ -15,6 +15,7 @@ import {
   Camera
 } from 'lucide-react';
 import { AppLockSettings } from '../types';
+import { biometricAuth } from '../lib/biometricAuth';
 
 interface AppLockModalProps {
   mode: 'unlock-app' | 'unlock-chat' | 'setup-pin' | 'change-pin' | 'test-biometric';
