@@ -404,3 +404,15 @@ export default async function handler(req: IncomingMessage & { body?: unknown },
     console.error('[Alpha AI Vercel API]', err);
     const status = Number(err?.status) || errorStatus(String(err?.message || err));
     const isR
+    const isRateLimit = status === 429;
+    return json(res, status, {
+      error: err?.message || 'Server error',
+      isRateLimit,
+      text: isRateLimit
+        ? '⚠️ Rate limit reached. Please try again shortly.'
+        : '⚠️ Alpha AI server error. Check the Vercel function logs and environment variables.',
+      groundingSources: [],
+      toolExecutions: [],
+    });
+  }
+}
