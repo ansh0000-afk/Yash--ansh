@@ -655,7 +655,7 @@ export default function App() {
         {/* Screenshot / Tab Unfocus Privacy Shield Overlay */}
         {isWindowBlurred && settings.appLock?.isEnabled && (
           <div className="fixed inset-0 z-100 bg-slate-950/90 backdrop-blur-3xl flex flex-col items-center justify-center space-y-3 pointer-events-auto select-none p-6 text-center">
-            <div className="p-4 rounded-3xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 animate-pulse">
+            <div className="p-4 rounded-3xl bg-indigo-500/25 text-indigo-400 border border-indigo-500/30 animate-pulse">
               <EyeOff className="w-10 h-10" />
             </div>
             <h2 className="text-lg font-bold text-white">Protected Workspace View</h2>
@@ -814,20 +814,20 @@ export default function App() {
             />
           )}
           {currentView === 'terms' && (
-  <LegalPage
-    type="terms"
-    onBack={() => setCurrentView('dashboard')}
-    onOpenOther={(type) => setCurrentView(type)}
-  />
-)}
+            <LegalPage
+              type="terms"
+              onBack={() => setCurrentView('dashboard')}
+              onOpenOther={(type) => setCurrentView(type)}
+            />
+          )}
 
           {currentView === 'privacy' && (
-  <LegalPage
-    type="privacy"
-    onBack={() => setCurrentView('dashboard')}
-    onOpenOther={(type) => setCurrentView(type)}
-  />
-)}
+            <LegalPage
+              type="privacy"
+              onBack={() => setCurrentView('dashboard')}
+              onOpenOther={(type) => setCurrentView(type)}
+            />
+          )}
  
           {currentView === 'settings' && (
             <SettingsModal
@@ -935,5 +935,4 @@ export default function App() {
       </div>
     </ErrorBoundary>
   );
-}
-
+        }
