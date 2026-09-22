@@ -2,6 +2,8 @@
  * API Client with safe JSON response parsing and exponential backoff retry for 429 rate limits.
  */
 
+const API_BASE = 'https://yash-ansh.vercel.app';
+
 export interface ApiResponse<T = any> {
   ok: boolean;
   status: number;
@@ -33,12 +35,10 @@ export async function safeParseResponse<T = any>(res: Response): Promise<ApiResp
         error: !res.ok ? (data.error || data.message || `Request failed with status ${res.status}`) : undefined
       };
     } catch (parseErr) {
-      // Content type stated JSON but body wasn't valid JSON
       console.warn('Failed to parse JSON response despite JSON content-type:', parseErr);
     }
   }
 
-  // Handle HTML or non-JSON error pages (e.g. Vercel/Cloud Run 502/504 HTML)
   const trimmed = rawText.trim();
   if (trimmed.startsWith('<') || trimmed.toLowerCase().includes('<!doctype')) {
     const cleanMsg = `Server returned an HTML error page (HTTP ${res.status} ${res.statusText || 'Service Unavailable'}). Please try again.`;
@@ -67,32 +67,33 @@ export async function apiFetch<T = any>(
   options: RequestInit = {},
   maxRetries: number = 3
 ): Promise<ApiResponse<T>> {
+  const fullUrl = url.startsWith('http') ? url : `${API_BASE}${url}`;
   let attempt = 0;
   let delayMs = 1000;
 
   while (true) {
     attempt++;
     try {
-      const res = await fetch(url, options);
+      const res = await fetch(fullUrl, options);
       const parsed = await safeParseResponse<T>(res);
 
       const isRateLimit = res.status === 429 || (parsed.data && typeof parsed.data === 'object' && (parsed.data as any).isRateLimit);
 
       if (isRateLimit && attempt <= maxRetries) {
-        console.warn(`[API Client] 429 Rate limit hit on ${url}. Retry ${attempt}/${maxRetries} after ${delayMs}ms...`);
+        console.warn(`[API Client] 429 Rate limit hit on ${fullUrl}. Retry ${attempt}/${maxRetries} after ${delayMs}ms...`);
         await new Promise(resolve => setTimeout(resolve, delayMs));
-        delayMs *= 2; // 1s -> 2s -> 4s
+        delayMs *= 2;
         continue;
       }
 
       return parsed;
     } catch (err: any) {
       if (options.signal?.aborted) {
-        throw err; // User canceled request
+        throw err;
       }
 
       if (attempt <= maxRetries) {
-        console.warn(`[API Client] Fetch network error on ${url}. Retry ${attempt}/${maxRetries} after ${delayMs}ms...`, err);
+        console.warn(`[API Client] Fetch network error on ${fullUrl}. Retry ${attempt}/${maxRetries} after ${delayMs}ms...`, err);
         await new Promise(resolve => setTimeout(resolve, delayMs));
         delayMs *= 2;
         continue;
