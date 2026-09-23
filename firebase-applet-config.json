@@ -1,12 +1,21 @@
-{
-  "projectId": "summer-proton-4zp2g",
-  "appId": "1:991429458202:web:a4c803561ceb730e9994a3",
-  "apiKey": "AIzaSyD5cCO0Z-h1Atz629ciUoN1Np_UGMlx_7E",
-  "authDomain": "summer-proton-4zp2g.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-alphaai-168bb886-605a-49ee-aeaa-6603936f7abe",
-  "storageBucket": "summer-proton-4zp2g.firebasestorage.app",
-  "messagingSenderId": "991429458202",
-  "measurementId": "",
-  "oAuthClientId": "991429458202-4vtot95b4k9rae3ifatigs7dkldeafpo.apps.googleusercontent.com",
-  "recaptchaSiteKey": ""
-}
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAHsTUFcownV4vBppBB0oissSra8N9rdHI",
+  authDomain: "alpha-ai-881d8.firebaseapp.com",
+  projectId: "alpha-ai-881d8",
+  storageBucket: "alpha-ai-881d8.firebasestorage.app",
+  messagingSenderId: "524557465201",
+  appId: "1:524557465201:web:9411b2c31a292f63eb4dd0",
+  measurementId: "G-VDVM82FX5K"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
