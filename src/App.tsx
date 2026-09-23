@@ -128,17 +128,19 @@ export default function App() {
     };
   });
 
-  // Chat History Sessions State
-  const [sessions, setSessions] = useState<ChatSession[]>(() => {
+  // Chat History Sessions State (Updated for Safe Persistence)
+const [sessions, setSessions] = useState<ChatSession[]>(() => {
+  try {
     const saved = localStorage.getItem('alpha_chat_sessions');
     if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      } catch (e) {}
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     }
-    return [DEFAULT_SESSION];
-  });
+  } catch (e) {
+    console.error('Error loading sessions from storage', e);
+  }
+  return [DEFAULT_SESSION];
+});
 
   const [activeSessionId, setActiveSessionId] = useState<string>(() => {
     const saved = localStorage.getItem('alpha_active_session_id');
@@ -448,11 +450,12 @@ export default function App() {
     setSessions(prev => prev.map(s => s.id === id ? { ...s, title: newTitle } : s));
   };
 
-  const updateSessionMessages = (newMessages: ChatMessage[]) => {
-    setSessions(prev => prev.map(s => {
+   const updateSessionMessages = (newMessages: ChatMessage[]) => {
+  setSessions(prev => {
+    const updatedSessions = prev.map(s => {
       if (s.id === activeSessionId) {
         let newTitle = s.title;
-        if ((s.title === 'Welcome to Alpha AI' || s.title === 'New Conversation') && newMessages.length > 0) {
+        if ((s.title === 'Welcome to Class 12 Commerce AI' || s.title === 'New Conversation') && newMessages.length > 0) {
           const firstUserMsg = newMessages.find(m => m.role === 'user');
           if (firstUserMsg) {
             newTitle = firstUserMsg.content.slice(0, 32) + (firstUserMsg.content.length > 32 ? '...' : '');
@@ -466,8 +469,19 @@ export default function App() {
         };
       }
       return s;
-    }));
-  };
+    });
+    
+    // Turant localStorage mein save karein taaki refresh hone par gayab na ho
+    try {
+      localStorage.setItem('alpha_chat_sessions', JSON.stringify(updatedSessions));
+    } catch (e) {
+      console.error('Failed to save sessions', e);
+    }
+    
+    return updatedSessions;
+  });
+};
+  
 
   const handleSendMessage = async (content: string, attachedImage?: string, attachedDoc?: DocumentAttachment) => {
     let finalContent = content;
