@@ -25,7 +25,7 @@ import { DEFAULT_PERSONAS } from './data/defaultPersonas';
 import { AgentPersona, ChatMessage, ChatSession, Task, KnowledgeNote, AgentSettings, UserProfile, DocumentAttachment, AppLockSettings, CalendarEvent } from './types';
 import { memoryManager } from './lib/memoryManager';
 import { apiFetch } from './lib/apiClient';
-import {auth,onAuthStateChanged,signInWithPopup,googleProvider} from './lib/firebase';
+import { auth, onAuthStateChanged, signInWithRedirect, googleProvider } from './lib/firebase';
 
 const INITIAL_TASKS: Task[] = [
   {
@@ -202,14 +202,15 @@ export default function App() {
     sessionStorage.setItem('alpha_splash_shown', 'true');
     setShowSplash(false);
   };
- // Google Sign-In from the Dashboard 3D login modal
+// Google Sign-In from the Dashboard 3D login modal
 const handleDashboardGoogleSignIn = async () => {
   try {
-    await signInWithPopup(auth, googleProvider);
+    await signInWithRedirect(auth, googleProvider);
   } catch (err) {
     console.error('Dashboard Google Auth Error:', err);
   }
 };
+  
   // App Lock State
   const [isAppLocked, setIsAppLocked] = useState<boolean>(() => {
     const savedSettings = localStorage.getItem('agent_settings');
