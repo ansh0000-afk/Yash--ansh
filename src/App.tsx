@@ -6,6 +6,7 @@ import { KnowledgeBaseView } from './components/KnowledgeBaseView';
 import { PersonaSelectorView } from './components/PersonaSelectorView';
 import { SettingsModal } from './components/SettingsModal';
 import { AuthModal } from './components/AuthModal';
+import { AuthGate } from './components/AuthGate';
 import { VoiceConversationModal } from './components/VoiceConversationModal';
 import { AppLockModal } from './components/AppLockModal';
 import { SplashScreen } from './components/SplashScreen';
@@ -549,7 +550,7 @@ export default function App() {
       }
 
       const assistantMsg: ChatMessage = {
-        id: (Date.now() + 1).toString(),
+                id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: data.text || 'Action completed.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -641,16 +642,32 @@ export default function App() {
     localStorage.clear();
   };
 
+  if (showSplash) {
+    return (
+      <ErrorBoundary>
+        <AnimatePresence>
+          <SplashScreen onComplete={handleSplashComplete} />
+        </AnimatePresence>
+      </ErrorBoundary>
+    );
+  }
+
+  if (!userProfile.isLoggedIn) {
+    return (
+      <ErrorBoundary>
+        <AuthGate
+          onUpdateProfile={(updated) => {
+            memoryManager.saveProfile(updated);
+            setUserProfile(updated);
+          }}
+        />
+      </ErrorBoundary>
+    );
+  }
+
   return (
     <ErrorBoundary>
       <div className="flex h-screen w-screen overflow-hidden bg-slate-950 font-sans antialiased text-slate-100 relative">
-        
-        {/* Animated Splash Screen */}
-        <AnimatePresence>
-          {showSplash && (
-            <SplashScreen onComplete={handleSplashComplete} />
-          )}
-        </AnimatePresence>
 
         {/* Screenshot / Tab Unfocus Privacy Shield Overlay */}
         {isWindowBlurred && settings.appLock?.isEnabled && (
@@ -937,4 +954,6 @@ export default function App() {
       </div>
     </ErrorBoundary>
   );
-}
+  }
+
+        
