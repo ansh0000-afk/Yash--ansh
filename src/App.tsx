@@ -587,7 +587,12 @@ const [sessions, setSessions] = useState<ChatSession[]>(() => {
     abortControllerRef.current = null;
   }
 };
-
+  const handleStopGenerating = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      setIsLoading(false);
+    }
+  };
   const handleAddTask = (newTask: Omit<Task, 'id' | 'createdAt'>) => {
     const task: Task = {
       ...newTask,
