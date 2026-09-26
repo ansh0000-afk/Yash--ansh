@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+ import React, { useState } from 'react';
 import { UserProfile } from '../types';
 import {
   auth,
   googleProvider,
-  signInWithPopup,
+  signInWithRedirect,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
@@ -56,23 +56,11 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onUpdateProfile }) => {
     clearAlerts();
     setLoading(true);
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      const updatedProfile: UserProfile = {
-        id: user.uid,
-        name: user.displayName || 'Alpha User',
-        email: user.email || 'user@example.com',
-        avatar: user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`,
-        provider: 'google',
-        isLoggedIn: true,
-        emailVerified: user.emailVerified,
-        joinedAt: user.metadata.creationTime || new Date().toISOString()
-      };
-      onUpdateProfile(updatedProfile);
+      await signInWithRedirect(auth, googleProvider);
+      // Page navigates away here; App.tsx's onAuthStateChanged picks up the result on return.
     } catch (err: any) {
       console.error('Google Auth Error:', err);
       setErrorMsg(getFriendlyAuthErrorMessage(err.code, err.message));
-    } finally {
       setLoading(false);
     }
   };
@@ -439,3 +427,4 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onUpdateProfile }) => {
     </div>
   );
 };
+    
