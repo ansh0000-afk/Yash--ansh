@@ -1,4 +1,5 @@
- import React, { useState } from 'react';
+ ```react
+import React, { useState } from 'react';
 import { UserProfile } from '../types';
 import {
   auth,
@@ -57,7 +58,6 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onUpdateProfile }) => {
     setLoading(true);
     try {
       await signInWithRedirect(auth, googleProvider);
-      // Page navigates away here; App.tsx's onAuthStateChanged picks up the result on return.
     } catch (err: any) {
       console.error('Google Auth Error:', err);
       setErrorMsg(getFriendlyAuthErrorMessage(err.code, err.message));
@@ -427,4 +427,4 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onUpdateProfile }) => {
     </div>
   );
 };
-    
+```
