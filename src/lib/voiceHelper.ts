@@ -1,4 +1,4 @@
-import { apiFetch } from './apiClient';
+ import { apiFetch } from './apiClient';
 
 export interface VoiceOption {
   name: string;
@@ -39,7 +39,7 @@ export class VoiceController {
     onResult: (transcript: string, isFinal: boolean) => void,
     onError: (err: string) => void,
     onEnd: () => void,
-    lang: string = 'en-US'
+    lang: string = 'hi-IN'
   ) {
     if (!this.recognition) {
       onError('Speech Recognition is not supported in this browser.');
@@ -116,12 +116,16 @@ export class VoiceController {
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.rate = options.rate || 1.0;
     utterance.pitch = options.pitch || 1.0;
-    utterance.lang = options.lang || 'en-US';
+    utterance.lang = options.lang || 'hi-IN';
 
     const voices = this.synth.getVoices();
     if (options.voiceURI) {
       const selectedVoice = voices.find(v => v.voiceURI === options.voiceURI);
       if (selectedVoice) utterance.voice = selectedVoice;
+    } else {
+      // No specific voice chosen: prefer an installed Hindi voice if one exists
+      const hindiVoice = voices.find(v => v.lang?.toLowerCase().startsWith('hi'));
+      if (hindiVoice) utterance.voice = hindiVoice;
     }
 
     utterance.onstart = () => {
