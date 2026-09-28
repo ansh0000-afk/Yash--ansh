@@ -625,8 +625,13 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onUpdateProfile }) => {
       clearAlerts();
     }
   }}
-  onGoogleLogin={() => {
+    onGoogleLogin={() => {
     clearAlerts();
     handleGoogleSignIn();
   }}
 />
+
+      </div>
+    </div>
+  );
+};
