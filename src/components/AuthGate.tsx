@@ -334,7 +334,10 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onUpdateProfile }) => {
             {activeTab !== 'forgot' && (
               <button
                 type="button"
-                onClick={() => setShow3DGoogleModal(true)}
+                onClick={() => {
+  clearAlerts();
+  setShow3DGoogleModal(true);
+}}
                 disabled={loading}
                 className="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-100 text-slate-900 font-semibold py-2.5 px-4 rounded-xl text-xs transition shadow-md hover:shadow-lg disabled:opacity-50"
               >
@@ -613,14 +616,17 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onUpdateProfile }) => {
       </div>
 
       <GoogleLogin3DModal
-        isOpen={show3DGoogleModal}
-        onClose={() => {
-          if (!loading) {
-            setShow3DGoogleModal(false);
-          }
-        }}
-        onGoogleLogin={handleGoogleSignIn}
-      />
-    </div>
-  );
-};
+  isOpen={show3DGoogleModal}
+  loading={loading}
+  error={errorMsg}
+  onClose={() => {
+    if (!loading) {
+      setShow3DGoogleModal(false);
+      clearAlerts();
+    }
+  }}
+  onGoogleLogin={() => {
+    clearAlerts();
+    handleGoogleSignIn();
+  }}
+/>
