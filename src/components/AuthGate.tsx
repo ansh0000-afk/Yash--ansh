@@ -3,7 +3,7 @@ import { UserProfile } from '../types';
 import {
   auth,
   googleProvider,
-  signInWithRedirect,
+  signInWithPopup,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 
 interface AuthGateProps {
-  onUpdateProfile: (updated: UserProfile) => void;
+  onUpdateProfile: (updatedProfile: UserProfile) => void;
 }
 
 type GateTab = 'signin' | 'signup' | 'forgot';
@@ -53,18 +53,42 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onUpdateProfile }) => {
   const validateEmail = (val: string): boolean =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
 
+  // Google Sign In
   const handleGoogleSignIn = async () => {
     clearAlerts();
     setLoading(true);
 
     try {
-      await signInWithRedirect(auth, googleProvider);
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
 
-      // Page navigates away here; App.tsx's onAuthStateChanged
-      // picks up the result on return.
+      const updatedProfile: UserProfile = {
+        id: user.uid,
+        name:
+          user.displayName ||
+          user.email?.split('@')[0] ||
+          'Alpha AI User',
+        email: user.email || '',
+        avatar:
+          user.photoURL ||
+          `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`,
+        provider: 'google',
+        isLoggedIn: true,
+        emailVerified: user.emailVerified,
+        joinedAt:
+          user.metadata.creationTime ||
+          new Date().toISOString()
+      };
+
+      setShow3DGoogleModal(false);
+      onUpdateProfile(updatedProfile);
     } catch (err: any) {
       console.error('Google Auth Error:', err);
-      setErrorMsg(getFriendlyAuthErrorMessage(err.code, err.message));
+
+      // Keep the main login page stable.
+      // Do not show technical Firebase errors to the user.
+      setShow3DGoogleModal(false);
+    } finally {
       setLoading(false);
     }
   };
@@ -105,7 +129,8 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onUpdateProfile }) => {
         isLoggedIn: true,
         emailVerified: user.emailVerified,
         joinedAt:
-          user.metadata.creationTime || new Date().toISOString()
+          user.metadata.creationTime ||
+          new Date().toISOString()
       };
 
       onUpdateProfile(updatedProfile);
@@ -152,7 +177,8 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onUpdateProfile }) => {
 
       const user = result.user;
 
-      const defaultAvatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`;
+      const defaultAvatar =
+        `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`;
 
       const updatedProfile: UserProfile = {
         id: user.uid,
@@ -322,7 +348,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onUpdateProfile }) => {
 
                   <path
                     fill="#FBBC05"
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63.8.63 2.85 2.22z"
                   />
 
                   <path
@@ -544,7 +570,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onUpdateProfile }) => {
                 </p>
 
                 <form
-                  onSubmit={handlePasswordReset}
+                           onSubmit={handlePasswordReset}
                   className="space-y-3.5"
                 >
                   <div className="relative">
@@ -557,7 +583,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onUpdateProfile }) => {
                       onChange={(e) => setResetEmail(e.target.value)}
                       placeholder="you@example.com"
                       className="w-full bg-slate-800/90 border border-slate-700/80 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500"
-                     />
+                    />
                   </div>
 
                   <button
@@ -582,11 +608,12 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onUpdateProfile }) => {
 
       <GoogleLogin3DModal
         isOpen={show3DGoogleModal}
-        onClose={() => setShow3DGoogleModal(false)}
-        onGoogleLogin={() => {
-          setShow3DGoogleModal(false);
-          handleGoogleSignIn();
+        onClose={() => {
+          if (!loading) {
+            setShow3DGoogleModal(false);
+          }
         }}
+        onGoogleLogin={handleGoogleSignIn}
       />
     </div>
   );
