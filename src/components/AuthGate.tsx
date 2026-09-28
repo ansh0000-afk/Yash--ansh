@@ -54,48 +54,50 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onUpdateProfile }) => {
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
 
   // Google Sign In
-  const handleGoogleSignIn = async () => {
-    clearAlerts();
-    setLoading(true);
+ const handleGoogleSignIn = async () => {
+  clearAlerts();
+  setLoading(true);
 
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const user = result.user;
 
-      const updatedProfile: UserProfile = {
-        id: user.uid,
-        name:
-          user.displayName ||
-          user.email?.split('@')[0] ||
-          'Alpha AI User',
-        email: user.email || '',
-        avatar:
-          user.photoURL ||
-          `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`,
-        provider: 'google',
-        isLoggedIn: true,
-        emailVerified: user.emailVerified,
-        joinedAt:
-          user.metadata.creationTime ||
-          new Date().toISOString()
-      };
+    const updatedProfile: UserProfile = {
+      id: user.uid,
+      name:
+        user.displayName ||
+        user.email?.split('@')[0] ||
+        'Alpha AI User',
+      email: user.email || '',
+      avatar:
+        user.photoURL ||
+        `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`,
+      provider: 'google',
+      isLoggedIn: true,
+      emailVerified: user.emailVerified,
+      joinedAt:
+        user.metadata.creationTime ||
+        new Date().toISOString()
+    };
 
-      setShow3DGoogleModal(false);
-      onUpdateProfile(updatedProfile);
-        } catch (err: any) {
-      console.error('Google Auth Error:', err);
+    // REAL Firebase login successful
+    setShow3DGoogleModal(false);
 
-      setErrorMsg(
-        getFriendlyAuthErrorMessage(
-          err?.code || 'auth/unknown-error'
-        )
-      );
+    // Save authenticated profile
+    onUpdateProfile(updatedProfile);
+  } catch (err: any) {
+    console.error('Google Auth Error:', err);
 
-      setShow3DGoogleModal(false);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const friendlyMessage = getFriendlyAuthErrorMessage(
+      err?.code || 'auth/unknown-error'
+    );
+
+    // Keep 3D modal open when login fails
+    setErrorMsg(friendlyMessage);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
