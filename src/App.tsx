@@ -279,33 +279,49 @@ const [sessions, setSessions] = useState<ChatSession[]>(() => {
     localStorage.setItem('agent_active_persona_id', activePersona.id);
   }, [activePersona]);
 
-  // Firebase Auth Listener - Fixed to prevent looping re-renders
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        setUserProfile(prev => {
-          // Prevent unnecessary state updates if user data is already synced
-          if (prev.id === firebaseUser.uid && prev.isLoggedIn) return prev;
-          
-          const providerId = firebaseUser.providerData[0]?.providerId || 'email';
-          const providerType = providerId.includes('google') ? 'google' : 'email';
-          const updated: UserProfile = {
-            ...prev,
-            id: firebaseUser.uid,
-            name: firebaseUser.displayName || prev.name || firebaseUser.email?.split('@')[0] || 'Alpha User',
-            email: firebaseUser.email || prev.email || '',
-            avatar: firebaseUser.photoURL || prev.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${firebaseUser.uid}`,
-            provider: providerType,
-            isLoggedIn: true,
-            emailVerified: firebaseUser.emailVerified
-          };
-          memoryManager.saveProfile(updated);
-          return updated;
-        });
-      }
-    });
-    return () => unsubscribe();
-  }, []);
+  // Firebase Auth Listener
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    if (firebaseUser) {
+      const providerId =
+        firebaseUser.providerData[0]?.providerId || 'email';
+
+      const providerType =
+        providerId.includes('google') ? 'google' : 'email';
+
+      const updatedProfile: UserProfile = {
+        id: firebaseUser.uid,
+        name:
+          firebaseUser.displayName ||
+          firebaseUser.email?.split('@')[0] ||
+          'Alpha User',
+        email: firebaseUser.email || '',
+        avatar:
+          firebaseUser.photoURL ||
+          `https://api.dicebear.com/7.x/bottts/svg?seed=${firebaseUser.uid}`,
+        provider: providerType,
+        isLoggedIn: true,
+        emailVerified: firebaseUser.emailVerified,
+        joinedAt:
+          firebaseUser.metadata.creationTime ||
+          new Date().toISOString()
+      };
+
+      memoryManager.saveProfile(updatedProfile);
+      setUserProfile(updatedProfile);
+    } else {
+      // Firebase says there is no logged-in user.
+      // Keep the app in logged-out state.
+      setUserProfile(prev => ({
+        ...prev,
+        isLoggedIn: false,
+        provider: 'guest'
+      }));
+    }
+  });
+
+  return () => unsubscribe();
+}, []);
 
   useEffect(() => {
     localStorage.setItem('agent_settings', JSON.stringify(settings));
