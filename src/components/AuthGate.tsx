@@ -82,11 +82,15 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onUpdateProfile }) => {
 
       setShow3DGoogleModal(false);
       onUpdateProfile(updatedProfile);
-    } catch (err: any) {
+        } catch (err: any) {
       console.error('Google Auth Error:', err);
 
-      // Keep the main login page stable.
-      // Do not show technical Firebase errors to the user.
+      setErrorMsg(
+        getFriendlyAuthErrorMessage(
+          err?.code || 'auth/unknown-error'
+        )
+      );
+
       setShow3DGoogleModal(false);
     } finally {
       setLoading(false);
