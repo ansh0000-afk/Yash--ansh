@@ -615,23 +615,21 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onUpdateProfile }) => {
         </div>
       </div>
 
-      <GoogleLogin3DModal
-  isOpen={show3DGoogleModal}
-  loading={loading}
-  error={errorMsg}
-  onClose={() => {
-    if (!loading) {
-      setShow3DGoogleModal(false);
-      clearAlerts();
-    }
-  }}
-    onGoogleLogin={() => {
-    clearAlerts();
-    handleGoogleSignIn();
-  }}
-/>
-
-      </div>
+       <GoogleLogin3DModal
+        isOpen={show3DGoogleModal}
+        loading={loading}
+        error={errorMsg}
+        onClose={() => {
+          if (!loading) {
+            setShow3DGoogleModal(false);
+            clearAlerts();
+          }
+        }}
+        onGoogleLogin={() => {
+          clearAlerts();
+          handleGoogleSignIn();
+        }}
+      />
     </div>
   );
 };
