@@ -206,20 +206,32 @@ export class MemoryManager {
   }
 
   public static getProfile(): UserProfile {
-    try {
-      const data = localStorage.getItem(PROFILE_STORAGE_KEY);
-      if (data) return JSON.parse(data);
-    } catch (e) {}
-    return {
-      id: 'usr-default',
-      name: 'Anshu',
-      email: 'anshu@anshu.ai',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-      preferredLanguage: 'Hinglish',
-      provider: 'guest',
-      isLoggedIn: true,
-      joinedAt: new Date().toISOString()
-    };
+  try {
+    const data = localStorage.getItem(PROFILE_STORAGE_KEY);
+
+    if (data) {
+      const profile = JSON.parse(data);
+
+      return {
+        ...profile,
+        isLoggedIn: Boolean(profile.isLoggedIn)
+      };
+    }
+  } catch (e) {
+    console.error('Failed to load user profile', e);
+  }
+
+  return {
+    id: 'usr-default',
+    name: 'Anshu',
+    email: '',
+    avatar:
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    preferredLanguage: 'Hinglish',
+    provider: 'guest',
+    isLoggedIn: false,
+    joinedAt: new Date().toISOString()
+  };
   }
 
   public static saveProfile(profile: UserProfile): void {
