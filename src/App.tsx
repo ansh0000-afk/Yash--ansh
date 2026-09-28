@@ -768,8 +768,9 @@ useEffect(() => {
               onAddCalendarEvent={(evt) => {
                 setCalendarEvents(prev => [...prev, { ...evt, id: `cal-${Date.now()}`, createdAt: new Date().toISOString() }]);
               }}
-              onOpenAuth={() => setIsAuthOpen(true)}
-            />
+                onOpenAuth={() => setIsAuthOpen(true)}
+  onGoogleSignIn={() => setIsAuthOpen(true)}
+/>
           )}
 
           {currentView === 'commerce' && (
