@@ -307,7 +307,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
   return (
     <div className="flex-1 flex flex-col h-screen bg-slate-950 text-slate-100 overflow-hidden relative">
       {/* Top Header */}
-      <div className="h-16 border-b border-slate-800 bg-slate-900/90 px-4 md:px-6 flex items-center justify-between shrink-0 backdrop-blur-md z-10">
+      <div className="h-14 border-b border-slate-800 bg-slate-950/95 px-2.5 sm:px-4 flex items-center justify-between shrink-0 backdrop-blur-md z-10">
         <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={onOpenMobileMenu}
@@ -319,11 +319,10 @@ export const ChatView: React.FC<ChatViewProps> = ({
           <img 
             src={activePersona.avatar} 
             alt={activePersona.name} 
-            className="w-9 h-9 rounded-full object-cover ring-2 ring-indigo-500/50 shrink-0"
-          />
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover ring-2 ring-indigo-500/50 shrink-0"
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className="font-extrabold text-sm text-white tracking-tight truncate">
+              <h2 className="font-extrabold text-[13px] sm:text-sm text-white tracking-tight truncate max-w-[140px] sm:max-w-none">
                 {activeSession?.title || activePersona.name}
               </h2>
               <button
@@ -365,15 +364,17 @@ export const ChatView: React.FC<ChatViewProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* Model Selector Pill */}
-          <ModelSelector settings={settings} onUpdateSettings={onUpdateSettings} compact />
+          <div className="hidden sm:block">
+  <ModelSelector settings={settings} onUpdateSettings={onUpdateSettings} compact />
+</div>
 
           {/* Live Voice button */}
           {onOpenVoiceModal && (
             <button
               onClick={onOpenVoiceModal}
-              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl border border-blue-500/40 bg-blue-600/20 text-blue-300 font-semibold hover:bg-blue-600/30 transition-all shadow-xs"
+              className="flex items-center gap-1.5 text-xs px-2 sm:px-3 py-1.5 rounded-xl border border-blue-500/40 bg-blue-600/20 text-blue-300 font-semibold hover:bg-blue-600/30 transition-all shadow-xs"
               title="Start Real-time Live Voice Conversation"
             >
               <Mic className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
