@@ -96,8 +96,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   ];
 
   return (
-    <div className="flex-1 overflow-y-auto bg-slate-950 p-4 sm:p-6 lg:p-8 space-y-6 text-slate-100 select-none no-scrollbar">
-
+    <div className="flex-1 min-w-0 overflow-y-auto bg-slate-950 px-3 py-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 text-slate-100 select-none no-scrollbar">
       {/* Google Sign-in Quick Access Banner (App khulte hi dashboard par dikhega) */}
       <div className="bg-gradient-to-r from-blue-900/40 via-indigo-900/40 to-purple-900/40 border border-blue-500/30 rounded-2xl p-4 shadow-lg relative overflow-hidden">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
