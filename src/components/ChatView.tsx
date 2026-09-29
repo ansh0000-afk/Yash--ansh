@@ -38,6 +38,7 @@ import {
   Square,
   FileCode,
   Menu,
+  MoreVertical,
   Camera,
   FileCheck,
   Download,
@@ -320,9 +321,12 @@ export const ChatView: React.FC<ChatViewProps> = ({
             src={activePersona.avatar} 
             alt={activePersona.name} 
             className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover ring-2 ring-indigo-500/50 shrink-0"
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <h2 className="font-extrabold text-[13px] sm:text-sm text-white tracking-tight truncate max-w-[140px] sm:max-w-none">
+          <div className="flex items-center gap-2">
+  <h2 className="font-extrabold text-[13px] sm:text-sm text-white tracking-tight truncate max-w-[140px] sm:max-w-none">
+    {activeSession?.title || activePersona.name}
+  </h2>
+</div>
+          
                 {activeSession?.title || activePersona.name}
               </h2>
               <button
@@ -408,9 +412,17 @@ export const ChatView: React.FC<ChatViewProps> = ({
               }`}
               title="Chat Options & Management"
             >
-              <SlidersHorizontal className="w-3.5 h-3.5 text-indigo-400" />
-              <span className="font-medium">Options</span>
-              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isOptionsOpen ? 'rotate-180' : ''}`} />
+              <MoreVertical className="w-5 h-5 sm:hidden" />
+
+<SlidersHorizontal className="hidden sm:block w-3.5 h-3.5 text-indigo-400" />
+
+<span className="hidden sm:inline font-medium">Options</span>
+
+<ChevronDown
+  className={`hidden sm:block w-3.5 h-3.5 transition-transform duration-200 ${
+    isOptionsOpen ? 'rotate-180' : ''
+  }`}
+/>
             </button>
 
             {isOptionsOpen && (
