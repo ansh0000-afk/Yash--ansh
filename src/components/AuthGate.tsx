@@ -86,11 +86,15 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onUpdateProfile }) => {
     // Save authenticated profile
     onUpdateProfile(updatedProfile);
   } catch (err: any) {
-    console.error('Google Auth Error:', err);
+    const code = err?.code || 'auth/unknown-error';
+const message = err?.message || 'No Firebase error message returned';
 
-    const friendlyMessage = getFriendlyAuthErrorMessage(
-      err?.code || 'auth/unknown-error'
-    );
+console.error('[Google Sign-In] Firebase error:', {
+  code,
+  message,
+});
+
+setErrorMsg(`${code}: ${message}`);
 
     // Keep 3D modal open when login fails
     setErrorMsg(friendlyMessage);
