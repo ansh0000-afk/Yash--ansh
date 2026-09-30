@@ -317,16 +317,15 @@ export const ChatView: React.FC<ChatViewProps> = ({
             <Menu className="w-5 h-5" />
           </button>
 
-          <img 
-            src={activePersona.avatar} 
-            alt={activePersona.name} 
+                    <img
+            src={activePersona.avatar}
+            alt={activePersona.name}
             className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover ring-2 ring-indigo-500/50 shrink-0"
-          <div className="flex items-center gap-2">
-  <h2 className="font-extrabold text-[13px] sm:text-sm text-white tracking-tight truncate max-w-[140px] sm:max-w-none">
-    {activeSession?.title || activePersona.name}
-  </h2>
-</div>
-          
+          />
+
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-center gap-2">
+              <h2 className="font-extrabold text-[13px] sm:text-sm text-white tracking-tight truncate max-w-[140px] sm:max-w-none">
                 {activeSession?.title || activePersona.name}
               </h2>
               <button
