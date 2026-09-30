@@ -28,7 +28,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
   ];
 
   return (
-    <div className="fixed bottom-3 left-1/2 -translate-x-1/2 z-40 w-[92%] max-w-md md:hidden pointer-events-auto select-none">
+    <div className="fixed bottom-3 left-1/2 -translate-x-1/2 z-40 w-[96%] max-w-lg md:hidden pointer-events-auto select-none">
       {/* Glassmorphic Container */}
       <nav className="bg-slate-900/90 backdrop-blur-2xl border border-white/10 rounded-3xl p-1.5 shadow-2xl flex items-center justify-around relative overflow-hidden">
         {navItems.map((item) => {
@@ -39,7 +39,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
             <button
               key={item.id}
               onClick={() => onSelectView(item.id)}
-              className={`relative flex flex-col items-center justify-center py-2 px-3 rounded-2xl transition-all duration-200 flex-1 ${
+              className={`relative flex flex-col items-center justify-center py-2 px-1.5 sm:px-3 rounded-2xl transition-all duration-200 flex-1 ${
                 isActive ? 'text-white' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
