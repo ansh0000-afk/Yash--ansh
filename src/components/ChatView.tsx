@@ -306,7 +306,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col h-screen bg-slate-950 text-slate-100 overflow-hidden relative">
+    <div className="flex-1 flex flex-col h-full min-h-0 bg-slate-950 text-slate-100 overflow-hidden relative">
       {/* Top Header */}
       <div className="h-14 border-b border-slate-800 bg-slate-950/95 px-2.5 sm:px-4 flex items-center justify-between shrink-0 backdrop-blur-md z-10">
         <div className="flex items-center gap-3 min-w-0">
@@ -361,7 +361,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
                 </span>
               )}
             </div>
-            <p className="text-[10px] text-slate-400 font-medium truncate">
+            <p className="hidden sm:block text-[10px] text-slate-400 font-medium truncate">
               Created {formatDateTime(activeSession?.createdAt || '')} • Updated {formatDateTime(activeSession?.updatedAt || '')}
             </p>
           </div>
@@ -620,7 +620,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
 
           <button
             onClick={() => setIsDeleteModalOpen(true)}
-            className="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors"
+            className="hidden sm:inline-flex p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors"
             title="Delete Current Chat"
           >
             <Trash2 className="w-4 h-4" />
@@ -629,7 +629,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+      <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 md:p-6 space-y-4 md:space-y-6">
         {messages.length === 0 ? (
           <div className="max-w-2xl mx-auto my-8 text-center space-y-6">
             <div className="inline-flex p-4 rounded-3xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 shadow-2xl">
@@ -969,7 +969,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
       </div>
 
       {/* Bottom Input Area */}
-      <div className="p-3 md:p-4 bg-slate-900/90 border-t border-slate-800 shrink-0 backdrop-blur-md">
+      <div className="p-2 sm:p-3 md:p-4 bg-slate-900/90 border-t border-slate-800 shrink-0 backdrop-blur-md">
         <div className="max-w-4xl mx-auto space-y-2">
           {/* Attachment Previews */}
           <div className="flex items-center gap-2 overflow-x-auto">
@@ -1020,7 +1020,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
                     : `Ask ${activePersona.name} anything... (Class 12 studies, coding, websites, YouTube, PDFs)`
                 }
                 rows={2}
-                className="w-full bg-transparent text-white text-xs md:text-sm resize-none focus:outline-none px-2 py-1 placeholder-slate-500"
+                className="w-full bg-transparent text-white text-sm resize-none focus:outline-none px-2 py-1 placeholder-slate-500"
               />
 
               <div className="flex items-center justify-between pt-1 border-t border-slate-800 px-1">
