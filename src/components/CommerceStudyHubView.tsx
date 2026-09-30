@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  CLASS_12_COMMERCE_SUBJECTS, 
-  DEFAULT_COMMERCE_TIMETABLE, 
-  SubjectContent, 
-  CommerceTimetableSlot 
+import {
+  CLASS_12_MAHARASHTRA_COMMERCE_SUBJECTS,
+  MAHARASHTRA_HSC_BOARD_INFO,
+  HSCCommerceSubject,
+} from '../data/maharashtraHSCCommerce';
+import {
+  DEFAULT_COMMERCE_TIMETABLE,
+  CommerceTimetableSlot,
 } from '../data/commerceData';
 import { 
   BookOpen, 
@@ -130,8 +133,10 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
   };
 
   // Selected subject object
-  const selectedSubject = CLASS_12_COMMERCE_SUBJECTS.find(s => s.id === selectedSubjectId) || CLASS_12_COMMERCE_SUBJECTS[0];
-  const activeMcqSubject = CLASS_12_COMMERCE_SUBJECTS.find(s => s.id === activeMcqSubjectId) || CLASS_12_COMMERCE_SUBJECTS[0];
+  const selectedSubject = CLASS_12_MAHARASHTRA_COMMERCE_SUBJECTS.find(
+  s => s.id === selectedSubjectId) || CLASS_12_MAHARASHTRA_COMMERCE_SUBJECTS[0];
+  const activeMcqSubject = CLASS_12_MAHARASHTRA_COMMERCE_SUBJECTS.find(
+  s => s.id === activeMcqSubjectId) || CLASS_12_MAHARASHTRA_COMMERCE_SUBJECTS[0];
 
   const handleCopy = (id: string, text: string) => {
     navigator.clipboard.writeText(text);
@@ -269,7 +274,7 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
       {(activeTab === 'subjects' || activeTab === 'question_bank' || activeTab === 'mcq_quiz' || activeTab === 'sample_papers') && (
         <div className="px-4 py-2 bg-slate-950 border-b border-slate-800/80 flex items-center gap-2 overflow-x-auto shrink-0 no-scrollbar">
           <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider mr-1">Subject:</span>
-          {CLASS_12_COMMERCE_SUBJECTS.map((subj) => {
+          {CLASS_12_MAHARASHTRA_COMMERCE_SUBJECTS.map((subj) => {
             const Icon = getSubjectIcon(subj.iconName);
             const isSelected = (activeTab === 'mcq_quiz' ? activeMcqSubjectId : selectedSubjectId) === subj.id;
             return (
@@ -785,7 +790,7 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
 
             {/* Subject Breakdown Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {CLASS_12_COMMERCE_SUBJECTS.map((subj, sIdx) => {
+              {CLASS_12_MAHARASHTRA_COMMERCE_SUBJECTS.map((subj, sIdx) => {
                 const percentages = [92, 85, 90, 88, 82, 95, 84, 89];
                 const pct = percentages[sIdx % percentages.length];
                 const Icon = getSubjectIcon(subj.iconName);
