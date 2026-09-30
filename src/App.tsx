@@ -750,7 +750,7 @@ useEffect(() => {
           onOpenOnboarding={() => setIsOnboardingOpen(true)}
         />
 
-        <main className="flex-1 flex flex-col min-w-0 overflow-hidden pb-16 md:pb-0">
+        <main className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden pb-20 md:pb-0">
           {currentView === 'dashboard' && (
             <DashboardView
               userProfile={userProfile}
