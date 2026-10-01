@@ -79,6 +79,8 @@ export function getFriendlyAuthErrorMessage(errorCode: string, defaultMessage?: 
       return 'Google sign-in popup was closed before completing.';
     case 'auth/popup-blocked':
       return 'Sign-in popup was blocked by browser settings. Please allow popups for this site.';
+    case 'auth/unauthorized-domain':
+      return 'This domain is not authorized for Firebase sign-in. Add this site hostname in Firebase Console under Authentication > Settings > Authorized domains.';
     case 'auth/network-request-failed':
       return 'Network connection error. Please check your internet connection.';
     case 'auth/too-many-requests':

@@ -41,7 +41,8 @@ interface DashboardViewProps {
   onQuickStartChat: (prompt: string) => void;
   onAddTask: (newTask: Omit<Task, 'id' | 'createdAt'>) => void;
   onAddCalendarEvent: (event: Omit<CalendarEvent, 'id' | 'createdAt'>) => void;
-  onGoogleSignIn: () => void; // <-- Google Sign-In handler prop add kiya hai
+  onGoogleSignIn: () => void;
+  onOpenAuth?: () => void;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({

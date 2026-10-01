@@ -14,7 +14,8 @@ interface SettingsModalProps {
   onUpdateProfile: (updated: UserProfile) => void;
   onResetData: () => void;
   onOpenPinModal?: (mode: 'setup-pin' | 'change-pin' | 'test-biometric') => void;
-  onOpenLegalPage?: (type: 'terms' | 'privacy') => void; // <-- Ye wali line andar honi chahiye (jo ki line 17 par hai)
+  onOpenLegalPage?: (type: 'terms' | 'privacy') => void;
+  onOpenAuth?: () => void;
   onToggleLockSession?: (sessionId: string) => void;
 }
 
@@ -26,8 +27,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onUpdateProfile,
   onResetData,
   onOpenPinModal,
-onToggleLockSession,
-onOpenLegalPage
+  onToggleLockSession,
+  onOpenLegalPage,
+  onOpenAuth,
 }) => {
   const [activeTab, setActiveTab] = useState<'general' | 'applock' | 'memory' | 'voice' | 'ai' | 'security' | 'account'>('general');
   const [userInstructions, setUserInstructions] = useState(settings.userCustomInstructions || '');

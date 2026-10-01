@@ -15,7 +15,22 @@ In Vercel: Project → Settings → Environment Variables, add:
 
 Then redeploy.
 
-## 3. Test the backend
+## 3. Enable Firebase sign-in on Vercel
+
+After the first Vercel deployment, copy its hostname (for example,
+`your-project.vercel.app`). In Firebase Console, open the `alpha-ai-881d8`
+project and go to **Authentication → Settings → Authorized domains**. Select
+**Add domain** and enter the hostname without `https://` or a path. Repeat for
+each production/custom domain used to open the app. For preview deployments,
+add each preview hostname that needs sign-in; preview hostnames may change.
+
+Also confirm **Authentication → Sign-in method → Google** is enabled. Keep
+`authDomain` set to `alpha-ai-881d8.firebaseapp.com` in
+`firebase-applet-config.json`; it is Firebase's auth handler domain, not the
+Vercel site hostname. No code/config change is required to authorize a Vercel
+hostname.
+
+## 4. Test the backend
 
 Open:
 

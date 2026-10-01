@@ -10,14 +10,20 @@ export interface HSCNote {
   title: string;
   content: string;
   chapterId?: string;
+  chapter: string;
+  summary: string;
+  keyPoints: string[];
+  importantFormulaeOrTerms?: string[];
 }
 
 export interface HSCQuestion {
   id: string;
   question: string;
-  answer?: string;
-  marks?: number;
+  answer: string;
+  marks: number;
   chapterId?: string;
+  chapter: string;
+  type: 'short' | 'long' | 'numerical';
 }
 
 export interface HSCMCQ {
@@ -25,16 +31,24 @@ export interface HSCMCQ {
   question: string;
   options: string[];
   correctAnswer: number;
+  correctAnswerIndex: number;
   explanation?: string;
   chapterId?: string;
+  chapter: string;
 }
 
 export interface HSCSamplePaper {
   id: string;
   title: string;
   description?: string;
-  duration?: string;
-  totalMarks?: number;
+  duration: string;
+  totalMarks: number;
+  year: number;
+  sections: Array<{
+    sectionName: string;
+    instructions: string;
+  }>;
+  solutions: string;
 }
 
 export interface HSCPYQ {
@@ -42,7 +56,9 @@ export interface HSCPYQ {
   year: number;
   title: string;
   description?: string;
-  totalMarks?: number;
+  totalMarks: number;
+  board: string;
+  solutionsSummary: string;
 }
 
 export interface HSCCommerceSubject {
