@@ -3,8 +3,7 @@ import { UserProfile } from '../types';
 import { GoogleLogin3DModal } from './GoogleLogin3DModal';
 import { 
   auth, 
-  googleProvider, 
-  signInWithPopup, 
+  signInWithGoogle,
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   sendPasswordResetEmail, 
@@ -103,7 +102,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     clearAlerts();
     setLoading(true);
     try {
-      const result = await signInWithPopup(auth, googleProvider);
+      const result = await signInWithGoogle();
+      if (!result) return;
       const user = result.user;
 
       const updatedProfile: UserProfile = {

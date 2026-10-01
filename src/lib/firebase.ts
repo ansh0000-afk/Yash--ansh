@@ -1,4 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
+import { Capacitor } from '@capacitor/core';
 import {
   getAuth,
   GoogleAuthProvider,
@@ -33,6 +34,16 @@ export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({
   prompt: 'select_account'
 });
+
+/** Use redirect auth in Capacitor WebViews, where browser popups are blocked. */
+export async function signInWithGoogle() {
+  if (Capacitor.isNativePlatform()) {
+    await signInWithRedirect(auth, googleProvider);
+    return null;
+  }
+
+  return signInWithPopup(auth, googleProvider);
+}
 
 export type { FirebaseUser };
 

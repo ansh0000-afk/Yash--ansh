@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { UserProfile } from '../types';
 import {
   auth,
-  googleProvider,
-  signInWithPopup,
+  signInWithGoogle,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
@@ -59,7 +58,8 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onUpdateProfile }) => {
   setLoading(true);
 
   try {
-    const result = await signInWithPopup(auth, googleProvider);
+    const result = await signInWithGoogle();
+    if (!result) return;
     const user = result.user;
 
     const updatedProfile: UserProfile = {
@@ -87,14 +87,13 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onUpdateProfile }) => {
     onUpdateProfile(updatedProfile);
   } catch (err: any) {
     const code = err?.code || 'auth/unknown-error';
-const message = err?.message || 'No Firebase error message returned';
+    const message = err?.message || 'No Firebase error message returned';
+    const friendlyMessage = getFriendlyAuthErrorMessage(code, message);
 
-console.error('[Google Sign-In] Firebase error:', {
-  code,
-  message,
-});
-
-setErrorMsg(`${code}: ${message}`);
+    console.error('[Google Sign-In] Firebase error:', {
+      code,
+      message,
+    });
 
     // Keep 3D modal open when login fails
     setErrorMsg(friendlyMessage);
