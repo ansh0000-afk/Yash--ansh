@@ -35,13 +35,11 @@ import {
   Zap,
   Tag,
   Printer,
-  Flame,
   Target,
   FileCheck,
   Share2,
   TrendingDown,
   Layers,
-  ListTodo
 } from 'lucide-react';
 
 interface CommerceStudyHubViewProps {
@@ -59,6 +57,14 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [noteTypeFilter, setNoteTypeFilter] = useState<'all' | 'chapter' | 'short' | 'formula'>('all');
   const [qbTypeFilter, setQbTypeFilter] = useState<'all' | 'short' | 'long' | 'numerical'>('all');
+
+  const [completedChapterIds, setCompletedChapterIds] = useState<Record<string, string[]>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('mh_hsc_completed_chapters') || '{}');
+    } catch {
+      return {};
+    }
+  });
 
   // MCQ Quiz Engine State
   const [activeMcqSubjectId, setActiveMcqSubjectId] = useState<string>('accountancy');
@@ -81,20 +87,6 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
     });
   };
 
-  // Attendance & Goals Tracker State
-  const [attendanceStreak, setAttendanceStreak] = useState<number>(() => {
-    return Number(localStorage.getItem('commerce_streak') || 7);
-  });
-  const [checkedInToday, setCheckedInToday] = useState<boolean>(() => {
-    return localStorage.getItem('commerce_checked_in') === 'true';
-  });
-  const [dailyGoals, setDailyGoals] = useState<{ id: string; text: string; done: boolean }[]>([
-    { id: 'g1', text: 'Solve 5 BK Partnership Final Accounts adjustments', done: true },
-    { id: 'g2', text: 'Revise OCM Henri Fayol 14 Principles & POSDCORB', done: false },
-    { id: 'g3', text: 'Solve 1 Economics National Income calculation problem', done: false },
-    { id: 'g4', text: 'Practice 10 Maharashtra HSC Board Commerce MCQs', done: true }
-  ]);
-
   // Exam Countdown (Target Board Exam Date: Feb 15, 2026)
   const [daysToExam, setDaysToExam] = useState<number>(193);
 
@@ -106,19 +98,29 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
     setDaysToExam(diffDays);
   }, []);
 
-  const handleCheckIn = () => {
-    if (!checkedInToday) {
-      const newStreak = attendanceStreak + 1;
-      setAttendanceStreak(newStreak);
-      setCheckedInToday(true);
-      localStorage.setItem('commerce_streak', String(newStreak));
-      localStorage.setItem('commerce_checked_in', 'true');
-    }
+  const toggleChapterCompletion = (subjectId: string, chapterId: string) => {
+    setCompletedChapterIds((current) => {
+      const subjectCompletedIds = current[subjectId] || [];
+      const updatedSubjectIds = subjectCompletedIds.includes(chapterId)
+        ? subjectCompletedIds.filter((id) => id !== chapterId)
+        : [...subjectCompletedIds, chapterId];
+      const updated = { ...current, [subjectId]: updatedSubjectIds };
+      localStorage.setItem('mh_hsc_completed_chapters', JSON.stringify(updated));
+      return updated;
+    });
   };
 
-  const toggleGoal = (id: string) => {
-    setDailyGoals(prev => prev.map(g => g.id === id ? { ...g, done: !g.done } : g));
-  };
+  const totalChapters = CLASS_12_MAHARASHTRA_COMMERCE_SUBJECTS.reduce(
+    (total, subject) => total + subject.chapters.length,
+    0,
+  );
+  const completedChapters = CLASS_12_MAHARASHTRA_COMMERCE_SUBJECTS.reduce(
+    (total, subject) => total + (completedChapterIds[subject.id]?.length || 0),
+    0,
+  );
+  const overallProgress = totalChapters
+    ? Math.round((completedChapters / totalChapters) * 100)
+    : 0;
 
   // Download / Export Notes as Text File
   const handleDownloadNote = (title: string, content: string) => {
@@ -211,14 +213,6 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
 
         {/* Board Exam Countdown & Streak Widget */}
         <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-          <div className="flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-2xl border border-slate-800 text-xs">
-            <Flame className="w-4 h-4 text-orange-400 animate-bounce" />
-            <div>
-              <span className="text-[10px] text-slate-500 font-bold block leading-none">STUDY STREAK</span>
-              <span className="text-xs font-black text-white">{attendanceStreak} Days</span>
-            </div>
-          </div>
-
           <div className="flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-2xl border border-amber-500/30 text-xs">
             <Clock className="w-4 h-4 text-amber-400" />
             <div>
@@ -269,7 +263,6 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
           );
         })}
       </div>
-
       {/* Subject Chips Navigation */}
       {(activeTab === 'subjects' || activeTab === 'question_bank' || activeTab === 'mcq_quiz' || activeTab === 'sample_papers') && (
         <div className="px-4 py-2 bg-slate-950 border-b border-slate-800/80 flex items-center gap-2 overflow-x-auto shrink-0 no-scrollbar">
@@ -696,127 +689,75 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
         {activeTab === 'progress' && (
           <div className="space-y-6 max-w-4xl mx-auto">
             {/* Board Exam Readiness Banner */}
-            <div className="p-6 rounded-3xl bg-gradient-to-r from-amber-950/80 via-orange-950/60 to-slate-900 border border-amber-500/20 p-6 space-y-4 shadow-2xl">
+              <div className="p-6 rounded-3xl bg-gradient-to-r from-amber-950/80 via-orange-950/60 to-slate-900 border border-amber-500/20 space-y-4 shadow-2xl">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-black text-white">Commerce Board Exam Readiness</h3>
-                  <p className="text-xs text-slate-400">Track syllabus completion, MCQs accuracy, and revision status across all 8 Commerce subjects.</p>
+                    <p className="text-xs text-slate-400">Chapter completion across {CLASS_12_MAHARASHTRA_COMMERCE_SUBJECTS.length} selected subjects.</p>
                 </div>
                 <div className="text-right">
-                  <div className="text-3xl font-black text-amber-400">88%</div>
-                  <div className="text-[10px] font-extrabold text-emerald-400 uppercase">On Track for 95%+ Board Score</div>
+                  <div className="text-3xl font-black text-amber-400">{overallProgress}%</div>
+                  <div className="text-[10px] font-extrabold text-slate-400 uppercase">{completedChapters} / {totalChapters} Chapters</div>
                 </div>
               </div>
 
               {/* Progress Bar */}
               <div className="w-full h-3 bg-slate-950 rounded-full overflow-hidden p-0.5 border border-slate-800">
-                <div className="h-full bg-gradient-to-r from-amber-500 via-orange-500 to-emerald-500 rounded-full w-[88%] shadow-lg" />
+                  <div className="h-full bg-gradient-to-r from-amber-500 via-orange-500 to-emerald-500 rounded-full shadow-lg transition-all" style={{ width: `${overallProgress}%` }} />
               </div>
-            </div>
-
-            {/* Daily Study Goals Checklist & Streak Check-in */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              
-              {/* Streak Check-In Card */}
-              <div className="p-5 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-4 shadow-xl">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Flame className="w-5 h-5 text-orange-400" />
-                    <h4 className="text-sm font-bold text-white">Daily Attendance & Streak</h4>
-                  </div>
-                  <span className="text-xs font-mono text-orange-300 font-bold">{attendanceStreak} Days Active</span>
-                </div>
-
-                <p className="text-xs text-slate-400">Log in daily to mark your attendance and maintain your study streak for board exams.</p>
-
-                <button
-                  onClick={handleCheckIn}
-                  disabled={checkedInToday}
-                  className={`w-full py-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition ${
-                    checkedInToday
-                      ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 cursor-default'
-                      : 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white shadow-lg shadow-amber-600/20'
-                  }`}
-                >
-                  {checkedInToday ? (
-                    <>
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      <span>Attendance Logged For Today!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Flame className="w-4 h-4 text-white" />
-                      <span>Mark Today's Attendance (+1 Day)</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {/* Daily Goals Card */}
-              <div className="p-5 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-3 shadow-xl">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <ListTodo className="w-5 h-5 text-amber-400" />
-                    <h4 className="text-sm font-bold text-white">Today's Commerce Goals</h4>
-                  </div>
-                  <span className="text-xs font-mono text-slate-400">
-                    {dailyGoals.filter(g => g.done).length} / {dailyGoals.length} Done
-                  </span>
-                </div>
-
-                <div className="space-y-2 pt-1">
-                  {dailyGoals.map((goal) => (
-                    <button
-                      key={goal.id}
-                      onClick={() => toggleGoal(goal.id)}
-                      className={`w-full p-2.5 rounded-xl border text-xs text-left flex items-center gap-2.5 transition ${
-                        goal.done
-                          ? 'bg-emerald-950/30 border-emerald-500/30 text-slate-400 line-through'
-                          : 'bg-slate-950 border-slate-800 text-slate-200 hover:border-slate-700'
-                      }`}
-                    >
-                      <div className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 ${
-                        goal.done ? 'bg-emerald-500 border-emerald-400 text-slate-950' : 'border-slate-700'
-                      }`}>
-                        {goal.done && <Check className="w-3 h-3 stroke-[3]" />}
-                      </div>
-                      <span className="leading-tight">{goal.text}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
             </div>
 
             {/* Subject Breakdown Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {CLASS_12_MAHARASHTRA_COMMERCE_SUBJECTS.map((subj, sIdx) => {
-                const percentages = [92, 85, 90, 88, 82, 95, 84, 89];
-                const pct = percentages[sIdx % percentages.length];
+              {CLASS_12_MAHARASHTRA_COMMERCE_SUBJECTS.map((subj) => {
+                const subjectCompletedIds = completedChapterIds[subj.id] || [];
+                const completedCount = subjectCompletedIds.length;
+                const pct = subj.chapters.length
+                  ? Math.round((completedCount / subj.chapters.length) * 100)
+                  : 0;
                 const Icon = getSubjectIcon(subj.iconName);
 
                 return (
-                  <div key={subj.id} className="p-5 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-3 shadow-xl">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="p-2 rounded-xl bg-slate-950 text-amber-400 border border-slate-800">
-                          <Icon className="w-4 h-4" />
+                  <details key={subj.id} className="p-5 rounded-3xl bg-slate-900/80 border border-slate-800 shadow-xl">
+                    <summary className="cursor-pointer list-none space-y-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                          <div className="p-2 rounded-xl bg-slate-950 text-amber-400 border border-slate-800">
+                            <Icon className="w-4 h-4" />
+                          </div>
+                          <h4 className="text-xs font-bold text-white">{subj.name}</h4>
                         </div>
-                        <h4 className="text-xs font-bold text-white">{subj.name}</h4>
+                        <span className="text-xs font-black text-amber-400">{completedCount}/{subj.chapters.length} Chapters</span>
                       </div>
-                      <span className="text-xs font-black text-amber-400">{pct}% Completed</span>
+                      <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+                        <div className="h-full bg-amber-500 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                      </div>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-400 font-semibold pt-1">
+                        <span>{subj.notes.length} Notes</span>
+                        <span>{subj.mcqs.length} MCQs</span>
+                        <span>{subj.questionBank.length} Solved Questions</span>
+                        <span>{subj.samplePapers.length} Practice Papers</span>
+                      </div>
+                    </summary>
+                    <div className="mt-4 pt-3 border-t border-slate-800 space-y-1">
+                      {subj.chapters.map((chapter) => {
+                        const isCompleted = subjectCompletedIds.includes(chapter.id);
+                        return (
+                          <label key={chapter.id} className="flex items-start gap-2.5 p-2 rounded-lg text-xs text-slate-300 hover:bg-slate-800/70 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={isCompleted}
+                              onChange={() => toggleChapterCompletion(subj.id, chapter.id)}
+                              className="mt-0.5 accent-amber-500"
+                            />
+                            <span className={isCompleted ? 'text-slate-500 line-through' : ''}>
+                              {chapter.number}. {chapter.name}
+                            </span>
+                          </label>
+                        );
+                      })}
                     </div>
-
-                    <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
-                      <div className="h-full bg-amber-500 rounded-full" style={{ width: `${pct}%` }} />
-                    </div>
-
-                    <div className="flex items-center justify-between text-[11px] text-slate-400 font-semibold pt-1">
-                      <span>{subj.notes.length} Revision Notes</span>
-                      <span>{subj.mcqs.length} MCQs Solved</span>
-                      <span>{subj.samplePapers.length} Model Tests</span>
-                    </div>
-                  </div>
+                  </details>
                 );
               })}
             </div>

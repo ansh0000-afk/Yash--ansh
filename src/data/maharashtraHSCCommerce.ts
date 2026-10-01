@@ -1,3 +1,5 @@
+import { CLASS_12_COMMERCE_SUBJECTS } from './commerceData';
+
 export interface HSCChapter {
   id: string;
   number: number;
@@ -88,13 +90,42 @@ export const MAHARASHTRA_HSC_BOARD_INFO = {
   examSession: 'HSC February-March 2027',
 };
 
-const createEmptyStudyContent = () => ({
-  notes: [] as HSCNote[],
-  questionBank: [] as HSCQuestion[],
-  mcqs: [] as HSCMCQ[],
-  samplePapers: [] as HSCSamplePaper[],
-  previousYearPapers: [] as HSCPYQ[],
-});
+const createStudyContent = (subjectId: string) => {
+  const legacySubjectId = subjectId === 'secretarial-practice' ? 'sp' : subjectId;
+  const subject = CLASS_12_COMMERCE_SUBJECTS.find(
+    (candidate) => candidate.id === legacySubjectId,
+  );
+
+  if (!subject) {
+    return {
+      notes: [] as HSCNote[],
+      questionBank: [] as HSCQuestion[],
+      mcqs: [] as HSCMCQ[],
+      samplePapers: [] as HSCSamplePaper[],
+      previousYearPapers: [] as HSCPYQ[],
+    };
+  }
+
+  return {
+    notes: subject.notes.map((note) => ({
+      ...note,
+      content: `${note.summary}\n\n${note.keyPoints.join('\n')}`,
+    })),
+    questionBank: subject.questionBank,
+    mcqs: subject.mcqs.map((mcq) => ({
+      ...mcq,
+      correctAnswer: mcq.correctAnswerIndex,
+    })),
+    samplePapers: subject.samplePapers.map((paper) => ({
+      ...paper,
+      year: Number.parseInt(paper.year, 10) || 2026,
+    })),
+    previousYearPapers: subject.previousYearPapers.map((paper) => ({
+      ...paper,
+      year: Number.parseInt(paper.year.replace(/\D/g, ''), 10) || 0,
+    })),
+  };
+};
 
 export const CLASS_12_MAHARASHTRA_COMMERCE_SUBJECTS: HSCCommerceSubject[] = [
   {
@@ -157,7 +188,7 @@ export const CLASS_12_MAHARASHTRA_COMMERCE_SUBJECTS: HSCCommerceSubject[] = [
         name: 'Computer in Accounting',
       },
     ],
-    ...createEmptyStudyContent(),
+    ...createStudyContent('accountancy'),
   },
 
   {
@@ -211,7 +242,7 @@ export const CLASS_12_MAHARASHTRA_COMMERCE_SUBJECTS: HSCCommerceSubject[] = [
         name: 'Marketing',
       },
     ],
-    ...createEmptyStudyContent(),
+    ...createStudyContent('ocm'),
   },
 
   {
@@ -279,7 +310,7 @@ export const CLASS_12_MAHARASHTRA_COMMERCE_SUBJECTS: HSCCommerceSubject[] = [
         name: 'Foreign Trade of India',
       },
     ],
-    ...createEmptyStudyContent(),
+    ...createStudyContent('economics'),
   },
 
   {
@@ -352,7 +383,7 @@ export const CLASS_12_MAHARASHTRA_COMMERCE_SUBJECTS: HSCCommerceSubject[] = [
         name: 'Stock Exchange',
       },
     ],
-    ...createEmptyStudyContent(),
+    ...createStudyContent('secretarial-practice'),
   },
 
   {
@@ -461,7 +492,7 @@ export const CLASS_12_MAHARASHTRA_COMMERCE_SUBJECTS: HSCCommerceSubject[] = [
         part: 'Part II',
       },
     ],
-    ...createEmptyStudyContent(),
+    ...createStudyContent('maths'),
   },
 
   {
@@ -527,7 +558,7 @@ export const CLASS_12_MAHARASHTRA_COMMERCE_SUBJECTS: HSCCommerceSubject[] = [
         name: 'Reading Skill – Textual and Non-textual',
       },
     ],
-    ...createEmptyStudyContent(),
+    ...createStudyContent('english'),
   },
 
   {
@@ -577,7 +608,7 @@ export const CLASS_12_MAHARASHTRA_COMMERCE_SUBJECTS: HSCCommerceSubject[] = [
       { id: 'mar-20', number: 20, name: 'रंग माझा वेगळा (कविता)' },
       { id: 'mar-21', number: 21, name: 'रंगरेषा व्यंगरेषा' },
     ],
-    ...createEmptyStudyContent(),
+    ...createStudyContent('marathi'),
   },
 
   {
@@ -646,7 +677,7 @@ export const CLASS_12_MAHARASHTRA_COMMERCE_SUBJECTS: HSCCommerceSubject[] = [
         name: 'अपठित गद्य/पद्य',
       },
     ],
-    ...createEmptyStudyContent(),
+    ...createStudyContent('hindi'),
   },
 
   {
@@ -690,6 +721,6 @@ export const CLASS_12_MAHARASHTRA_COMMERCE_SUBJECTS: HSCCommerceSubject[] = [
         name: 'Enterprise Resource Planning (ERP)',
       },
     ],
-    ...createEmptyStudyContent(),
+    ...createStudyContent('it'),
   },
 ];
