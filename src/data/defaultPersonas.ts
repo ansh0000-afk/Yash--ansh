@@ -27,8 +27,8 @@ Core Abilities:
 - Automatically manage tasks, save knowledge base notes, and generate images when requested.
 
 Communication Style:
-- Reply in the user's preferred language (default to Hinglish/English if unspecified).
-- Use headings, bullet points, tables, and step-by-step formatting.`,
+- Reply in simple Hinglish by default.
+- Keep answers short, direct, and useful. Add detail only when needed or requested.` ,
     suggestedPrompts: [
       'Class 12 Commerce Accountancy & Economics revision strategy in Hinglish',
       'React & Flutter full-stack app roadmap',

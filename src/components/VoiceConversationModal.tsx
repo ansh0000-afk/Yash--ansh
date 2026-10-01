@@ -87,7 +87,7 @@ export const VoiceConversationModal: React.FC<VoiceConversationModalProps> = ({
         () => {
           setIsListening(false);
         },
-        settings.preferredLanguage === 'hi-IN' ? 'hi-IN' : 'en-US'
+        'hi-IN'
       );
       setIsListening(true);
     }
@@ -106,7 +106,8 @@ export const VoiceConversationModal: React.FC<VoiceConversationModalProps> = ({
         body: JSON.stringify({
           messages: [{ role: 'user', content: speechText }],
           persona: activePersona,
-          settings: { ...settings, aiModel: 'gemini-3.5-flash' }
+          settings: { ...settings, aiModel: 'gemini-3.5-flash' },
+          voiceMode: true
         })
       });
 
@@ -214,7 +215,7 @@ export const VoiceConversationModal: React.FC<VoiceConversationModalProps> = ({
                 ? `${activePersona.name} is speaking...`
                 : 'Click mic button to start voice conversation'}
             </span>
-            <p className="text-[11px] text-zinc-500">Language: {settings.preferredLanguage === 'hi-IN' ? 'Hindi / English' : 'English'}</p>
+            <p className="text-[11px] text-zinc-500">Language: Hindi</p>
           </div>
         </div>
 

@@ -169,6 +169,9 @@ async function chatWithGemini(req: IncomingMessage, data: any) {
   if (Array.isArray(data.userMemory) && data.userMemory.length) {
     system += `\n\nKnown user preferences/facts:\n${data.userMemory.slice(0, 10).map((m: any) => `- ${m.key}: ${m.value}`).join('\n')}`;
   }
+  system += data.voiceMode
+    ? '\n\nCommunication style: Respond in simple, natural spoken Hindi. Keep replies short, direct, and useful. Avoid headings, lists, and long explanations unless the user asks for detail. Use English only for necessary technical terms or proper names.'
+    : '\n\nCommunication style: Reply in simple Hinglish by default. Keep answers short, direct, and useful. Avoid unnecessary long explanations; add detail only when needed or requested.';
 
   const modelRequested = normalizeModel(data.settings?.selectedModel || data.settings?.aiModel);
   const candidates = Array.from(new Set([
