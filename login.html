@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a18">
+  <title>Access portal | Aether</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0a0a18;
+      --surface: rgba(19, 20, 39, .76);
+      --surface-raised: rgba(255, 255, 255, .055);
+      --white: #f7f7ff;
+      --paper: #fff;
+      --black: #000;
+      --muted: #9394ad;
+      --subtle: #666880;
+      --footer-dim: #66677f;
+      --footer-muted: #9091a9;
+      --icon-muted: #777991;
+      --icon-subtle: #86879f;
+      --label-muted: #898aa2;
+      --label-violet: #aaa1d3;
+      --line: rgba(255, 255, 255, .11);
+      --violet: #9b7cff;
+      --violet-bright: #b59dff;
+      --cyan: #68e7f5;
+      --pink: #fa82c7;
+      --green: #6ef0ae;
+      --red: #ff7186;
+      --amber: #ffc978;
+      --deep-cyan: #087f9c;
+      --login-violet: #7657df;
+      --login-lilac: #8d65ec;
+      --login-blue: #438bb9;
+      --success-ink: #10271e;
+      --success-light: #74e9ad;
+      --success-cyan: #78dedb;
+      --white-rgb: 255 255 255;
+      --black-rgb: 0 0 0;
+      --bg-rgb: 10 10 24;
+      --surface-rgb: 19 20 39;
+      --ink-rgb: 8 9 22;
+      --deep-card-rgb: 25 26 47;
+      --deep-violet-rgb: 17 15 37;
+      --bluegrey-rgb: 40 31 72;
+      --violet-rgb: 155 124 255;
+      --cyan-rgb: 104 231 245;
+      --green-rgb: 110 240 174;
+      --red-rgb: 255 113 134;
+      --electric-rgb: 130 108 255;
+      --violet-shadow-rgb: 113 83 219;
+      --green-shadow-rgb: 85 220 165;
+      --shadow: rgba(0, 0, 0, .38);
+      --font: "Inter", sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { min-width: 320px; min-height: 100%; background: var(--bg); }
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--white);
+      background: var(--bg);
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    button:focus-visible, input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+
+    .scene { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+    .scene::before {
+      position: absolute; inset: -40%; content: "";
+      background-image: linear-gradient(rgb(var(--violet-rgb) / .065) 1px, transparent 1px), linear-gradient(90deg, rgb(var(--cyan-rgb) / .055) 1px, transparent 1px);
+      background-size: 58px 58px;
+      mask-image: linear-gradient(to bottom, transparent 2%, var(--black) 35%, var(--black) 75%, transparent 100%);
+      transform: perspective(720px) rotateX(62deg) translateY(32%);
+      transform-origin: center bottom;
+      animation: grid-drift 20s linear infinite;
+    }
+    .scene::after {
+      position: absolute; inset: 0; content: "";
+      background: radial-gradient(ellipse at 50% 44%, transparent 5%, rgb(var(--bg-rgb) / .16) 60%, rgb(var(--bg-rgb) / .72) 100%);
+    }
+    .blob { position: absolute; width: 38vw; aspect-ratio: 1; border-radius: 50%; filter: blur(100px); opacity: .16; animation: blob-float 18s ease-in-out infinite alternate; }
+    .blob-one { top: -19%; left: -12%; background: var(--violet); }
+    .blob-two { right: -17%; bottom: -23%; background: var(--deep-cyan); animation-delay: -7s; }
+    .blob-three { top: 36%; left: 53%; width: 24vw; background: var(--pink); opacity: .09; animation-delay: -11s; }
+    .particle-field { position: absolute; inset: 0; }
+    .particle { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 9px 2px rgb(var(--cyan-rgb) / .42); opacity: 0; animation: particle-rise var(--duration, 8s) var(--delay, 0s) linear infinite; }
+    .spotlight { position: absolute; inset: 0; opacity: .7; background: radial-gradient(420px circle at var(--pointer-x, 50%) var(--pointer-y, 50%), rgb(var(--electric-rgb) / .09), transparent 70%); }
+
+    .layout { position: relative; z-index: 1; display: grid; min-height: 100vh; place-items: center; padding: 44px 20px 30px; }
+    .shell { width: min(100%, 440px); animation: shell-enter .8s cubic-bezier(.2,.75,.2,1) both; }
+    .brand { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 0 auto 25px; }
+    .brand-mark { width: 38px; height: 38px; color: var(--white); filter: drop-shadow(0 0 12px rgb(var(--violet-rgb) / .45)); animation: mark-turn 16s linear infinite; }
+    .brand-name { font-size: 16px; font-weight: 700; letter-spacing: .04em; }
+    .brand-name span { color: var(--muted); font-weight: 500; }
+
+    .card-wrap { position: relative; isolation: isolate; padding: 1px; overflow: hidden; border-radius: 23px; box-shadow: 0 28px 90px var(--shadow); }
+    .card-wrap::before { position: absolute; z-index: -1; inset: -150%; content: ""; background: conic-gradient(from 0deg, transparent 0 27%, var(--violet) 35%, var(--cyan) 46%, transparent 53% 72%, var(--pink) 79%, transparent 87%); animation: border-orbit 9s linear infinite; }
+    .card { min-height: 560px; overflow: hidden; border: 1px solid rgb(var(--white-rgb) / .08); border-radius: 22px; background: var(--surface); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); }
+    .card-head { padding: 27px 34px 0; }
+    .eyebrow { display: flex; align-items: center; gap: 8px; margin: 0 0 16px; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+    .eyebrow::before { width: 18px; height: 1px; content: ""; background: linear-gradient(90deg, var(--violet), var(--cyan)); }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0; padding: 0; list-style: none; }
+    .step { display: flex; align-items: center; gap: 7px; min-width: 0; color: var(--subtle); font-size: 10px; font-weight: 600; transition: color .35s ease; }
+    .step::before { display: grid; flex: 0 0 19px; width: 19px; height: 19px; place-items: center; content: attr(data-number); border: 1px solid var(--line); border-radius: 50%; color: var(--subtle); font-size: 9px; transition: color .35s ease, background .35s ease, border-color .35s ease, box-shadow .35s ease; }
+    .step.is-current { color: var(--white); }
+    .step.is-current::before { border-color: var(--violet); color: var(--white); background: rgb(var(--violet-rgb) / .2); box-shadow: 0 0 13px rgb(var(--violet-rgb) / .35); }
+    .step.is-complete { color: var(--green); }
+    .step.is-complete::before { content: "✓"; border-color: rgb(var(--green-rgb) / .55); color: var(--green); background: rgb(var(--green-rgb) / .1); }
+    .step-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .divider { height: 1px; margin: 23px 0 0; background: linear-gradient(90deg, transparent, var(--line) 15%, var(--line) 85%, transparent); }
+
+    .screen-stage { position: relative; min-height: 470px; }
+    .screen { position: absolute; inset: 0; padding: 28px 34px 31px; opacity: 0; visibility: hidden; transform: translateX(28px) scale(.985); transition: opacity .42s ease, transform .48s cubic-bezier(.2,.75,.2,1), visibility .42s; pointer-events: none; }
+    .screen.is-active { position: relative; opacity: 1; visibility: visible; transform: translateX(0) scale(1); pointer-events: auto; }
+    .screen.is-leaving { transform: translateX(-24px) scale(.99); opacity: 0; }
+    .heading { margin: 0; font-size: clamp(27px, 6vw, 33px); line-height: 1.16; font-weight: 700; letter-spacing: -.035em; }
+    .gradient-text { color: transparent; background: linear-gradient(100deg, var(--violet-bright) 4%, var(--cyan) 53%, var(--pink) 100%); background-clip: text; -webkit-background-clip: text; }
+    .subheading { margin: 10px 0 25px; color: var(--muted); font-size: 12px; line-height: 1.7; }
+    .field { position: relative; margin-top: 15px; }
+    .field-box { position: relative; display: flex; align-items: center; min-height: 55px; border: 1px solid rgb(var(--white-rgb) / .12); border-radius: 11px; background: rgb(var(--ink-rgb) / .48); transition: border-color .22s, box-shadow .22s, background .22s; }
+    .field-box:focus-within { border-color: rgb(var(--violet-rgb) / .8); background: rgb(var(--deep-violet-rgb) / .8); box-shadow: 0 0 0 3px rgb(var(--violet-rgb) / .1), 0 0 24px rgb(var(--violet-rgb) / .1); }
+    .field-box.is-valid { border-color: rgb(var(--green-rgb) / .48); }
+    .field-box.has-error { border-color: rgb(var(--red-rgb) / .78); box-shadow: 0 0 0 3px rgb(var(--red-rgb) / .08); }
+    .field-icon { display: grid; flex: 0 0 47px; place-items: center; color: var(--icon-muted); transition: color .2s; }
+    .field-box:focus-within .field-icon { color: var(--violet-bright); }
+    .field-icon svg { width: 17px; height: 17px; }
+    .field input { width: 100%; min-width: 0; height: 53px; padding: 17px 35px 5px 0; border: 0; outline: 0; color: var(--white); background: transparent; font-size: 12px; }
+    .field input::placeholder { color: transparent; }
+    .field label { position: absolute; top: 19px; left: 47px; color: var(--label-muted); font-size: 12px; pointer-events: none; transform-origin: left center; transition: top .18s, color .18s, font-size .18s; }
+    .field input:focus ~ label, .field input:not(:placeholder-shown) ~ label { top: 8px; color: var(--label-violet); font-size: 9px; }
+    .field-box.has-error input:focus ~ label, .field-box.has-error input:not(:placeholder-shown) ~ label { color: var(--red); }
+    .field-status { position: absolute; right: 12px; display: grid; width: 18px; height: 18px; place-items: center; color: var(--green); opacity: 0; transform: scale(.6); transition: .2s; }
+    .field-box.is-valid .field-status { opacity: 1; transform: scale(1); }
+    .field-status svg { width: 15px; height: 15px; }
+    .field-action { position: absolute; right: 9px; display: grid; width: 30px; height: 32px; place-items: center; border: 0; border-radius: 7px; color: var(--icon-subtle); background: transparent; cursor: pointer; transition: color .2s, background .2s; }
+    .field-action:hover { color: var(--white); background: var(--surface-raised); }
+    .field-action svg { width: 16px; height: 16px; }
+    .field-box:has(.field-action) input { padding-right: 42px; }
+    .field-box:has(.field-action) .field-status { right: 42px; }
+    .field-error { min-height: 0; margin: 0; overflow: hidden; color: var(--red); font-size: 10px; line-height: 1.4; transition: min-height .2s, margin .2s; }
+    .field-error:not(:empty) { min-height: 14px; margin: 6px 2px 0; }
+    .strength { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; height: 3px; margin: 8px 2px 0; }
+    .strength span { border-radius: 4px; background: rgb(var(--white-rgb) / .1); transition: background .25s, box-shadow .25s; }
+    .strength[data-level="1"] span:nth-child(-n+1) { background: var(--red); box-shadow: 0 0 8px rgb(var(--red-rgb) / .3); }
+    .strength[data-level="2"] span:nth-child(-n+2) { background: var(--amber); }
+    .strength[data-level="3"] span:nth-child(-n+3) { background: var(--cyan); }
+    .strength[data-level="4"] span { background: var(--green); box-shadow: 0 0 8px rgb(var(--green-rgb) / .25); }
+    .strength-label { min-height: 12px; margin: 4px 2px 0; color: var(--subtle); font-size: 9px; }
+    .form-options { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 15px 1px 20px; }
+    .remember { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 10px; cursor: pointer; }
+    .remember input { width: 14px; height: 14px; margin: 0; accent-color: var(--violet); }
+    .text-button { padding: 0; border: 0; color: var(--violet-bright); background: transparent; font-size: 10px; cursor: pointer; transition: color .2s; }
+    .text-button:hover { color: var(--cyan); }
+    .primary-button { position: relative; display: flex; width: 100%; min-height: 49px; align-items: center; justify-content: center; gap: 9px; overflow: hidden; border: 1px solid rgb(var(--white-rgb) / .2); border-radius: 10px; color: var(--paper); background: linear-gradient(105deg, var(--login-violet), var(--login-lilac) 48%, var(--login-blue)); box-shadow: 0 8px 26px rgb(var(--violet-shadow-rgb) / .23), inset 0 1px 0 rgb(var(--white-rgb) / .18); font-size: 12px; font-weight: 600; cursor: pointer; transition: transform .2s, box-shadow .2s, filter .2s; }
+    .primary-button::before { position: absolute; inset: 0; content: ""; background: linear-gradient(110deg, transparent 25%, rgb(var(--white-rgb) / .24) 50%, transparent 75%); transform: translateX(-130%); transition: transform .65s ease; }
+    .primary-button:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgb(var(--violet-shadow-rgb) / .34), inset 0 1px 0 rgb(var(--white-rgb) / .2); filter: saturate(1.15); }
+    .primary-button:hover::before { transform: translateX(130%); }
+    .primary-button:active { transform: translateY(0) scale(.99); }
+    .primary-button:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+    .button-arrow { width: 15px; height: 15px; transition: transform .2s; }
+    .primary-button:hover .button-arrow { transform: translateX(3px); }
+    .button-note { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 14px 0 0; color: var(--subtle); font-size: 9px; }
+    .button-note svg { width: 13px; height: 13px; color: var(--cyan); }
+    .ripple { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: rgb(var(--white-rgb) / .35); transform: scale(0); animation: ripple .6s ease-out; pointer-events: none; }
+
+    .otp-destination { display: flex; align-items: center; gap: 9px; margin: 17px 0 22px; padding: 11px 12px; border: 1px solid rgb(var(--white-rgb) / .075); border-radius: 9px; color: var(--muted); background: rgb(var(--white-rgb) / .025); font-size: 10px; line-height: 1.5; }
+    .otp-destination svg { flex: 0 0 17px; width: 17px; height: 17px; color: var(--cyan); }
+    .otp-destination strong { color: var(--white); font-weight: 600; }
+    .otp-inputs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 9px; margin: 0 0 11px; }
+    .otp-digit { width: 100%; min-width: 0; aspect-ratio: .88; border: 1px solid rgb(var(--white-rgb) / .14); border-radius: 10px; outline: none; color: var(--white); background: rgb(var(--ink-rgb) / .52); text-align: center; font-size: 21px; font-weight: 600; caret-color: var(--cyan); transition: border-color .2s, box-shadow .2s, transform .2s, background .2s; }
+    .otp-digit:focus { border-color: var(--violet); background: rgb(var(--bluegrey-rgb) / .52); box-shadow: 0 0 0 3px rgb(var(--violet-rgb) / .11), 0 0 18px rgb(var(--violet-rgb) / .13); transform: translateY(-2px); }
+    .otp-digit.is-filled { border-color: rgb(var(--cyan-rgb) / .52); }
+    .otp-digit.is-correct { border-color: rgb(var(--green-rgb) / .82); color: var(--green); background: rgb(var(--green-rgb) / .09); animation: digit-flip .45s ease both; }
+    .otp-digit.is-wrong { border-color: var(--red); animation: shake .4s ease both; }
+    .otp-error { min-height: 15px; margin: 0 1px 10px; color: var(--red); font-size: 10px; }
+    .otp-error:empty { visibility: hidden; }
+    .otp-submit { margin-top: 4px; }
+    .spinner { display: none; width: 15px; height: 15px; border: 2px solid rgb(var(--white-rgb) / .35); border-top-color: var(--paper); border-radius: 50%; animation: spin .7s linear infinite; }
+    .primary-button.is-loading .spinner { display: block; }
+    .primary-button.is-loading .button-arrow { display: none; }
+    .otp-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 18px; color: var(--muted); font-size: 10px; }
+    .resend { display: inline-flex; align-items: center; gap: 7px; padding: 0; border: 0; color: var(--subtle); background: transparent; font-size: 10px; cursor: pointer; }
+    .resend:disabled { cursor: default; }
+    .resend:not(:disabled) { color: var(--cyan); }
+    .countdown-ring { width: 20px; height: 20px; transform: rotate(-90deg); }
+    .countdown-track, .countdown-progress { fill: none; stroke-width: 2; }
+    .countdown-track { stroke: rgb(var(--white-rgb) / .12); }
+    .countdown-progress { stroke: var(--violet-bright); stroke-dasharray: 44; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; }
+    .demo-code { color: var(--subtle); }
+    .demo-code strong { margin-left: 3px; color: var(--cyan); font-weight: 600; letter-spacing: .1em; }
+    .back-button { display: inline-flex; align-items: center; gap: 6px; margin-top: 17px; padding: 3px 0; border: 0; color: var(--muted); background: transparent; font-size: 10px; cursor: pointer; }
+    .back-button:hover { color: var(--white); }
+    .back-button svg { width: 13px; height: 13px; }
+
+    .success-screen { display: grid; justify-items: center; padding-top: 27px; text-align: center; }
+    .success-visual { position: relative; display: grid; width: 106px; height: 106px; place-items: center; margin: 3px 0 21px; }
+    .success-ring { position: absolute; inset: 2px; border: 1px solid rgb(var(--green-rgb) / .38); border-radius: 50%; animation: success-pulse 2.2s ease-out infinite; }
+    .success-ring:nth-child(2) { inset: -8px; animation-delay: .55s; }
+    .success-ring:nth-child(3) { inset: -18px; border-color: rgb(var(--cyan-rgb) / .2); animation-delay: 1.1s; }
+    .success-icon { width: 76px; height: 76px; overflow: visible; filter: drop-shadow(0 0 20px rgb(var(--green-rgb) / .28)); }
+    .success-icon circle { fill: rgb(var(--green-rgb) / .08); stroke: var(--green); stroke-width: 1.5; stroke-dasharray: 214; stroke-dashoffset: 214; animation: draw-circle .8s .12s cubic-bezier(.2,.75,.2,1) forwards; }
+    .success-icon path { fill: none; stroke: var(--green); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 40; stroke-dashoffset: 40; animation: draw-check .48s .8s ease forwards; }
+    .success-screen .heading { font-size: 30px; }
+    .success-screen .subheading { max-width: 280px; margin: 10px 0 24px; }
+    .success-meta { display: flex; align-items: center; gap: 8px; margin: 0 0 24px; padding: 9px 12px; border: 1px solid rgb(var(--green-rgb) / .18); border-radius: 20px; color: var(--green); background: rgb(var(--green-rgb) / .06); font-size: 9px; }
+    .success-meta span { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .success-progress { width: 100%; height: 3px; margin: 0 0 22px; overflow: hidden; border-radius: 4px; background: rgb(var(--white-rgb) / .1); }
+    .success-progress span { display: block; width: 0; height: 100%; background: linear-gradient(90deg, var(--green), var(--cyan)); box-shadow: 0 0 9px rgb(var(--green-rgb) / .5); }
+    .success-screen.is-active .success-progress span { animation: progress-fill 3s linear forwards; }
+    .success-screen .primary-button { color: var(--success-ink); background: linear-gradient(105deg, var(--success-light), var(--success-cyan)); box-shadow: 0 8px 25px rgb(var(--green-shadow-rgb) / .2), inset 0 1px 0 rgb(var(--white-rgb) / .4); }
+    .success-screen .primary-button::before { background: linear-gradient(110deg, transparent 25%, rgb(var(--white-rgb) / .48) 50%, transparent 75%); }
+    .success-screen .primary-button:hover { box-shadow: 0 12px 32px rgb(var(--green-shadow-rgb) / .3); }
+    .confetti-canvas { position: fixed; inset: 0; z-index: 5; width: 100%; height: 100%; pointer-events: none; }
+    .toast-stack { position: fixed; z-index: 10; top: 18px; right: 18px; display: flex; width: min(360px, calc(100vw - 32px)); flex-direction: column; gap: 9px; pointer-events: none; }
+    .toast { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border: 1px solid rgb(var(--white-rgb) / .12); border-radius: 11px; background: rgb(var(--deep-card-rgb) / .94); box-shadow: 0 12px 35px rgb(var(--black-rgb) / .3); backdrop-filter: blur(18px); animation: toast-in .35s cubic-bezier(.2,.75,.2,1) both; pointer-events: auto; }
+    .toast.is-leaving { animation: toast-out .25s ease forwards; }
+    .toast-icon { display: grid; flex: 0 0 23px; width: 23px; height: 23px; place-items: center; border-radius: 7px; color: var(--cyan); background: rgb(var(--cyan-rgb) / .1); }
+    .toast-icon svg { width: 14px; height: 14px; }
+    .toast-copy { min-width: 0; }
+    .toast-title { margin: 1px 0 3px; font-size: 11px; font-weight: 600; }
+    .toast-message { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.45; overflow-wrap: anywhere; }
+    .shake { animation: shake .42s ease both; }
+    .footer { margin: 18px 0 0; color: var(--footer-dim); text-align: center; font-size: 9px; }
+    .footer span { color: var(--footer-muted); }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+    @keyframes grid-drift { from { background-position: 0 0; } to { background-position: 0 58px; } }
+    @keyframes blob-float { from { transform: translate3d(-2%, -2%, 0) scale(.94); } to { transform: translate3d(5%, 7%, 0) scale(1.08); } }
+    @keyframes particle-rise { 0% { opacity: 0; transform: translate3d(0, 16px, 0) scale(.6); } 16% { opacity: .65; } 75% { opacity: .45; } 100% { opacity: 0; transform: translate3d(var(--drift, 20px), -110px, 0) scale(1); } }
+    @keyframes shell-enter { from { opacity: 0; transform: translateY(16px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes mark-turn { to { transform: rotate(360deg); } }
+    @keyframes border-orbit { to { transform: rotate(360deg); } }
+    @keyframes ripple { to { transform: scale(28); opacity: 0; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+    @keyframes digit-flip { 0% { transform: rotateX(0); } 50% { transform: rotateX(80deg); } 100% { transform: rotateX(0); } }
+    @keyframes success-pulse { 0% { transform: scale(.78); opacity: .8; } 100% { transform: scale(1.48); opacity: 0; } }
+    @keyframes draw-circle { to { stroke-dashoffset: 0; } }
+    @keyframes draw-check { to { stroke-dashoffset: 0; } }
+    @keyframes progress-fill { to { width: 100%; } }
+    @keyframes toast-in { from { opacity: 0; transform: translateX(18px) scale(.97); } to { opacity: 1; transform: translateX(0) scale(1); } }
+    @keyframes toast-out { to { opacity: 0; transform: translateX(18px) scale(.97); } }
+
+    @media (max-width: 520px) {
+      .layout { padding: 28px 16px 23px; }
+      .brand { margin-bottom: 19px; }
+      .card { min-height: 540px; }
+      .card-head { padding: 23px 23px 0; }
+      .screen { padding: 25px 23px 27px; }
+      .screen-stage { min-height: 458px; }
+      .divider { margin-top: 20px; }
+      .blob { width: 68vw; filter: blur(80px); }
+      .blob-three { width: 45vw; }
+    }
+    @media (max-width: 380px) {
+      .layout { padding-inline: 11px; }
+      .card { min-height: 536px; }
+      .card-head { padding-inline: 18px; }
+      .screen { padding-inline: 18px; }
+      .steps { gap: 4px; }
+      .step { gap: 5px; font-size: 9px; }
+      .otp-inputs { gap: 6px; }
+      .otp-digit { border-radius: 8px; font-size: 19px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+      .scene::before { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="scene" aria-hidden="true">
+    <div class="blob blob-one"></div><div class="blob blob-two"></div><div class="blob blob-three"></div>
+    <div class="particle-field" id="particleField"></div><div class="spotlight" id="spotlight"></div>
+  </div>
+  <canvas class="confetti-canvas" id="confettiCanvas" aria-hidden="true"></canvas>
+  <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="false"></div>
+  <main class="layout">
+    <div class="shell">
+      <div class="brand" aria-label="Aether access portal">
+        <svg class="brand-mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+          <path d="M20 2.5 37.5 12.6v14.8L20 37.5 2.5 27.4V12.6L20 2.5Z" stroke="url(#brand-gradient)" stroke-width="1.5"/>
+          <path d="m11.2 25.8 8.8-15.5 8.8 15.5h-5.1l-3.7-6.7-3.7 6.7h-5.1Z" fill="url(#brand-gradient)"/>
+          <defs><linearGradient id="brand-gradient" x1="5" y1="6" x2="35" y2="34" gradientUnits="userSpaceOnUse"><stop stop-color="var(--violet-bright)"/><stop offset=".55" stop-color="var(--cyan)"/><stop offset="1" stop-color="var(--pink)"/></linearGradient></defs>
+        </svg>
+        <div class="brand-name">AETHER <span>/ ACCESS</span></div>
+      </div>
+
+      <div class="card-wrap">
+        <section class="card" aria-label="Sign in">
+          <header class="card-head">
+            <p class="eyebrow">Secure access · UI demo</p>
+            <ol class="steps" aria-label="Login progress">
+              <li class="step is-current" data-step="1" data-number="1" aria-current="step"><span class="step-label">Login</span></li>
+              <li class="step" data-step="2" data-number="2"><span class="step-label">Verify</span></li>
+              <li class="step" data-step="3" data-number="3"><span class="step-label">Success</span></li>
+            </ol>
+            <div class="divider"></div>
+          </header>
+
+          <div class="screen-stage">
+            <section class="screen is-active" id="loginScreen" aria-labelledby="loginHeading">
+              <h1 class="heading" id="loginHeading">Welcome <span class="gradient-text">back.</span></h1>
+              <p class="subheading">Sign in to continue to your secure workspace.</p>
+              <form id="loginForm" novalidate>
+                <div class="field">
+                  <div class="field-box" id="identityBox">
+                    <span class="field-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="14" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="m5 7 7 5 7-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                    <input id="identity" name="identity" type="text" placeholder=" " autocomplete="username" autocapitalize="off" spellcheck="false" aria-describedby="identityError" required>
+                    <label for="identity">Email address or phone</label>
+                    <span class="field-status" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="m4.5 10 3.6 3.6 7.4-7.4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  </div>
+                  <p class="field-error" id="identityError" aria-live="polite"></p>
+                </div>
+                <div class="field">
+                  <div class="field-box" id="passwordBox">
+                    <span class="field-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="4.5" y="10" width="15" height="11" rx="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="15.5" r="1.2" fill="currentColor"/></svg></span>
+                    <input id="password" name="password" type="password" placeholder=" " autocomplete="current-password" aria-describedby="passwordError strengthLabel" required>
+                    <label for="password">Password</label>
+                    <button class="field-action" id="togglePassword" type="button" aria-label="Show password" title="Show password"><svg viewBox="0 0 24 24" fill="none"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.6"/></svg></button>
+                    <span class="field-status" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="m4.5 10 3.6 3.6 7.4-7.4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  </div>
+                  <p class="field-error" id="passwordError" aria-live="polite"></p>
+                  <div class="strength" id="strengthMeter" data-level="0" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+                  <p class="strength-label" id="strengthLabel" aria-live="polite"></p>
+                </div>
+                <div class="form-options">
+                  <label class="remember"><input id="remember" type="checkbox"> <span>Remember me</span></label>
+                  <button class="text-button" type="button" data-toast="reset">Forgot password?</button>
+                </div>
+                <button class="primary-button" id="sendOtpButton" type="submit"><span>Send verification code</span><svg class="button-arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                <p class="button-note"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 2.5 16 5v4.6c0 3.8-2.5 6.5-6 7.9-3.5-1.4-6-4.1-6-7.9V5l6-2.5Z" stroke="currentColor" stroke-width="1.4"/><path d="m7.5 9.8 1.7 1.7 3.5-3.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Your credentials stay in this browser demo</p>
+              </form>
+              <p class="footer">New to Aether? <button class="text-button" type="button" data-toast="signup">Create an account</button></p>
+            </section>
+
+            <section class="screen" id="otpScreen" aria-labelledby="otpHeading" aria-hidden="true">
+              <h2 class="heading" id="otpHeading">One last <span class="gradient-text">step.</span></h2>
+              <p class="subheading">Enter the six-digit code to verify your sign-in.</p>
+              <div class="otp-destination"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3.4 5.2c0-.9.7-1.6 1.6-1.6h2.3c.7 0 1.3.5 1.5 1.2l.5 2c.1.6-.1 1.2-.6 1.6l-1.2.9a12 12 0 0 0 5.2 5.2l.9-1.2c.4-.5 1-.7 1.6-.6l2 .5c.7.2 1.2.8 1.2 1.5V17c0 .9-.7 1.6-1.6 1.6h-.8C8.3 18.6 1.4 11.7 1.4 3.9v-.5" transform="translate(0 -1)" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Verification code destination<br><strong id="maskedDestination"></strong></span></div>
+              <form id="otpForm" novalidate>
+                <div class="otp-inputs" role="group" aria-label="Six-digit verification code">
+                  <input class="otp-digit" inputmode="numeric" autocomplete="one-time-code" aria-label="Digit 1" maxlength="1">
+                  <input class="otp-digit" inputmode="numeric" aria-label="Digit 2" maxlength="1">
+                  <input class="otp-digit" inputmode="numeric" aria-label="Digit 3" maxlength="1">
+                  <input class="otp-digit" inputmode="numeric" aria-label="Digit 4" maxlength="1">
+                  <input class="otp-digit" inputmode="numeric" aria-label="Digit 5" maxlength="1">
+                  <input class="otp-digit" inputmode="numeric" aria-label="Digit 6" maxlength="1">
+                </div>
+                <p class="otp-error" id="otpError" role="status" aria-live="polite"></p>
+                <button class="primary-button otp-submit" id="verifyButton" type="submit"><span class="spinner" aria-hidden="true"></span><span class="button-label">Verify code</span><svg class="button-arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              </form>
+              <div class="otp-footer">
+                <button class="resend" id="resendButton" type="button" disabled><svg class="countdown-ring" viewBox="0 0 16 16" aria-hidden="true"><circle class="countdown-track" cx="8" cy="8" r="7"/><circle class="countdown-progress" id="countdownProgress" cx="8" cy="8" r="7"/></svg><span id="resendLabel">Resend in 30s</span></button>
+                <span class="demo-code">Demo code<strong>123456</strong></span>
+              </div>
+              <button class="back-button" id="backToLogin" type="button"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M16 10H4m5 5-5-5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Use a different email or phone</button>
+            </section>
+
+            <section class="screen success-screen" id="successScreen" aria-labelledby="successHeading" aria-hidden="true">
+              <div class="success-visual" aria-hidden="true"><span class="success-ring"></span><span class="success-ring"></span><span class="success-ring"></span><svg class="success-icon" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="34"/><path d="m24 40 11 11 22-23"/></svg></div>
+              <h2 class="heading" id="successHeading">You're <span class="gradient-text">verified.</span></h2>
+              <p class="subheading">Your demo sign-in is complete. Everything happened locally in this browser.</p>
+              <div class="success-meta"><span></span> Demo session ready</div>
+              <div class="success-progress" role="progressbar" aria-label="Demo success animation" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+              <button class="primary-button" id="startOverButton" type="button"><span>Start over</span><svg class="button-arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 10a6 6 0 1 0 1.76-4.24L4 7.5M4 3.5v4h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            </section>
+          </div>
+        </section>
+      </div>
+      <p class="footer"><span>Protected by design.</span> This is a visual demo, not real authentication.</p>
+    </div>
+  </main>
+
+  <script>
+    (() => {
+      const $ = (selector, root = document) => root.querySelector(selector);
+      const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+      const timers = new Set();
+      const schedule = (callback, delay) => {
+        const timer = window.setTimeout(() => { timers.delete(timer); callback(); }, delay);
+        timers.add(timer);
+        return timer;
+      };
+      const cancelTimer = (timer) => { if (timer) { clearTimeout(timer); timers.delete(timer); } };
+      const clearTimers = () => { timers.forEach(clearTimeout); timers.clear(); };
+      const screens = [$('#loginScreen'), $('#otpScreen'), $('#successScreen')];
+      const stepItems = $$('.step');
+      const digits = $$('.otp-digit');
+      const state = { activeStep: 1, destination: '', attempts: 0, lockedUntil: 0, lockTimer: 0, resendTimer: 0, resendRemaining: 30, toastTimers: new Map(), confettiFrame: 0, confettiParticles: [] };
+
+      function setStep(step) {
+        state.activeStep = step;
+        screens.forEach((screen, index) => {
+          const active = index + 1 === step;
+          screen.classList.remove('is-leaving');
+          screen.classList.toggle('is-active', active);
+          screen.setAttribute('aria-hidden', String(!active));
+          if (!active && screen.contains(document.activeElement)) document.activeElement.blur();
+        });
+        stepItems.forEach((item, index) => {
+          const itemStep = index + 1;
+          item.classList.toggle('is-current', itemStep === step);
+          item.classList.toggle('is-complete', itemStep < step);
+          if (itemStep === step) item.setAttribute('aria-current', 'step');
+          else item.removeAttribute('aria-current');
+        });
+        if (step === 2) schedule(() => digits[0].focus(), 230);
+        if (step === 3) {
+          const progress = $('.success-progress');
+          progress.setAttribute('aria-valuenow', '0');
+          $$('.success-icon circle, .success-icon path').forEach((element) => restartAnimation(element));
+          restartAnimation($('.success-progress span'));
+          schedule(() => progress.setAttribute('aria-valuenow', '100'), 3000);
+          burstConfetti();
+        }
+      }
+
+      function restartAnimation(element, className) {
+        if (!element) return;
+        if (className) {
+          element.classList.remove(className);
+          void element.offsetWidth;
+          element.classList.add(className);
+        } else {
+          const animation = element.style.animation;
+          element.style.animation = 'none';
+          void element.offsetWidth;
+          element.style.animation = animation;
+        }
+      }
+
+      function setFieldError(input, message) {
+        const box = input.closest('.field-box');
+        const error = $(`#${input.id}Error`);
+        box.classList.toggle('has-error', Boolean(message));
+        box.classList.toggle('is-valid', !message && input.dataset.valid === 'true');
+        error.textContent = message;
+        input.setAttribute('aria-invalid', String(Boolean(message)));
+        if (message) restartAnimation(box, 'shake');
+      }
+
+      function validateIdentity() {
+        const input = $('#identity');
+        const value = input.value.trim();
+        const email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+        const phone = /^\+?\d[\d\s().-]{8,16}\d$/.test(value) && value.replace(/\D/g, '').length >= 10 && value.replace(/\D/g, '').length <= 13;
+        const valid = email || phone;
+        input.dataset.valid = String(valid);
+        setFieldError(input, value && !valid ? 'Enter a valid email or a 10–13 digit phone number.' : '');
+        if (!value) setFieldError(input, 'Enter your email address or phone number.');
+        return valid;
+      }
+
+      function passwordStrength(value) {
+        if (!value) return { level: 0, label: '' };
+        let score = 1;
+        if (value.length >= 8) score++;
+        if (/[A-Z]/.test(value) && /[a-z]/.test(value)) score++;
+        if (/\d/.test(value) || /[^A-Za-z0-9]/.test(value)) score++;
+        return { level: Math.min(score, 4), label: ['','Too short','Fair','Good','Strong'][Math.min(score, 4)] };
+      }
+
+      function validatePassword() {
+        const input = $('#password');
+        const valid = input.value.length >= 6;
+        input.dataset.valid = String(valid);
+        setFieldError(input, input.value && !valid ? 'Use at least 6 characters.' : '');
+        if (!input.value) setFieldError(input, 'Enter your password.');
+        return valid;
+      }
+
+      function maskedDestination(value) {
+        if (value.includes('@')) {
+          const [name, domain] = value.split('@');
+          const visible = name.length <= 2 ? name.charAt(0) : `${name.slice(0, 2)}${'•'.repeat(Math.min(name.length - 2, 5))}`;
+          return `${visible}@${domain}`;
+        }
+        const digitsOnly = value.replace(/\D/g, '');
+        return `${'•'.repeat(Math.max(0, digitsOnly.length - 4))}${digitsOnly.slice(-4)}`;
+      }
+
+      function startResendCountdown() {
+        cancelTimer(state.resendTimer);
+        state.resendRemaining = 30;
+        $('#resendButton').disabled = true;
+        const ring = $('#countdownProgress');
+        ring.style.strokeDashoffset = '0';
+        const tick = () => {
+          $('#resendLabel').textContent = state.resendRemaining > 0 ? `Resend in ${state.resendRemaining}s` : 'Resend code';
+          ring.style.strokeDashoffset = String(44 * (1 - state.resendRemaining / 30));
+          if (state.resendRemaining <= 0) {
+            $('#resendButton').disabled = false;
+            state.resendTimer = 0;
+            return;
+          }
+          state.resendRemaining--;
+          state.resendTimer = schedule(tick, 1000);
+        };
+        tick();
+      }
+
+      function setOtpError(message) { $('#otpError').textContent = message; }
+      function getCode() { return digits.map((input) => input.value).join(''); }
+      function clearOtp() {
+        digits.forEach((input) => { input.value = ''; input.classList.remove('is-filled', 'is-correct', 'is-wrong'); input.disabled = Date.now() < state.lockedUntil; });
+        setOtpError('');
+      }
+
+      function setVerifyLoading(loading) {
+        const button = $('#verifyButton');
+        button.classList.toggle('is-loading', loading);
+        button.disabled = loading || Date.now() < state.lockedUntil;
+        digits.forEach((input) => { input.disabled = loading || Date.now() < state.lockedUntil; });
+        $('.button-label', button).textContent = loading ? 'Checking code…' : 'Verify code';
+      }
+
+      function verifyCode() {
+        if (Date.now() < state.lockedUntil) return;
+        const code = getCode();
+        if (code.length !== 6) { setOtpError('Enter all six digits to continue.'); return; }
+        if (!/^\d{6}$/.test(code)) { setOtpError('Use numbers only.'); return; }
+        setVerifyLoading(true);
+        setOtpError('');
+        schedule(() => {
+          setVerifyLoading(false);
+          if (code === '123456') {
+            digits.forEach((input, index) => schedule(() => input.classList.add('is-correct'), index * 55));
+            state.attempts = 0;
+            schedule(() => setStep(3), 380);
+            return;
+          }
+          state.attempts++;
+          digits.forEach((input) => { input.classList.remove('is-wrong'); void input.offsetWidth; input.classList.add('is-wrong'); });
+          if (state.attempts >= 3) {
+            state.lockedUntil = Date.now() + 15000;
+            digits.forEach((input) => { input.disabled = true; });
+            setOtpError('Too many incorrect codes. Try again in 15 seconds.');
+            $('#verifyButton').disabled = true;
+            let seconds = 15;
+            const updateLock = () => {
+              seconds = Math.max(0, Math.ceil((state.lockedUntil - Date.now()) / 1000));
+              if (seconds <= 0) {
+                state.lockedUntil = 0;
+                state.attempts = 0;
+                clearOtp();
+                $('#verifyButton').disabled = false;
+                setOtpError('You can try again. Demo code: 123456.');
+                state.lockTimer = 0;
+                return;
+              }
+              setOtpError(`Too many incorrect codes. Try again in ${seconds} seconds.`);
+              state.lockTimer = schedule(updateLock, 1000);
+            };
+            state.lockTimer = schedule(updateLock, 1000);
+          } else {
+            clearOtp();
+            setOtpError(`That code didn't match. ${3 - state.attempts} ${3 - state.attempts === 1 ? 'attempt' : 'attempts'} remaining.`);
+            digits[0].focus();
+          }
+        }, 760);
+      }
+
+      function showToast(title, message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        const icon = document.createElement('span');
+        icon.className = 'toast-icon';
+        icon.setAttribute('aria-hidden', 'true');
+        icon.innerHTML = '<svg viewBox="0 0 20 20" fill="none"><path d="M10 2.5 16 5v4.6c0 3.8-2.5 6.5-6 7.9-3.5-1.4-6-4.1-6-7.9V5l6-2.5Z" stroke="currentColor" stroke-width="1.4"/><path d="M10 6.5v4m0 2.5h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+        const copy = document.createElement('div');
+        copy.className = 'toast-copy';
+        const heading = document.createElement('p');
+        heading.className = 'toast-title';
+        heading.textContent = title;
+        const body = document.createElement('p');
+        body.className = 'toast-message';
+        body.textContent = message;
+        copy.append(heading, body);
+        toast.append(icon, copy);
+        $('#toastStack').append(toast);
+        const timer = schedule(() => {
+          toast.classList.add('is-leaving');
+          schedule(() => toast.remove(), 260);
+          state.toastTimers.delete(toast);
+        }, 4200);
+        state.toastTimers.set(toast, timer);
+      }
+
+      function resetForm() {
+        clearTimers();
+        state.toastTimers.forEach((timer) => clearTimeout(timer));
+        state.toastTimers.clear();
+        $$('.toast', $('#toastStack')).forEach((toast) => toast.remove());
+        cancelTimer(state.resendTimer);
+        cancelTimer(state.lockTimer);
+        state.attempts = 0;
+        state.lockedUntil = 0;
+        state.resendRemaining = 30;
+        state.destination = '';
+        $('#loginForm').reset();
+        $('#identity').dataset.valid = 'false';
+        $('#password').dataset.valid = 'false';
+        ['identity', 'password'].forEach((id) => {
+          const input = $(`#${id}`);
+          input.removeAttribute('aria-invalid');
+          $(`#${id}Error`).textContent = '';
+          input.closest('.field-box').classList.remove('is-valid', 'has-error');
+        });
+        $('#strengthMeter').dataset.level = '0';
+        $('#strengthLabel').textContent = '';
+        $('#password').type = 'password';
+        $('#togglePassword').setAttribute('aria-label', 'Show password');
+        $('#togglePassword').title = 'Show password';
+        clearOtp();
+        $('#resendLabel').textContent = 'Resend in 30s';
+        $('#countdownProgress').style.strokeDashoffset = '0';
+        setVerifyLoading(false);
+        stopConfetti();
+        setStep(1);
+        $('#identity').focus({ preventScroll: true });
+      }
+
+      function burstConfetti() {
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const canvas = $('#confettiCanvas');
+        const context = canvas.getContext('2d');
+        const ratio = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.floor(window.innerWidth * ratio);
+        canvas.height = Math.floor(window.innerHeight * ratio);
+        context.setTransform(ratio, 0, 0, ratio, 0, 0);
+        const palette = getComputedStyle(document.documentElement);
+        const colors = ['--violet', '--cyan', '--pink', '--green', '--amber'].map((name) => palette.getPropertyValue(name).trim());
+        const originX = window.innerWidth / 2;
+        const originY = window.innerHeight * .47;
+        state.confettiParticles = Array.from({ length: 115 }, () => {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 2 + Math.random() * 7;
+          return { x: originX, y: originY, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed - 3, gravity: .11 + Math.random() * .08, rotation: Math.random() * 6, spin: (Math.random() - .5) * .18, size: 3 + Math.random() * 4, color: colors[Math.floor(Math.random() * colors.length)], life: 85 + Math.random() * 35 };
+        });
+        const frame = () => {
+          context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+          state.confettiParticles = state.confettiParticles.filter((particle) => particle.life > 0);
+          state.confettiParticles.forEach((particle) => {
+            particle.x += particle.vx; particle.y += particle.vy; particle.vy += particle.gravity; particle.vx *= .992; particle.rotation += particle.spin; particle.life--;
+            context.save(); context.translate(particle.x, particle.y); context.rotate(particle.rotation); context.globalAlpha = Math.min(1, particle.life / 18); context.fillStyle = particle.color; context.fillRect(-particle.size / 2, -particle.size / 2, particle.size, particle.size * .65); context.restore();
+          });
+          if (state.confettiParticles.length) state.confettiFrame = requestAnimationFrame(frame);
+          else context.clearRect(0, 0, canvas.width, canvas.height);
+        };
+        cancelAnimationFrame(state.confettiFrame);
+        state.confettiFrame = requestAnimationFrame(frame);
+      }
+
+      function stopConfetti() {
+        cancelAnimationFrame(state.confettiFrame);
+        state.confettiParticles = [];
+        const canvas = $('#confettiCanvas');
+        const context = canvas.getContext('2d');
+        context.clearRect(0, 0, canvas.width, canvas.height);
+      }
+
+      $('#identity').addEventListener('input', (event) => {
+        if (event.target.value.trim()) validateIdentity();
+        else { event.target.dataset.valid = 'false'; setFieldError(event.target, ''); }
+      });
+      $('#identity').addEventListener('blur', () => { if ($('#identity').value) validateIdentity(); });
+      $('#password').addEventListener('input', (event) => {
+        const { level, label } = passwordStrength(event.target.value);
+        $('#strengthMeter').dataset.level = String(level);
+        $('#strengthLabel').textContent = label;
+        if (event.target.value) validatePassword();
+        else { event.target.dataset.valid = 'false'; setFieldError(event.target, ''); }
+      });
+      $('#password').addEventListener('blur', () => { if ($('#password').value) validatePassword(); });
+      $('#togglePassword').addEventListener('click', () => {
+        const input = $('#password');
+        const reveal = input.type === 'password';
+        input.type = reveal ? 'text' : 'password';
+        $('#togglePassword').setAttribute('aria-label', reveal ? 'Hide password' : 'Show password');
+        $('#togglePassword').title = reveal ? 'Hide password' : 'Show password';
+        input.focus({ preventScroll: true });
+      });
+
+      $('#loginForm').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const identityValid = validateIdentity();
+        const passwordValid = validatePassword();
+        if (!identityValid || !passwordValid) {
+          (identityValid ? $('#password') : $('#identity')).focus();
+          return;
+        }
+        state.destination = $('#identity').value.trim();
+        $('#maskedDestination').textContent = maskedDestination(state.destination);
+        clearOtp();
+        startResendCountdown();
+        setStep(2);
+      });
+
+      digits.forEach((input, index) => {
+        input.addEventListener('input', () => {
+          const numeric = input.value.replace(/\D/g, '');
+          if (numeric.length > 1) {
+            const values = numeric.slice(0, 6 - index).split('');
+            values.forEach((value, offset) => { digits[index + offset].value = value; digits[index + offset].classList.toggle('is-filled', Boolean(value)); });
+            const next = Math.min(index + values.length, digits.length - 1);
+            digits[next].focus();
+          } else {
+            input.value = numeric.slice(-1);
+            input.classList.toggle('is-filled', Boolean(input.value));
+            if (input.value && index < digits.length - 1) digits[index + 1].focus();
+          }
+          setOtpError('');
+          if (getCode().length === 6 && /^\d{6}$/.test(getCode())) verifyCode();
+        });
+        input.addEventListener('keydown', (event) => {
+          if (event.key === 'Backspace' && !input.value && index > 0) { digits[index - 1].focus(); digits[index - 1].value = ''; digits[index - 1].classList.remove('is-filled'); }
+          if (event.key === 'ArrowLeft' && index > 0) { event.preventDefault(); digits[index - 1].focus(); }
+          if (event.key === 'ArrowRight' && index < digits.length - 1) { event.preventDefault(); digits[index + 1].focus(); }
+        });
+        input.addEventListener('paste', (event) => {
+          event.preventDefault();
+          const pasted = event.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+          pasted.split('').forEach((value, pastedIndex) => { digits[pastedIndex].value = value; digits[pastedIndex].classList.add('is-filled'); });
+          if (pasted.length === 6) { digits[5].focus(); verifyCode(); }
+          else digits[Math.min(pasted.length, digits.length - 1)].focus();
+        });
+      });
+
+      $('#otpForm').addEventListener('submit', (event) => { event.preventDefault(); verifyCode(); });
+      $('#resendButton').addEventListener('click', () => {
+        if ($('#resendButton').disabled) return;
+        clearOtp();
+        startResendCountdown();
+        showToast('Demo code refreshed', 'Use 123456 to complete this browser-only verification.');
+        digits[0].focus();
+      });
+      $('#backToLogin').addEventListener('click', () => { cancelTimer(state.resendTimer); clearOtp(); setStep(1); $('#identity').focus({ preventScroll: true }); });
+      $('#startOverButton').addEventListener('click', resetForm);
+
+      $$('[data-toast]').forEach((button) => button.addEventListener('click', () => {
+        const messages = {
+          reset: ['Password reset', 'Password recovery is not connected in this UI demo.'],
+          signup: ['Create an account', 'Account creation is not connected in this UI demo.']
+        };
+        const [title, message] = messages[button.dataset.toast];
+        showToast(title, message);
+      }));
+
+      $$('.primary-button').forEach((button) => button.addEventListener('click', (event) => {
+        const bounds = button.getBoundingClientRect();
+        const ripple = document.createElement('span');
+        ripple.className = 'ripple';
+        ripple.style.left = `${event.clientX - bounds.left}px`;
+        ripple.style.top = `${event.clientY - bounds.top}px`;
+        button.append(ripple);
+        schedule(() => ripple.remove(), 650);
+      }));
+
+      document.addEventListener('pointermove', (event) => {
+        $('#spotlight').style.setProperty('--pointer-x', `${event.clientX}px`);
+        $('#spotlight').style.setProperty('--pointer-y', `${event.clientY}px`);
+      }, { passive: true });
+
+      const particleField = $('#particleField');
+      for (let index = 0; index < 34; index++) {
+        const particle = document.createElement('span');
+        particle.className = 'particle';
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.top = `${40 + Math.random() * 65}%`;
+        particle.style.setProperty('--duration', `${6 + Math.random() * 7}s`);
+        particle.style.setProperty('--delay', `${-Math.random() * 12}s`);
+        particle.style.setProperty('--drift', `${Math.round((Math.random() - .5) * 90)}px`);
+        particleField.append(particle);
+      }
+
+      window.addEventListener('resize', () => { if (state.activeStep !== 3) return; const canvas = $('#confettiCanvas'); canvas.width = Math.floor(window.innerWidth * Math.min(window.devicePixelRatio || 1, 2)); canvas.height = Math.floor(window.innerHeight * Math.min(window.devicePixelRatio || 1, 2)); });
+      window.addEventListener('pagehide', () => { clearTimers(); cancelAnimationFrame(state.confettiFrame); });
+    })();
+  </script>
+</body>
+</html>
