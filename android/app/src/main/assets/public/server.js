@@ -1,919 +1,606 @@
 // server.ts
 import express from "express";
-import path2 from "path";
+import path from "path";
 import { fileURLToPath } from "url";
 import { createServer as createViteServer } from "vite";
-import { GoogleGenAI as GoogleGenAI2, Type, Modality } from "@google/genai";
 import dotenv from "dotenv";
 
-// securityKeyManager.ts
-import fs from "fs";
-import path from "path";
-import crypto from "crypto";
-import { GoogleGenAI } from "@google/genai";
-var SecurityKeyManager = class {
-  constructor() {
-    this.memoryVaultKey = null;
-    this.memoryOpenRouterKey = null;
-    this.lastValidatedTimestamp = null;
-    this.vaultPath = path.join(process.cwd(), ".secure_vault.dat");
-    this.masterSecret = process.env.VAULT_MASTER_SECRET || crypto.createHash("sha256").update(process.cwd() + (process.env.APP_URL || "alpha-ai-secure-salt")).digest("hex");
-    this.loadVaultFromFile();
+// firebase-applet-config.json
+var firebase_applet_config_default = {
+  apiKey: "AIzaSyAHsTUFcownV4vBppBB0oissSra8N9rdHI",
+  authDomain: "alpha-ai-881d8.firebaseapp.com",
+  projectId: "alpha-ai-881d8",
+  storageBucket: "alpha-ai-881d8.firebasestorage.app",
+  messagingSenderId: "524557465201",
+  appId: "1:524557465201:web:9411b2c31a292f63eb4dd0",
+  measurementId: "G-VDVM82FX5K"
+};
+
+// api/[...route].ts
+var GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta";
+var DEFAULT_MODEL = process.env.GEMINI_MODEL || "gemini-3.6-flash";
+var IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL || "gemini-3.1-flash-image";
+var TTS_MODEL = process.env.GEMINI_TTS_MODEL || "gemini-3.1-flash-tts-preview";
+var MAX_REQUEST_BODY_BYTES = 12 * 1024 * 1024;
+var AUTH_ATTEMPT_LIMIT = { maxRequests: 30, windowMs: 6e4 };
+var verifiedFirebaseTokens = /* @__PURE__ */ new Map();
+var requestBudgets = /* @__PURE__ */ new Map();
+var ROUTE_LIMITS = {
+  chat: { maxRequests: 30, windowMs: 6e4 },
+  analyze: { maxRequests: 20, windowMs: 6e4 },
+  "generate-image": { maxRequests: 5, windowMs: 6e4 },
+  tts: { maxRequests: 20, windowMs: 6e4 },
+  "security/validate": { maxRequests: 5, windowMs: 6e4 }
+};
+var MODEL_ALIASES = {
+  "gemini-3.5-flash": "gemini-3.5-flash",
+  "gemini-3.6-flash": "gemini-3.6-flash",
+  "gemini-3.1-flash-lite": "gemini-3.1-flash-lite",
+  "gemini-3.1-pro-preview": "gemini-3.1-pro-preview",
+  "gemini-2.5-flash": "gemini-2.5-flash",
+  "gemini-2.5-flash-lite": "gemini-2.5-flash-lite"
+};
+var MODEL_LIST = [
+  { id: "gemini-3.6-flash", name: "Gemini 3.6 Flash", provider: "google", providerLabel: "Google Gemini", description: "Fast multimodal model for chat, reasoning and agentic tasks.", contextWindow: "1M tokens", speed: "Ultra Fast", isFree: true, badge: "Recommended", supportsImage: true },
+  { id: "gemini-3.5-flash", name: "Gemini 3.5 Flash", provider: "google", providerLabel: "Google Gemini", description: "Strong general-purpose Gemini model for sustained agentic and coding tasks.", contextWindow: "1M tokens", speed: "Fast", isFree: true, supportsImage: true },
+  { id: "gemini-3.1-flash-lite", name: "Gemini 3.5 Flash-Lite", provider: "google", providerLabel: "Google Gemini", description: "Cost-efficient model for high-throughput tasks.", contextWindow: "1M tokens", speed: "Ultra Fast", isFree: true },
+  { id: "gemini-3.1-flash-lite", name: "Gemini 3.1 Flash-Lite", provider: "google", providerLabel: "Google Gemini", description: "Fast lightweight multimodal model.", contextWindow: "1M tokens", speed: "Ultra Fast", isFree: true },
+  { id: "gemini-3.1-pro-preview", name: "Gemini 3.1 Pro Preview", provider: "google", providerLabel: "Google Gemini", description: "Advanced reasoning for complex coding and analysis.", contextWindow: "1M tokens", speed: "Fast", isFree: true, badge: "Reasoning", supportsImage: true },
+  { id: "deepseek/deepseek-r1:free", name: "DeepSeek R1 (Free)", provider: "openrouter", providerLabel: "OpenRouter", description: "Optional OpenRouter reasoning model.", contextWindow: "Provider dependent", speed: "Balanced", isFree: true, badge: "Optional" },
+  { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B Instruct (Free)", provider: "openrouter", providerLabel: "OpenRouter", description: "Optional OpenRouter model.", contextWindow: "Provider dependent", speed: "Fast", isFree: true, badge: "Optional" }
+];
+function json(res, status, payload) {
+  res.statusCode = status;
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
+  res.setHeader("Cache-Control", "no-store");
+  res.end(JSON.stringify(payload));
+}
+function cors(req, res) {
+  const configuredOrigins = (process.env.CORS_ALLOWED_ORIGINS || "").split(",").map((origin2) => origin2.trim()).filter(Boolean);
+  const allowedOrigins = /* @__PURE__ */ new Set([
+    "https://yash-ansh.vercel.app",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://localhost",
+    "capacitor://localhost",
+    ...process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : [],
+    ...process.env.VERCEL_PROJECT_PRODUCTION_URL ? [`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`] : [],
+    ...configuredOrigins
+  ]);
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.has(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
   }
-  /**
-   * Helper to securely mask API key for public display/logs
-   */
-  maskKey(key) {
-    if (!key || key.length < 8) return "Not Configured";
-    const prefix = key.substring(0, 6);
-    const suffix = key.substring(key.length - 4);
-    return `${prefix}...${suffix}`;
-  }
-  /**
-   * Helper to generate a non-reversible SHA-256 key fingerprint
-   */
-  getKeyFingerprint(key) {
-    if (!key) return "none";
-    return crypto.createHash("sha256").update(key).digest("hex").substring(0, 12);
-  }
-  /**
-   * Encrypts plaintext using AES-256-GCM
-   */
-  encrypt(text) {
-    const iv = crypto.randomBytes(12);
-    const key = crypto.pbkdf2Sync(this.masterSecret, "alpha_vault_salt_2026", 1e5, 32, "sha256");
-    const cipher = crypto.createCipheriv("aes-256-gcm", key, iv);
-    let encrypted = cipher.update(text, "utf8", "hex");
-    encrypted += cipher.final("hex");
-    const tag = cipher.getAuthTag().toString("hex");
-    return {
-      iv: iv.toString("hex"),
-      encryptedData: encrypted,
-      tag
-    };
-  }
-  /**
-   * Decrypts ciphertext using AES-256-GCM
-   */
-  decrypt(ivHex, encryptedData, tagHex) {
-    try {
-      const iv = Buffer.from(ivHex, "hex");
-      const tag = Buffer.from(tagHex, "hex");
-      const key = crypto.pbkdf2Sync(this.masterSecret, "alpha_vault_salt_2026", 1e5, 32, "sha256");
-      const decipher = crypto.createDecipheriv("aes-256-gcm", key, iv);
-      decipher.setAuthTag(tag);
-      let decrypted = decipher.update(encryptedData, "hex", "utf8");
-      decrypted += decipher.final("utf8");
-      return decrypted;
-    } catch (err) {
-      console.error("Failed to decrypt vault content:", err);
-      return null;
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Gemini-API-Key, X-API-Key, X-OpenRouter-API-Key");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+}
+async function body(req) {
+  if (req.body !== void 0) {
+    const serializedBody = typeof req.body === "string" ? req.body : JSON.stringify(req.body) || "";
+    if (Buffer.byteLength(serializedBody, "utf8") > MAX_REQUEST_BODY_BYTES) {
+      throw Object.assign(new Error("Request body is too large."), { status: 413 });
     }
-  }
-  /**
-   * Loads vault content from encrypted file
-   */
-  loadVaultFromFile() {
-    try {
-      if (fs.existsSync(this.vaultPath)) {
-        const raw = fs.readFileSync(this.vaultPath, "utf8");
-        const parsed = JSON.parse(raw);
-        if (parsed.iv && parsed.encryptedData && parsed.tag) {
-          const decryptedKey = this.decrypt(parsed.iv, parsed.encryptedData, parsed.tag);
-          if (decryptedKey) {
-            this.memoryVaultKey = decryptedKey;
-            this.lastValidatedTimestamp = parsed.lastValidated || (/* @__PURE__ */ new Date()).toISOString();
-          }
-        }
-        if (parsed.orIv && parsed.orEncryptedData && parsed.orTag) {
-          const decryptedOrKey = this.decrypt(parsed.orIv, parsed.orEncryptedData, parsed.orTag);
-          if (decryptedOrKey) {
-            this.memoryOpenRouterKey = decryptedOrKey;
-          }
-        }
-      }
-    } catch (err) {
-      console.warn("Vault load warning:", err);
-    }
-  }
-  /**
-   * Saves vault keys to encrypted file
-   */
-  saveVaultToFile(apiKey, openRouterKey) {
-    try {
-      const payload = this.encrypt(apiKey);
-      let orPayload = {};
-      if (openRouterKey) {
-        const encryptedOr = this.encrypt(openRouterKey);
-        orPayload = {
-          orIv: encryptedOr.iv,
-          orEncryptedData: encryptedOr.encryptedData,
-          orTag: encryptedOr.tag
-        };
-      }
-      const dataToSave = {
-        ...payload,
-        ...orPayload,
-        createdAt: (/* @__PURE__ */ new Date()).toISOString(),
-        lastValidated: (/* @__PURE__ */ new Date()).toISOString()
-      };
-      fs.writeFileSync(this.vaultPath, JSON.stringify(dataToSave, null, 2), { mode: 384 });
-      this.memoryVaultKey = apiKey;
-      if (openRouterKey) this.memoryOpenRouterKey = openRouterKey;
-      this.lastValidatedTimestamp = dataToSave.lastValidated;
-    } catch (err) {
-      console.error("Failed to save vault file:", err);
-      this.memoryVaultKey = apiKey;
-      if (openRouterKey) this.memoryOpenRouterKey = openRouterKey;
-    }
-  }
-  /**
-   * Resolve active Gemini API Key
-   */
-  getApiKey(req) {
-    if (req && req.headers) {
-      const headerKey = req.headers["x-gemini-api-key"] || req.headers["x-api-key"];
-      if (typeof headerKey === "string" && headerKey.trim().length > 10) {
-        return headerKey.trim();
-      }
-      const authHeader = req.headers["authorization"];
-      if (typeof authHeader === "string" && authHeader.startsWith("Bearer AIza")) {
-        return authHeader.substring(7).trim();
+    if (typeof req.body === "object" && req.body !== null) return req.body;
+    if (typeof req.body === "string") {
+      try {
+        return JSON.parse(req.body);
+      } catch {
+        return {};
       }
     }
-    if (this.memoryVaultKey && this.memoryVaultKey.trim().length > 10) {
-      return this.memoryVaultKey.trim();
-    }
-    const envKey = process.env.GEMINI_API_KEY;
-    if (envKey && envKey.trim().length > 10 && envKey !== "your_gemini_api_key_here") {
-      return envKey.trim();
-    }
-    if (envKey && envKey.length > 0) {
-      return envKey.trim();
-    }
-    throw new Error("GEMINI_API_KEY is not configured in server environment or secure key vault.");
   }
-  /**
-   * Resolve OpenRouter API Key (Optional for OpenRouter free models)
-   */
-  getOpenRouterKey(req) {
-    if (req && req.headers) {
-      const headerKey = req.headers["x-openrouter-api-key"];
-      if (typeof headerKey === "string" && headerKey.trim().length > 10) {
-        return headerKey.trim();
+  const chunks = [];
+  let receivedBytes = 0;
+  let bodyTooLarge = false;
+  for await (const chunk of req) {
+    const buffer = Buffer.from(chunk);
+    receivedBytes += buffer.length;
+    if (receivedBytes > MAX_REQUEST_BODY_BYTES) {
+      bodyTooLarge = true;
+      continue;
+    }
+    chunks.push(buffer);
+  }
+  if (bodyTooLarge) throw Object.assign(new Error("Request body is too large."), { status: 413 });
+  const raw = Buffer.concat(chunks).toString("utf8");
+  if (!raw) return {};
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
+}
+function getGeminiKey(req) {
+  const headers = req.headers || {};
+  const headerKey = headers["x-gemini-api-key"] || headers["x-api-key"];
+  if (typeof headerKey === "string" && headerKey.trim()) return headerKey.trim();
+  const auth = headers.authorization;
+  if (typeof auth === "string" && auth.startsWith("Bearer ")) {
+    const value = auth.slice(7).trim();
+    if (value.startsWith("AIza")) return value;
+  }
+  const envKey = process.env.GEMINI_API_KEY?.trim();
+  return envKey || null;
+}
+function getOpenRouterKey(req) {
+  const headers = req.headers || {};
+  const headerKey = headers["x-openrouter-api-key"];
+  if (typeof headerKey === "string" && headerKey.trim()) return headerKey.trim();
+  return process.env.OPENROUTER_API_KEY?.trim() || null;
+}
+async function verifyFirebaseUser(req) {
+  const authorization = req.headers.authorization;
+  const token = typeof authorization === "string" && authorization.startsWith("Bearer ") ? authorization.slice(7).trim() : "";
+  if (!token) return null;
+  const cached = verifiedFirebaseTokens.get(token);
+  if (cached && cached.expiresAt > Date.now()) return { uid: cached.uid };
+  if (cached) verifiedFirebaseTokens.delete(token);
+  let response;
+  try {
+    response = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${encodeURIComponent(firebase_applet_config_default.apiKey)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken: token }),
+        signal: AbortSignal.timeout(5e3)
       }
-    }
-    if (this.memoryOpenRouterKey && this.memoryOpenRouterKey.trim().length > 10) {
-      return this.memoryOpenRouterKey.trim();
-    }
-    const envKey = process.env.OPENROUTER_API_KEY;
-    if (envKey && envKey.trim().length > 10) {
-      return envKey.trim();
-    }
+    );
+  } catch {
+    throw Object.assign(new Error("Authentication service is temporarily unavailable."), { status: 503 });
+  }
+  if (response.status === 400 || response.status === 401) return null;
+  if (!response.ok) {
+    throw Object.assign(new Error("Could not verify the signed-in user."), { status: 503 });
+  }
+  const result = await response.json();
+  const uid = result.users?.[0]?.localId;
+  if (!uid) return null;
+  const tokenPayload = token.split(".")[1];
+  let tokenExpiry = Date.now() + 6e4;
+  try {
+    const payload = JSON.parse(Buffer.from(tokenPayload, "base64url").toString("utf8"));
+    if (typeof payload.exp === "number") tokenExpiry = Math.min(payload.exp * 1e3, tokenExpiry);
+  } catch {
     return null;
   }
-  /**
-   * Get active source label
-   */
-  getActiveSource(req) {
-    if (req && req.headers && (req.headers["x-gemini-api-key"] || req.headers["x-api-key"])) {
-      return "request_header";
+  if (tokenExpiry > Date.now()) {
+    if (verifiedFirebaseTokens.size >= 1e3) {
+      const oldestToken = verifiedFirebaseTokens.keys().next().value;
+      if (oldestToken) verifiedFirebaseTokens.delete(oldestToken);
     }
-    if (this.memoryVaultKey && this.memoryVaultKey.trim().length > 10) {
-      return "encrypted_vault";
-    }
-    const envKey = process.env.GEMINI_API_KEY;
-    if (envKey && envKey.trim().length > 10 && envKey !== "your_gemini_api_key_here") {
-      return "environment_variable";
-    }
-    return "missing";
+    verifiedFirebaseTokens.set(token, { uid, expiresAt: tokenExpiry });
   }
-  /**
-   * Get complete security status object
-   */
-  getSecurityStatus(req) {
-    const activeSource = this.getActiveSource(req);
-    let activeKey;
-    try {
-      activeKey = this.getApiKey(req);
-    } catch {
-      activeKey = void 0;
+  return { uid };
+}
+function startRequestBudget(key, windowMs, now) {
+  if (!requestBudgets.has(key) && requestBudgets.size >= 5e3) {
+    for (const [existingKey, bucket] of requestBudgets) {
+      if (now - bucket.windowStart >= bucket.windowMs) requestBudgets.delete(existingKey);
+      if (requestBudgets.size < 5e3) break;
     }
-    const envKey = process.env.GEMINI_API_KEY;
-    const envHasKey = !!(envKey && envKey.trim().length > 10 && envKey !== "your_gemini_api_key_here");
-    const openRouterKey = this.getOpenRouterKey(req);
+    if (requestBudgets.size >= 5e3) {
+      const oldestKey = requestBudgets.keys().next().value;
+      if (oldestKey) requestBudgets.delete(oldestKey);
+    }
+  }
+  requestBudgets.set(key, { windowStart: now, windowMs, count: 1 });
+}
+function consumeBudget(key, limit) {
+  const now = Date.now();
+  const bucket = requestBudgets.get(key);
+  if (!bucket || now - bucket.windowStart >= limit.windowMs) {
+    startRequestBudget(key, limit.windowMs, now);
+    return { allowed: true, retryAfterSeconds: 0 };
+  }
+  if (bucket.count >= limit.maxRequests) {
     return {
-      configured: !!activeKey,
-      activeSource,
-      maskedKey: this.maskKey(activeKey),
-      storageMechanism: "AES-256-GCM Encrypted Storage Vault (Server-Side)",
-      encryptionActive: true,
-      vaultHasCustomKey: !!this.memoryVaultKey,
-      envHasKey,
-      openRouterConfigured: !!openRouterKey,
-      maskedOpenRouterKey: this.maskKey(openRouterKey || void 0),
-      lastValidated: this.lastValidatedTimestamp || (/* @__PURE__ */ new Date()).toISOString(),
-      keyFingerprint: this.getKeyFingerprint(activeKey)
+      allowed: false,
+      retryAfterSeconds: Math.max(1, Math.ceil((limit.windowMs - (now - bucket.windowStart)) / 1e3))
     };
   }
-  /**
-   * Validate an API key against Google Gemini API
-   */
-  async validateApiKey(apiKey) {
-    if (!apiKey || apiKey.trim().length < 10) {
-      return { valid: false, message: "Invalid key length or empty key provided." };
-    }
-    try {
-      const ai = new GoogleGenAI({
-        apiKey: apiKey.trim(),
-        httpOptions: { headers: { "User-Agent": "aistudio-security-check" } }
-      });
-      await ai.models.generateContent({
-        model: "gemini-3.6-flash",
-        contents: "ping"
-      });
-      return { valid: true, message: "API key successfully validated with Google Gemini API!" };
-    } catch (err) {
-      const msg = err?.message || String(err);
-      return { valid: false, message: `Key validation failed: ${msg}` };
-    }
-  }
-  /**
-   * Store a custom key into secure vault
-   */
-  async storeCustomKey(apiKey, openRouterKey) {
-    const validation = await this.validateApiKey(apiKey);
-    if (!validation.valid) {
-      return {
-        success: false,
-        message: validation.message,
-        status: this.getSecurityStatus()
-      };
-    }
-    this.saveVaultToFile(apiKey.trim(), openRouterKey?.trim());
-    return {
-      success: true,
-      message: "API Keys encrypted with AES-256-GCM and saved to secure server vault!",
-      status: this.getSecurityStatus()
-    };
-  }
-  /**
-   * Reset/clear custom vault key
-   */
-  resetCustomKey() {
-    this.memoryVaultKey = null;
-    this.memoryOpenRouterKey = null;
-    this.lastValidatedTimestamp = null;
-    try {
-      if (fs.existsSync(this.vaultPath)) {
-        fs.unlinkSync(this.vaultPath);
-      }
-    } catch (err) {
-      console.warn("Unlink vault file warning:", err);
-    }
-    return {
-      success: true,
-      message: "Custom vault keys removed. System fell back to environment defaults.",
-      status: this.getSecurityStatus()
-    };
-  }
-};
-var securityKeyManager = new SecurityKeyManager();
-
-// serverModelHandler.ts
-var FREE_AI_MODELS_SERVER = [
-  {
-    id: "gemini-3.6-flash",
-    name: "Gemini 3.6 Flash",
-    provider: "google",
-    providerLabel: "Google Gemini",
-    description: "Flagship high-speed multimodal model. Best reasoning & search grounding.",
-    contextWindow: "1M tokens",
-    speed: "Ultra Fast",
-    isFree: true,
-    badge: "Recommended",
-    supportsImage: true
-  },
-  {
-    id: "gemini-2.5-flash",
-    name: "Gemini 2.5 Flash",
-    provider: "google",
-    providerLabel: "Google Gemini",
-    description: "Fast versatile model for reasoning, coding, and structured responses.",
-    contextWindow: "1M tokens",
-    speed: "Ultra Fast",
-    isFree: true,
-    supportsImage: true
-  },
-  {
-    id: "gemini-2.5-flash-lite",
-    name: "Gemini 2.5 Flash Lite",
-    provider: "google",
-    providerLabel: "Google Gemini",
-    description: "Lightweight high-throughput model with minimal latency.",
-    contextWindow: "1M tokens",
-    speed: "Ultra Fast",
-    isFree: true,
-    supportsImage: true
-  },
-  {
-    id: "gemini-2.0-flash-lite",
-    name: "Gemini 2.0 Flash Lite",
-    provider: "google",
-    providerLabel: "Google Gemini",
-    description: "Ultra-lean Flash variant for instant low-power pings.",
-    contextWindow: "1M tokens",
-    speed: "Ultra Fast",
-    isFree: true
-  },
-  {
-    id: "deepseek/deepseek-r1:free",
-    name: "DeepSeek R1 (Free)",
-    provider: "openrouter",
-    providerLabel: "OpenRouter Free",
-    description: "Open-weights reasoning model with chain-of-thought capabilities.",
-    contextWindow: "128K tokens",
-    speed: "Balanced",
-    isFree: true,
-    badge: "Reasoning"
-  },
-  {
-    id: "meta-llama/llama-3.3-70b-instruct:free",
-    name: "Llama 3.3 70B Instruct (Free)",
-    provider: "openrouter",
-    providerLabel: "OpenRouter Free",
-    description: "Meta flagship open 70B parameter model for complex instruction following.",
-    contextWindow: "128K tokens",
-    speed: "Fast",
-    isFree: true,
-    badge: "Open Meta"
-  },
-  {
-    id: "google/gemma-2-9b-it:free",
-    name: "Gemma 2 9B IT (Free)",
-    provider: "openrouter",
-    providerLabel: "OpenRouter Free",
-    description: "Google lightweight Gemma 2 open model optimized for general dialogue.",
-    contextWindow: "8K tokens",
-    speed: "Ultra Fast",
-    isFree: true
-  },
-  {
-    id: "qwen/qwen-2.5-coder-32b-instruct:free",
-    name: "Qwen 2.5 Coder 32B (Free)",
-    provider: "openrouter",
-    providerLabel: "OpenRouter Free",
-    description: "Alibaba Qwen 2.5 32B model fine-tuned specifically for code generation.",
-    contextWindow: "32K tokens",
-    speed: "Fast",
-    isFree: true,
-    badge: "Coding Specialist"
-  },
-  {
-    id: "mistralai/mistral-7b-instruct:free",
-    name: "Mistral 7B Instruct (Free)",
-    provider: "openrouter",
-    providerLabel: "OpenRouter Free",
-    description: "Mistral AI lightweight 7B model for quick conversational turns.",
-    contextWindow: "32K tokens",
-    speed: "Ultra Fast",
-    isFree: true
-  }
-];
-var delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-async function callOpenRouter(modelId, messages, systemPrompt, settings, req) {
-  const userOpenRouterKey = securityKeyManager.getOpenRouterKey(req);
-  const openRouterMessages = [];
-  if (systemPrompt) {
-    openRouterMessages.push({ role: "system", content: systemPrompt });
-  }
-  for (const msg of messages) {
-    if (msg.parts && Array.isArray(msg.parts)) {
-      const textPart = msg.parts.map((p) => p.text || "").filter(Boolean).join("\n");
-      if (textPart) {
-        openRouterMessages.push({
-          role: msg.role === "model" ? "assistant" : msg.role || "user",
-          content: textPart
-        });
-      }
-    } else if (msg.content) {
-      openRouterMessages.push({
-        role: msg.role === "assistant" || msg.role === "model" ? "assistant" : msg.role || "user",
-        content: msg.content
-      });
-    }
-  }
-  const headers = {
-    "Content-Type": "application/json",
-    "HTTP-Referer": process.env.APP_URL || "https://ai.studio/build",
-    "X-Title": "Alpha AI Assistant"
-  };
-  if (userOpenRouterKey) {
-    headers["Authorization"] = `Bearer ${userOpenRouterKey}`;
-  } else {
-    headers["Authorization"] = `Bearer openrouter-free-tier`;
-  }
-  const payload = {
-    model: modelId,
-    messages: openRouterMessages,
-    temperature: settings?.temperature ?? 0.7,
-    max_tokens: settings?.maxTokens ?? 2048
-  };
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+  bucket.count += 1;
+  return { allowed: true, retryAfterSeconds: 0 };
+}
+function consumeRequestBudget(uid, route) {
+  const limit = ROUTE_LIMITS[route];
+  if (!limit) return { allowed: true, retryAfterSeconds: 0 };
+  return consumeBudget(`${uid}:${route}`, limit);
+}
+function consumeAuthAttemptBudget(req) {
+  const forwardedFor = req.headers["x-forwarded-for"];
+  const clientAddress = typeof forwardedFor === "string" ? forwardedFor.split(",").at(-1)?.trim() || req.socket.remoteAddress || "unknown" : req.socket.remoteAddress || "unknown";
+  return consumeBudget(`auth:${clientAddress}`, AUTH_ATTEMPT_LIMIT);
+}
+function getGroqKey() {
+  return process.env.GROQ_API_KEY?.trim() || null;
+}
+function maskKey(key) {
+  if (!key || key.length < 8) return "Not Configured";
+  return `${key.slice(0, 6)}...${key.slice(-4)}`;
+}
+function errorStatus(message) {
+  if (/429|RESOURCE_EXHAUSTED|rate limit|quota/i.test(message)) return 429;
+  if (/401|403|unauthorized|forbidden/i.test(message)) return 401;
+  if (/404|not found/i.test(message)) return 404;
+  return 500;
+}
+async function geminiGenerate(apiKey, model, payload) {
+  const response = await fetch(`${GEMINI_BASE}/models/${encodeURIComponent(model)}:generateContent`, {
     method: "POST",
-    headers,
+    headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
     body: JSON.stringify(payload)
   });
+  const text = await response.text();
+  let data = {};
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    data = {};
+  }
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`OpenRouter error (${response.status}): ${errorText.slice(0, 200)}`);
+    const message = data?.error?.message || text || `Gemini request failed (${response.status})`;
+    const err = new Error(message);
+    err.status = response.status;
+    throw err;
   }
-  const data = await response.json();
-  const textOutput = data?.choices?.[0]?.message?.content || "";
-  if (!textOutput) {
-    throw new Error("OpenRouter returned an empty response.");
-  }
-  return {
-    text: textOutput,
-    modelUsed: modelId,
-    isFallback: false
-  };
+  return data;
 }
-async function callGemini(ai, modelId, contents, systemPrompt, settings, tools) {
-  const config = {
-    systemInstruction: systemPrompt
-  };
-  if (settings?.temperature !== void 0) {
-    config.temperature = settings.temperature;
-  }
-  if (settings?.maxTokens !== void 0) {
-    config.maxOutputTokens = settings.maxTokens;
-  }
-  if (tools && tools.length > 0) {
-    config.tools = tools;
-  }
-  if (settings?.enableSearch !== false) {
-    config.toolConfig = { includeServerSideToolInvocations: true };
-  }
-  const res = await ai.models.generateContent({
-    model: modelId,
-    contents,
-    config
-  });
-  return {
-    text: res.text || "",
-    functionCalls: res.functionCalls || [],
-    candidates: res.candidates || [],
-    modelUsed: modelId
-  };
+function normalizeModel(model) {
+  if (!model) return DEFAULT_MODEL;
+  if (model.includes("/") || model.includes(":free")) return model;
+  return MODEL_ALIASES[model] || model;
 }
-async function executeMultiModelRequest(ai, contents, fullSystemPrompt, settings, tools, req) {
-  const primaryModel = settings?.selectedModel || settings?.aiModel || "gemini-3.6-flash";
-  const autoFallback = settings?.autoFallback !== false;
-  let candidates = [];
-  if (primaryModel.includes("/") || primaryModel.includes(":free")) {
-    candidates = [
-      primaryModel,
-      "meta-llama/llama-3.3-70b-instruct:free",
-      "deepseek/deepseek-r1:free",
-      "qwen/qwen-2.5-coder-32b-instruct:free",
-      "gemini-3.6-flash",
-      "gemini-2.5-flash"
-    ];
-  } else {
-    candidates = [
-      primaryModel,
-      "gemini-2.5-flash",
-      "gemini-2.5-flash-lite",
-      "gemini-2.0-flash-lite",
-      "deepseek/deepseek-r1:free",
-      "meta-llama/llama-3.3-70b-instruct:free"
-    ];
+function toGeminiContents(messages, attachedImage) {
+  const source = Array.isArray(messages) ? messages.slice(-12) : [];
+  const contents = [];
+  for (const msg of source) {
+    if (!msg || !msg.content) continue;
+    const role = msg.role === "assistant" || msg.role === "model" ? "model" : "user";
+    contents.push({ role, parts: [{ text: String(msg.content) }] });
   }
-  candidates = Array.from(new Set(candidates));
-  if (!autoFallback) {
-    candidates = [primaryModel];
+  if (attachedImage) {
+    const last = contents[contents.length - 1];
+    if (last?.role === "user") contents.pop();
+    const match = String(attachedImage).match(/^data:(image\/[\w.+-]+);base64,(.+)$/);
+    const mimeType = match?.[1] || "image/jpeg";
+    const data = match?.[2] || String(attachedImage).replace(/^data:[^;]+;base64,/, "");
+    const lastMessage = source[source.length - 1]?.content || "Analyze this image.";
+    contents.push({ role: "user", parts: [{ inlineData: { mimeType, data } }, { text: String(lastMessage) }] });
   }
+  return contents.length ? contents : [{ role: "user", parts: [{ text: "Hello" }] }];
+}
+function toolDeclarations() {
+  return [{ functionDeclarations: [
+    {
+      name: "create_task",
+      description: "Create a task on the user action board.",
+      parameters: { type: "OBJECT", properties: { title: { type: "STRING" }, description: { type: "STRING" }, priority: { type: "STRING" }, dueDate: { type: "STRING" } }, required: ["title"] }
+    },
+    {
+      name: "save_note",
+      description: "Save a useful note to the user knowledge base.",
+      parameters: { type: "OBJECT", properties: { title: { type: "STRING" }, content: { type: "STRING" }, category: { type: "STRING" } }, required: ["title", "content"] }
+    },
+    {
+      name: "save_user_memory",
+      description: "Save an important user preference, fact, goal or instruction.",
+      parameters: { type: "OBJECT", properties: { key: { type: "STRING" }, value: { type: "STRING" }, category: { type: "STRING" } }, required: ["key", "value"] }
+    }
+  ] }];
+}
+async function chatWithGemini(req, data) {
+  const apiKey = getGeminiKey(req);
+  if (!apiKey) throw Object.assign(new Error("GEMINI_API_KEY is not configured on Vercel."), { status: 500 });
+  const persona = data.persona || { systemPrompt: "You are Alpha AI, a helpful personal AI assistant." };
+  let system = String(persona.systemPrompt || "You are Alpha AI, a helpful personal AI assistant.");
+  if (data.settings?.userCustomInstructions) system += `
+
+User instructions:
+${data.settings.userCustomInstructions}`;
+  system += `
+
+Current date/time: ${(/* @__PURE__ */ new Date()).toLocaleString("en-IN")}`;
+  if (Array.isArray(data.tasks) && data.tasks.length) {
+    const active = data.tasks.filter((t) => t.status !== "completed").slice(0, 8);
+    system += `
+
+Active tasks:
+${active.map((t) => `- ${t.title} (${t.priority || "medium"})`).join("\n")}`;
+  }
+  if (Array.isArray(data.notes) && data.notes.length) {
+    system += `
+
+Recent notes:
+${data.notes.slice(0, 5).map((n) => `- ${n.title}`).join("\n")}`;
+  }
+  if (Array.isArray(data.userMemory) && data.userMemory.length) {
+    system += `
+
+Known user preferences/facts:
+${data.userMemory.slice(0, 10).map((m) => `- ${m.key}: ${m.value}`).join("\n")}`;
+  }
+  system += data.voiceMode ? "\n\nCommunication style: Respond in simple, natural spoken Hindi. Keep replies short, direct, and useful. Avoid headings, lists, and long explanations unless the user asks for detail. Use English only for necessary technical terms or proper names." : "\n\nCommunication style: Reply in simple Hinglish by default. Keep answers short, direct, and useful. Avoid unnecessary long explanations; add detail only when needed or requested.";
+  system += `
+
+Response formatting:
+- Do not include programming source code, code fences, or code-style formatting in ordinary answers or school solutions just to present information.
+- For Maths and Accountancy, show calculations, formulas, journal entries, ledger accounts, and working notes as readable text, equations, or Markdown tables, never as programming code.
+- Only provide programming code when the user explicitly requests code or asks a software-development question that needs code. This rule does not prohibit normal formulas, accounting notation, or short examples.`;
+  if (data.studyTutorMode === true) {
+    system += `
+
+Maharashtra HSC Class 12 Commerce study-tutor mode:
+- Teach the requested chapter as a personal tutor for the Maharashtra State Board. Use simple Hinglish by default; use English or Hindi when the student asks. The student runs the Green Basket spice business (turmeric powder, red chilli powder, Makhana) and uses Tally Prime and Excel; use these as practical examples only when they clarify the syllabus concept.
+- Follow this exact session sequence: (1) Previous Topic Revision, (2) Active Recall, (3) New Topic Teaching, (4) Practice, (5) 10-Question Quiz. Teach each new concept in Beginner, Intermediate, then Board/Expert levels. For Maths and Accountancy, show board-style steps, formulas, workings, and formats.
+- Never move to the next stage, new topic, or quiz question until the student explicitly replies YES. Start with stage 1 only and wait. If the previous topic is unknown, ask which topic to revise or accept FIRST SESSION; do not silently skip ahead. During the final quiz, ask exactly one question, wait for the answer, give feedback, and ask for YES before the next question.
+- Cover the requested stage without dumping the entire chapter at once. At the end of the topic session, include Key Points, 80/20 Core Concepts, and a Quick Revision Summary, while still pausing for YES before progressing.
+- Keep content faithful to the Maharashtra State Board syllabus and textbook. Do not invent textbook facts, official weightage, paper blueprints, marking schemes, or past-paper questions. Clearly label generated questions as board-style practice. Call a PYQ verified only when a reliable source or the paper text is available; otherwise say verification is unavailable and ask the student to share the paper. Treat an 80-mark practice blueprint as a self-assessment model unless an official chapter-wise blueprint is provided.
+- When asked for a complete chapter module, include revision notes, all relevant formulas/formats/principles, five 1-mark objectives, 3-4 short-answer questions, an 8-mark board-style long answer or solved practical, PYQs with verification caveats, and an 80-mark weighted self-assessment blueprint. Do not present all quiz questions at once.
+- Adapt explanations to the student's technical background when useful, but keep board terminology and expected answer formats primary.`;
+  }
+  const modelRequested = normalizeModel(data.settings?.selectedModel || data.settings?.aiModel);
+  const candidates = Array.from(/* @__PURE__ */ new Set([
+    modelRequested,
+    DEFAULT_MODEL,
+    "gemini-3.5-flash",
+    "gemini-3.1-flash-lite"
+  ])).filter(Boolean);
   let lastError = null;
-  for (let i = 0; i < candidates.length; i++) {
-    const candidateModel = candidates[i];
-    const isFallbackAttempt = i > 0;
-    if (isFallbackAttempt) {
-      await delay(800 * i);
+  for (const model of candidates) {
+    if (model.includes("/") || model.includes(":free")) {
+      const orKey = getOpenRouterKey(req);
+      if (!orKey) continue;
+      try {
+        return await openRouterChat(orKey, model, data, system);
+      } catch (err) {
+        lastError = err;
+        continue;
+      }
     }
     try {
-      if (candidateModel.includes("/") || candidateModel.includes(":free")) {
-        const result = await callOpenRouter(candidateModel, contents, fullSystemPrompt, settings, req);
-        return {
-          text: result.text,
-          groundingSources: [],
-          toolExecutions: [],
-          modelUsed: result.modelUsed,
-          wasFallback: isFallbackAttempt
-        };
-      } else {
-        const toolsToUse = isFallbackAttempt ? [] : tools;
-        const result = await callGemini(ai, candidateModel, contents, fullSystemPrompt, settings, toolsToUse);
-        const groundingChunks = result.candidates?.[0]?.groundingMetadata?.groundingChunks;
-        const groundingSources = groundingChunks ? groundingChunks.map((chunk) => {
-          if (chunk.web) {
-            return { title: chunk.web.title || "Web Source", url: chunk.web.uri };
-          }
-          return null;
-        }).filter(Boolean) : [];
-        const toolExecutions = [];
-        let generatedImageUrl = void 0;
-        if (result.functionCalls && result.functionCalls.length > 0) {
-          for (const fc of result.functionCalls) {
-            toolExecutions.push({
-              name: fc.name,
-              args: fc.args
-            });
-            if (fc.name === "generate_image" && fc.args?.prompt) {
-              try {
-                const imgRes = await ai.models.generateContent({
-                  model: "gemini-2.5-flash",
-                  contents: { parts: [{ text: fc.args.prompt }] },
-                  config: {
-                    imageConfig: { aspectRatio: "1:1" }
-                  }
-                });
-                for (const part of imgRes.candidates?.[0]?.content?.parts || []) {
-                  if (part.inlineData) {
-                    generatedImageUrl = `data:image/png;base64,${part.inlineData.data}`;
-                    break;
-                  }
-                }
-              } catch (imgErr) {
-                console.error("Error in generate_image tool:", imgErr);
-              }
-            }
-          }
+      const payload = {
+        contents: toGeminiContents(data.messages, data.attachedImage),
+        systemInstruction: { parts: [{ text: system }] },
+        generationConfig: {
+          maxOutputTokens: Number(data.settings?.maxTokens) || 2048
         }
-        return {
-          text: result.text || "Response received.",
-          groundingSources,
-          toolExecutions,
-          generatedImageUrl,
-          modelUsed: result.modelUsed,
-          wasFallback: isFallbackAttempt
-        };
-      }
+      };
+      if (data.settings?.enableSearch === true) payload.tools = [{ googleSearch: {} }];
+      if (model !== "gemini-3.6-flash" && model !== "gemini-3.5-flash") payload.tools = [...payload.tools || [], ...toolDeclarations()];
+      else payload.tools = [...payload.tools || [], ...toolDeclarations()];
+      const result = await geminiGenerate(apiKey, model, payload);
+      const candidate = result?.candidates?.[0];
+      const parts = candidate?.content?.parts || [];
+      const text = parts.filter((p) => typeof p.text === "string").map((p) => p.text).join("");
+      const functionCalls = parts.filter((p) => p.functionCall).map((p) => ({ name: p.functionCall.name, args: p.functionCall.args || {} }));
+      const groundingChunks = candidate?.groundingMetadata?.groundingChunks || [];
+      const groundingSources = groundingChunks.map((c) => c?.web ? { title: c.web.title || "Web Source", url: c.web.uri } : null).filter(Boolean);
+      return {
+        text: text || "Response received.",
+        groundingSources,
+        toolExecutions: functionCalls,
+        modelUsed: model,
+        wasFallback: model !== modelRequested
+      };
     } catch (err) {
       lastError = err;
-      console.warn(`Model execution attempt ${i + 1} (${candidateModel}) failed:`, err?.message || err);
+      console.error(`[Alpha AI] Gemini model ${model} failed:`, err?.message || err);
     }
   }
-  throw lastError || new Error("All free AI model attempts failed.");
+  const groqKey = getGroqKey();
+  if (groqKey) {
+    try {
+      console.warn("[Alpha AI] All Gemini models failed, falling back to Groq.");
+      return await groqChat(groqKey, data, system);
+    } catch (err) {
+      lastError = err;
+      console.error("[Alpha AI] Groq fallback also failed:", err?.message || err);
+    }
+  }
+  throw lastError || new Error("All configured AI models failed.");
+}
+async function groqChat(apiKey, data, system) {
+  const messages = [{ role: "system", content: system }];
+  for (const msg of Array.isArray(data.messages) ? data.messages.slice(-12) : []) {
+    messages.push({ role: msg.role === "assistant" ? "assistant" : "user", content: String(msg.content || "") });
+  }
+  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({ model: "openai/gpt-oss-20b", messages, max_tokens: Number(data.settings?.maxTokens) || 2048 })
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw Object.assign(new Error(result?.error?.message || `Groq error ${response.status}`), { status: response.status });
+  return {
+    text: result?.choices?.[0]?.message?.content || "Response received.",
+    groundingSources: [],
+    toolExecutions: [],
+    modelUsed: "groq/openai-gpt-oss-20b",
+    wasFallback: true
+  };
+}
+async function openRouterChat(apiKey, model, data, system) {
+  const messages = [{ role: "system", content: system }];
+  for (const msg of Array.isArray(data.messages) ? data.messages.slice(-12) : []) {
+    messages.push({ role: msg.role === "assistant" ? "assistant" : "user", content: String(msg.content || "") });
+  }
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({ model, messages, max_tokens: Number(data.settings?.maxTokens) || 2048 })
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw Object.assign(new Error(result?.error?.message || `OpenRouter error ${response.status}`), { status: response.status });
+  return { text: result?.choices?.[0]?.message?.content || "Response received.", groundingSources: [], toolExecutions: [], modelUsed: model, wasFallback: true };
+}
+async function analyze(req, data) {
+  const taskType = data.taskType || "general_task";
+  const system = taskType === "code_analysis" || taskType === "complex_reasoning" ? "You are Alpha AI Senior Code and Systems Analyst. Find bugs, edge cases, security issues and practical fixes." : taskType === "fast_edit" || taskType === "auto_category" ? "You are Alpha AI rapid editor. Return clean, accurate, polished output." : "You are Alpha AI. Provide clear, useful, structured analysis.";
+  const result = await chatWithGemini(req, {
+    messages: [{ role: "user", content: data.context ? `Context:
+${data.context}
+
+Input:
+${data.text}` : data.text }],
+    persona: { systemPrompt: system },
+    settings: { selectedModel: taskType === "code_analysis" ? "gemini-3.1-pro-preview" : "gemini-3.6-flash", enableSearch: false, maxTokens: 4096 }
+  });
+  return { result: result.text, modelUsed: result.modelUsed };
+}
+async function generateImage(req, data) {
+  const apiKey = getGeminiKey(req);
+  if (!apiKey) throw Object.assign(new Error("GEMINI_API_KEY is not configured on Vercel."), { status: 500 });
+  if (!data.prompt) throw Object.assign(new Error("Prompt is required"), { status: 400 });
+  const payload = {
+    contents: [{ parts: [{ text: String(data.prompt) }] }],
+    generationConfig: {
+      responseModalities: ["IMAGE"],
+      imageConfig: { aspectRatio: data.aspectRatio || "1:1" }
+    }
+  };
+  const result = await geminiGenerate(apiKey, IMAGE_MODEL, payload);
+  const parts = result?.candidates?.[0]?.content?.parts || [];
+  const imagePart = parts.find((part) => part?.inlineData?.data);
+  if (!imagePart?.inlineData?.data) throw new Error("No image data returned by the image model.");
+  const mimeType = imagePart.inlineData.mimeType || "image/png";
+  return { imageUrl: `data:${mimeType};base64,${imagePart.inlineData.data}` };
+}
+async function tts(req, data) {
+  const apiKey = getGeminiKey(req);
+  if (!apiKey) throw Object.assign(new Error("GEMINI_API_KEY is not configured on Vercel."), { status: 500 });
+  if (!data.text) throw Object.assign(new Error("Text is required"), { status: 400 });
+  const payload = {
+    contents: [{ parts: [{ text: String(data.text).slice(0, 800) }] }],
+    generationConfig: {
+      responseModalities: ["AUDIO"],
+      speechConfig: {
+        voiceConfig: {
+          prebuiltVoiceConfig: { voiceName: data.voiceName || "Kore" }
+        }
+      }
+    }
+  };
+  const result = await geminiGenerate(apiKey, TTS_MODEL, payload);
+  const audioPart = result?.candidates?.[0]?.content?.parts?.find((part) => part?.inlineData?.data);
+  const audio = audioPart?.inlineData?.data;
+  if (!audio) throw new Error("No audio data returned by the TTS model.");
+  const mimeType = audioPart.inlineData.mimeType || "audio/L16;codec=pcm;rate=24000";
+  return { audioData: `data:${mimeType};base64,${audio}` };
+}
+async function handler(req, res) {
+  cors(req, res);
+  if (req.method === "OPTIONS") return json(res, 204, {});
+  const route = Array.isArray(req.query?.route) ? req.query.route.join("/") : String(req.url || "").split("?")[0].replace(/^\/api\/?/, "");
+  try {
+    if (req.method === "GET" && route === "health") return json(res, 200, { status: "ok", timestamp: (/* @__PURE__ */ new Date()).toISOString() });
+    if (req.method === "GET" && route === "security/status") {
+      const key = getGeminiKey(req);
+      const orKey = getOpenRouterKey(req);
+      return json(res, 200, {
+        configured: !!key,
+        activeSource: key ? "environment_variable" : "missing",
+        maskedKey: maskKey(key),
+        storageMechanism: "Vercel Environment Variables (recommended for serverless)",
+        encryptionActive: true,
+        vaultHasCustomKey: false,
+        envHasKey: !!process.env.GEMINI_API_KEY,
+        openRouterConfigured: !!orKey,
+        maskedOpenRouterKey: maskKey(orKey),
+        lastValidated: (/* @__PURE__ */ new Date()).toISOString()
+      });
+    }
+    if (req.method === "GET" && route === "models") {
+      return json(res, 200, {
+        models: MODEL_LIST,
+        defaultModel: DEFAULT_MODEL,
+        geminiConfigured: !!getGeminiKey(req),
+        openRouterConfigured: !!getOpenRouterKey(req),
+        autoFallbackAvailable: true
+      });
+    }
+    if (Object.hasOwn(ROUTE_LIMITS, route)) {
+      const authBudget = consumeAuthAttemptBudget(req);
+      if (!authBudget.allowed) {
+        res.setHeader("Retry-After", String(authBudget.retryAfterSeconds));
+        return json(res, 429, {
+          error: "Too many authentication attempts. Please wait before trying again.",
+          isRateLimit: true,
+          retryable: false
+        });
+      }
+      const user = await verifyFirebaseUser(req);
+      if (!user) return json(res, 401, { error: "Please sign in to use this service." });
+      const budget = consumeRequestBudget(user.uid, route);
+      if (!budget.allowed) {
+        res.setHeader("Retry-After", String(budget.retryAfterSeconds));
+        return json(res, 429, {
+          error: "Request limit reached. Please wait before trying again.",
+          isRateLimit: true,
+          retryable: false
+        });
+      }
+    }
+    const data = await body(req);
+    if (req.method === "POST" && route === "security/validate") {
+      const apiKey = String(data.apiKey || "").trim();
+      if (!apiKey) return json(res, 200, { valid: false, message: "API key is required." });
+      try {
+        await geminiGenerate(apiKey, DEFAULT_MODEL, { contents: [{ role: "user", parts: [{ text: "Reply with OK." }] }], generationConfig: { maxOutputTokens: 8 } });
+        return json(res, 200, { valid: true, message: "Gemini API key validated successfully." });
+      } catch (err) {
+        return json(res, 200, { valid: false, message: err?.message || "API key validation failed." });
+      }
+    }
+    if (req.method === "POST" && route === "security/update-key") {
+      return json(res, 400, { success: false, message: "For Vercel, add GEMINI_API_KEY in Project Settings \u2192 Environment Variables. Runtime file storage is not persistent on serverless functions." });
+    }
+    if (req.method === "POST" && route === "security/reset-key") {
+      return json(res, 400, { success: false, message: "Keys are managed through Vercel Environment Variables." });
+    }
+    if (req.method !== "POST") return json(res, 405, { error: "Method not allowed" });
+    if (route === "chat") return json(res, 200, await chatWithGemini(req, data));
+    if (route === "analyze") return json(res, 200, await analyze(req, data));
+    if (route === "generate-image") return json(res, 200, await generateImage(req, data));
+    if (route === "tts") return json(res, 200, await tts(req, data));
+    return json(res, 404, { error: `API route POST /api/${route} not found` });
+  } catch (err) {
+    console.error("[Alpha AI Vercel API]", err);
+    const status = Number(err?.status) || errorStatus(String(err?.message || err));
+    const isRateLimit = status === 429;
+    return json(res, status, {
+      error: err?.message || "Server error",
+      isRateLimit,
+      text: isRateLimit ? "\u26A0\uFE0F Rate limit reached. Please try again shortly." : "\u26A0\uFE0F Alpha AI server error. Check the Vercel function logs and environment variables.",
+      groundingSources: [],
+      toolExecutions: []
+    });
+  }
 }
 
 // server.ts
 dotenv.config();
 var __filename = fileURLToPath(import.meta.url);
-var __dirname = path2.dirname(__filename);
+var __dirname = path.dirname(__filename);
 var app = express();
 var PORT = 3e3;
-app.use(express.json({ limit: "20mb" }));
-function getGenAI(req) {
-  const apiKey = securityKeyManager.getApiKey(req);
-  return new GoogleGenAI2({
-    apiKey,
-    httpOptions: {
-      headers: {
-        "User-Agent": "aistudio-build-secure"
-      }
-    }
+app.all("/api*", (req, res) => {
+  handler(req, res);
+});
+app.all("/api/*", (req, res) => {
+  res.status(404).json({ error: `API route ${req.method} ${req.path} not found` });
+});
+app.use((err, req, res, next) => {
+  console.error("[Express API Global Error]", err);
+  if (res.headersSent) {
+    return next(err);
+  }
+  const statusCode = err.status || err.statusCode || (err.message?.includes("429") || err.message?.includes("RESOURCE_EXHAUSTED") ? 429 : 500);
+  res.status(statusCode).json({
+    error: err.message || "An unexpected server error occurred",
+    isRateLimit: statusCode === 429
   });
-}
-var createTaskDeclaration = {
-  name: "create_task",
-  description: "Create a new task on the user's personal action board.",
-  parameters: {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING, description: "Short summary or title of the task" },
-      description: { type: Type.STRING, description: "Optional details or checklist" },
-      priority: { type: Type.STRING, description: "Priority level: high, medium, or low" },
-      dueDate: { type: Type.STRING, description: 'Optional due date string (e.g. "Today", "Tomorrow", "2026-08-10")' }
-    },
-    required: ["title"]
-  }
-};
-var saveNoteDeclaration = {
-  name: "save_note",
-  description: "Save a structured note or snippet into the user's Knowledge Base memory.",
-  parameters: {
-    type: Type.OBJECT,
-    properties: {
-      title: { type: Type.STRING, description: "Title of the knowledge note" },
-      content: { type: Type.STRING, description: "Detailed note content or markdown documentation" },
-      category: { type: Type.STRING, description: "Category e.g. Work, Research, Code, Ideas, Life" }
-    },
-    required: ["title", "content"]
-  }
-};
-var generateImageDeclaration = {
-  name: "generate_image",
-  description: "Generate a visual graphic, illustration, diagram, or concept image using AI.",
-  parameters: {
-    type: Type.OBJECT,
-    properties: {
-      prompt: { type: Type.STRING, description: "Detailed image description for the generation model" }
-    },
-    required: ["prompt"]
-  }
-};
-var saveMemoryDeclaration = {
-  name: "save_user_memory",
-  description: "Automatically remember or save an important user fact, preference, goal, or instruction into long-term AI memory.",
-  parameters: {
-    type: Type.OBJECT,
-    properties: {
-      key: { type: Type.STRING, description: 'Short memory topic or key, e.g. "Favorite Programming Language", "Target Exam", "Coding Style"' },
-      value: { type: Type.STRING, description: "Detailed memory value to store" },
-      category: { type: Type.STRING, description: "Category: preference, fact, instruction, or general" }
-    },
-    required: ["key", "value"]
-  }
-};
-app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", timestamp: (/* @__PURE__ */ new Date()).toISOString() });
-});
-app.get("/api/security/status", (req, res) => {
-  try {
-    const status = securityKeyManager.getSecurityStatus(req);
-    res.json(status);
-  } catch (err) {
-    res.status(500).json({ error: err.message || "Failed to retrieve security status" });
-  }
-});
-app.post("/api/security/validate", async (req, res) => {
-  try {
-    const { apiKey } = req.body;
-    const result = await securityKeyManager.validateApiKey(apiKey);
-    res.json(result);
-  } catch (err) {
-    res.status(500).json({ valid: false, message: err.message || "Validation error" });
-  }
-});
-app.post("/api/security/update-key", async (req, res) => {
-  try {
-    const { apiKey } = req.body;
-    if (!apiKey) {
-      return res.status(400).json({ success: false, message: "apiKey parameter is required" });
-    }
-    const result = await securityKeyManager.storeCustomKey(apiKey);
-    res.json(result);
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message || "Failed to update key" });
-  }
-});
-app.post("/api/security/reset-key", (req, res) => {
-  try {
-    const result = securityKeyManager.resetCustomKey();
-    res.json(result);
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message || "Failed to reset key" });
-  }
-});
-app.get("/api/models", (req, res) => {
-  try {
-    const secStatus = securityKeyManager.getSecurityStatus(req);
-    res.json({
-      models: FREE_AI_MODELS_SERVER,
-      defaultModel: "gemini-3.6-flash",
-      geminiConfigured: secStatus.configured,
-      openRouterConfigured: secStatus.openRouterConfigured,
-      autoFallbackAvailable: true
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message || "Failed to list models" });
-  }
-});
-app.post("/api/chat", async (req, res) => {
-  try {
-    const ai = getGenAI(req);
-    const { messages, persona, settings, tasks, notes, attachedImage } = req.body;
-    const currentPersona = persona || {
-      name: "Alpha AI",
-      title: "Next-Gen Intelligent AI Assistant",
-      systemPrompt: "You are Alpha AI, a next-generation intelligent AI assistant."
-    };
-    let fullSystemPrompt = `${currentPersona.systemPrompt}
-
-`;
-    if (settings?.userCustomInstructions) {
-      fullSystemPrompt += `User Instructions:
-${settings.userCustomInstructions}
-
-`;
-    }
-    fullSystemPrompt += `Current Date/Time: ${(/* @__PURE__ */ new Date()).toLocaleString()}
-`;
-    if (tasks && Array.isArray(tasks) && tasks.length > 0) {
-      const activeTasks = tasks.filter((t) => t.status !== "completed").slice(0, 5);
-      fullSystemPrompt += `
-User's Active Tasks (${activeTasks.length}):
-` + activeTasks.map((t) => `- [${t.priority.toUpperCase()}] ${t.title} (Status: ${t.status})`).join("\n") + "\n";
-    }
-    if (notes && Array.isArray(notes) && notes.length > 0) {
-      const recentNotes = notes.slice(0, 3);
-      fullSystemPrompt += `
-User's Recent Knowledge Notes (${recentNotes.length}):
-` + recentNotes.map((n) => `- ${n.title} (${n.category})`).join("\n") + "\n";
-    }
-    fullSystemPrompt += `
-Tools & Capabilities:
-- You can create tasks using create_task tool whenever the user asks to remind them or create a task.
-- You can save structured notes using save_note tool when valuable ideas/summaries are discussed.
-- You can generate images using generate_image tool when visual concepts are requested.
-When using tools, also summarize what action was taken in friendly text.`;
-    const contents = [];
-    if (Array.isArray(messages) && messages.length > 0) {
-      const history = messages.slice(-10);
-      for (const msg of history) {
-        if (msg.role === "user") {
-          contents.push({
-            role: "user",
-            parts: [{ text: msg.content }]
-          });
-        } else if (msg.role === "assistant") {
-          contents.push({
-            role: "model",
-            parts: [{ text: msg.content }]
-          });
-        }
-      }
-    }
-    if (attachedImage) {
-      const lastUserMsg = messages && messages.length > 0 ? messages[messages.length - 1].content : "Analyze this image";
-      if (contents.length > 0 && contents[contents.length - 1].role === "user") {
-        contents.pop();
-      }
-      contents.push({
-        role: "user",
-        parts: [
-          {
-            inlineData: {
-              mimeType: "image/jpeg",
-              data: attachedImage.replace(/^data:image\/\w+;base64,/, "")
-            }
-          },
-          { text: lastUserMsg || "Analyze this image" }
-        ]
-      });
-    }
-    const primaryTools = [
-      { functionDeclarations: [createTaskDeclaration, saveNoteDeclaration, generateImageDeclaration, saveMemoryDeclaration] }
-    ];
-    if (settings?.enableSearch !== false) {
-      primaryTools.push({ googleSearch: {} });
-    }
-    let responseResult = null;
-    try {
-      responseResult = await executeMultiModelRequest(
-        ai,
-        contents,
-        fullSystemPrompt,
-        settings,
-        primaryTools,
-        req
-      );
-    } catch (apiErr) {
-      console.error("All Multi-Model AI attempts failed:", apiErr);
-      return res.json({
-        text: "\u26A0\uFE0F **All Free AI Models Busy / Rate Limited**: Free tier quota limits reach ho gayi hain. Kripya 30-60 seconds baad retry karein ya custom API key configure karein.",
-        groundingSources: [],
-        toolExecutions: [],
-        generatedImageUrl: void 0,
-        modelUsed: settings?.selectedModel || "gemini-3.6-flash",
-        wasFallback: true
-      });
-    }
-    res.json({
-      text: responseResult.text || "Processing completed.",
-      groundingSources: responseResult.groundingSources || [],
-      toolExecutions: responseResult.toolExecutions || [],
-      generatedImageUrl: responseResult.generatedImageUrl,
-      modelUsed: responseResult.modelUsed,
-      wasFallback: responseResult.wasFallback
-    });
-  } catch (err) {
-    console.error("Chat API Error:", err);
-    res.json({
-      text: "\u26A0\uFE0F **Service Busy**: Kripya ek baar retry karein.",
-      groundingSources: [],
-      toolExecutions: []
-    });
-  }
-});
-app.post("/api/analyze", async (req, res) => {
-  try {
-    const ai = getGenAI(req);
-    const { taskType, text, context } = req.body;
-    if (!text) {
-      return res.status(400).json({ error: "Text content is required for analysis" });
-    }
-    let selectedModel = "gemini-3.6-flash";
-    let systemInstruction = "You are Alpha AI Intelligence Engine.";
-    if (taskType === "complex_reasoning" || taskType === "code_analysis") {
-      selectedModel = "gemini-3.1-pro-preview";
-      systemInstruction = "You are a Senior AI Code & Systems Analyst. Analyze the input thoroughly, identify edge cases, performance bottlenecks, bugs, and provide refactored, optimized code with detailed explanations.";
-    } else if (taskType === "summarize") {
-      selectedModel = "gemini-3.6-flash";
-      systemInstruction = "You are a concise executive summarizer. Provide key takeaways, action items, and a structured summary.";
-    } else if (taskType === "fast_edit") {
-      selectedModel = "gemini-3.1-flash-lite";
-      systemInstruction = "You are a rapid text editor. Fix grammar, improve flow, and return clean polished text quickly.";
-    } else if (taskType === "auto_category") {
-      selectedModel = "gemini-3.1-flash-lite";
-      systemInstruction = "Categorize the text into one of: Work, Study, Ideas, Research, Personal, Coding, Life. Output ONLY the single category name.";
-    }
-    const response = await ai.models.generateContent({
-      model: selectedModel,
-      contents: context ? `Context: ${context}
-
-Input Content:
-${text}` : text,
-      config: { systemInstruction }
-    });
-    res.json({
-      result: response.text || "",
-      modelUsed: selectedModel
-    });
-  } catch (err) {
-    console.error("Analyze API Error:", err);
-    try {
-      const ai = getGenAI(req);
-      const fallbackRes = await ai.models.generateContent({
-        model: "gemini-3.6-flash",
-        contents: req.body.text || ""
-      });
-      res.json({ result: fallbackRes.text || "", modelUsed: "gemini-3.6-flash" });
-    } catch (fbErr) {
-      res.status(500).json({ error: err.message || "Analysis failed" });
-    }
-  }
-});
-app.post("/api/generate-image", async (req, res) => {
-  try {
-    const ai = getGenAI(req);
-    const { prompt, aspectRatio } = req.body;
-    if (!prompt) {
-      return res.status(400).json({ error: "Prompt is required" });
-    }
-    const response = await ai.models.generateContent({
-      model: "gemini-3.1-flash-lite-image",
-      contents: { parts: [{ text: prompt }] },
-      config: {
-        imageConfig: { aspectRatio: aspectRatio || "1:1" }
-      }
-    });
-    let imageUrl = "";
-    for (const part of response.candidates?.[0]?.content?.parts || []) {
-      if (part.inlineData) {
-        imageUrl = `data:image/png;base64,${part.inlineData.data}`;
-        break;
-      }
-    }
-    if (!imageUrl) {
-      return res.status(500).json({ error: "No image data returned from model" });
-    }
-    res.json({ imageUrl });
-  } catch (err) {
-    console.error("Generate Image Error:", err);
-    res.status(500).json({ error: err.message || "Failed to generate image" });
-  }
-});
-app.post("/api/tts", async (req, res) => {
-  try {
-    const ai = getGenAI(req);
-    const { text, voiceName } = req.body;
-    if (!text) {
-      return res.status(400).json({ error: "Text is required" });
-    }
-    const response = await ai.models.generateContent({
-      model: "gemini-3.1-flash-tts-preview",
-      contents: [{ parts: [{ text: text.slice(0, 500) }] }],
-      // limit length for fast response
-      config: {
-        responseModalities: [Modality.AUDIO],
-        speechConfig: {
-          voiceConfig: {
-            prebuiltVoiceConfig: { voiceName: voiceName || "Kore" }
-          }
-        }
-      }
-    });
-    const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-    if (!base64Audio) {
-      return res.status(500).json({ error: "No audio generated" });
-    }
-    res.json({ audioData: `data:audio/wav;base64,${base64Audio}` });
-  } catch (err) {
-    console.error("TTS Error:", err);
-    res.status(500).json({ error: err.message || "TTS generation failed" });
-  }
 });
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
@@ -923,15 +610,21 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path2.join(process.cwd(), "dist");
+    const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
     app.get("*", (req, res) => {
-      res.sendFile(path2.join(distPath, "index.html"));
+      res.sendFile(path.join(distPath, "index.html"));
     });
   }
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Personal AI Agent Server running on http://0.0.0.0:${PORT}`);
   });
 }
-startServer();
+if (!process.env.VERCEL) {
+  startServer();
+}
+var server_default = app;
+export {
+  server_default as default
+};
 //# sourceMappingURL=server.js.map

@@ -5,8 +5,10 @@ const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
 const IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL || 'gemini-3.1-flash-image';
 const TTS_MODEL = process.env.GEMINI_TTS_MODEL || 'gemini-3.1-flash-tts-preview';
+const MAX_REQUEST_BODY_BYTES = 12 * 1024 * 1024;
+const AUTH_ATTEMPT_LIMIT = { maxRequests: 30, windowMs: 60_000 };
 const verifiedFirebaseTokens = new Map<string, { uid: string; expiresAt: number }>();
-const requestBudgets = new Map<string, { windowStart: number; count: number }>();
+const requestBudgets = new Map<string, { windowStart: number; windowMs: number; count: number }>();
 
 const ROUTE_LIMITS: Record<string, { maxRequests: number; windowMs: number }> = {
   chat: { maxRequests: 30, windowMs: 60_000 },
@@ -68,11 +70,26 @@ function cors(req: IncomingMessage, res: ServerResponse) {
 
 async function body(req: IncomingMessage & { body?: unknown }): Promise<any> {
   if (req.body !== undefined) {
+    const serializedBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body) || '';
+    if (Buffer.byteLength(serializedBody, 'utf8') > MAX_REQUEST_BODY_BYTES) {
+      throw Object.assign(new Error('Request body is too large.'), { status: 413 });
+    }
     if (typeof req.body === 'object' && req.body !== null) return req.body;
     if (typeof req.body === 'string') { try { return JSON.parse(req.body); } catch { return {}; } }
   }
   const chunks: Buffer[] = [];
-  for await (const chunk of req as any) chunks.push(Buffer.from(chunk));
+  let receivedBytes = 0;
+  let bodyTooLarge = false;
+  for await (const chunk of req as any) {
+    const buffer = Buffer.from(chunk);
+    receivedBytes += buffer.length;
+    if (receivedBytes > MAX_REQUEST_BODY_BYTES) {
+      bodyTooLarge = true;
+      continue;
+    }
+    chunks.push(buffer);
+  }
+  if (bodyTooLarge) throw Object.assign(new Error('Request body is too large.'), { status: 413 });
   const raw = Buffer.concat(chunks).toString('utf8');
   if (!raw) return {};
   try { return JSON.parse(raw); } catch { return {}; }
@@ -152,15 +169,25 @@ async function verifyFirebaseUser(req: IncomingMessage): Promise<{ uid: string }
   return { uid };
 }
 
-function consumeRequestBudget(uid: string, route: string) {
-  const limit = ROUTE_LIMITS[route];
-  if (!limit) return { allowed: true, retryAfterSeconds: 0 };
+function startRequestBudget(key: string, windowMs: number, now: number) {
+  if (!requestBudgets.has(key) && requestBudgets.size >= 5000) {
+    for (const [existingKey, bucket] of requestBudgets) {
+      if (now - bucket.windowStart >= bucket.windowMs) requestBudgets.delete(existingKey);
+      if (requestBudgets.size < 5000) break;
+    }
+    if (requestBudgets.size >= 5000) {
+      const oldestKey = requestBudgets.keys().next().value;
+      if (oldestKey) requestBudgets.delete(oldestKey);
+    }
+  }
+  requestBudgets.set(key, { windowStart: now, windowMs, count: 1 });
+}
 
+function consumeBudget(key: string, limit: { maxRequests: number; windowMs: number }) {
   const now = Date.now();
-  const key = `${uid}:${route}`;
   const bucket = requestBudgets.get(key);
   if (!bucket || now - bucket.windowStart >= limit.windowMs) {
-    requestBudgets.set(key, { windowStart: now, count: 1 });
+    startRequestBudget(key, limit.windowMs, now);
     return { allowed: true, retryAfterSeconds: 0 };
   }
   if (bucket.count >= limit.maxRequests) {
@@ -171,12 +198,21 @@ function consumeRequestBudget(uid: string, route: string) {
   }
 
   bucket.count += 1;
-  if (requestBudgets.size > 5000) {
-    for (const [bucketKey, value] of requestBudgets) {
-      if (now - value.windowStart >= limit.windowMs) requestBudgets.delete(bucketKey);
-    }
-  }
   return { allowed: true, retryAfterSeconds: 0 };
+}
+
+function consumeRequestBudget(uid: string, route: string) {
+  const limit = ROUTE_LIMITS[route];
+  if (!limit) return { allowed: true, retryAfterSeconds: 0 };
+  return consumeBudget(`${uid}:${route}`, limit);
+}
+
+function consumeAuthAttemptBudget(req: IncomingMessage) {
+  const forwardedFor = req.headers['x-forwarded-for'];
+  const clientAddress = typeof forwardedFor === 'string'
+    ? forwardedFor.split(',').at(-1)?.trim() || req.socket.remoteAddress || 'unknown'
+    : req.socket.remoteAddress || 'unknown';
+  return consumeBudget(`auth:${clientAddress}`, AUTH_ATTEMPT_LIMIT);
 }
 
 function getGroqKey(): string | null {
@@ -503,9 +539,17 @@ export default async function handler(req: IncomingMessage & { body?: unknown },
       });
     }
 
-    const data = await body(req);
-
     if (Object.hasOwn(ROUTE_LIMITS, route)) {
+      const authBudget = consumeAuthAttemptBudget(req);
+      if (!authBudget.allowed) {
+        res.setHeader('Retry-After', String(authBudget.retryAfterSeconds));
+        return json(res, 429, {
+          error: 'Too many authentication attempts. Please wait before trying again.',
+          isRateLimit: true,
+          retryable: false,
+        });
+      }
+
       const user = await verifyFirebaseUser(req);
       if (!user) return json(res, 401, { error: 'Please sign in to use this service.' });
 
@@ -519,6 +563,8 @@ export default async function handler(req: IncomingMessage & { body?: unknown },
         });
       }
     }
+
+    const data = await body(req);
 
     if (req.method === 'POST' && route === 'security/validate') {
       const apiKey = String(data.apiKey || '').trim();
