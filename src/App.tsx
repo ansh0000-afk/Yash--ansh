@@ -15,7 +15,6 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 const SmartPromptLibraryModal = lazy(() => import('./components/SmartPromptLibraryModal').then(module => ({ default: module.SmartPromptLibraryModal })));
 import { FloatingAssistantWidget } from './components/FloatingAssistantWidget';
 const OnboardingTutorialModal = lazy(() => import('./components/OnboardingTutorialModal').then(module => ({ default: module.OnboardingTutorialModal })));
-const DashboardView = lazy(() => import('./components/DashboardView').then(module => ({ default: module.DashboardView })));
 const AIWorkspaceToolsView = lazy(() => import('./components/AIWorkspaceToolsView').then(module => ({ default: module.AIWorkspaceToolsView })));
 const CommerceStudyHubView = lazy(() => import('./components/CommerceStudyHubView').then(module => ({ default: module.CommerceStudyHubView })));
 import { AppNotification, NotificationCenter } from './components/NotificationCenter';
@@ -23,7 +22,7 @@ const LegalPage = lazy(() => import('./components/LegalPage').then(module => ({ 
 import { DeviceSecurity } from './lib/deviceSecurity';
 import { Shield, EyeOff, ShieldAlert } from 'lucide-react';
 import { DEFAULT_PERSONAS } from './data/defaultPersonas';
-import { AgentPersona, ChatMessage, ChatSession, Task, KnowledgeNote, AgentSettings, UserProfile, DocumentAttachment, AppLockSettings, CalendarEvent } from './types';
+import { AgentPersona, ChatMessage, ChatSession, Task, KnowledgeNote, AgentSettings, UserProfile, DocumentAttachment, AppLockSettings } from './types';
 import { memoryManager } from './lib/memoryManager';
 import { apiFetch } from './lib/apiClient';
 import { auth, onAuthStateChanged, signOut } from './lib/firebase';
@@ -72,7 +71,7 @@ const DEFAULT_SESSION: ChatSession = {
 };
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<any>('dashboard');
+  const [currentView, setCurrentView] = useState<any>('commerce');
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
@@ -84,26 +83,6 @@ export default function App() {
       return [];
     }
   });
-  
-  // Calendar Events
-  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([
-    {
-      id: 'cal-1',
-      title: 'Class 12 Accountancy Partnership Practice',
-      date: new Date().toISOString().split('T')[0],
-      time: '14:00',
-      category: 'study',
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'cal-2',
-      title: 'Macroeconomics National Income Numericals',
-      date: new Date().toISOString().split('T')[0],
-      time: '17:30',
-      category: 'study',
-      createdAt: new Date().toISOString()
-    }
-  ]);
   
   // User Profile
   const [userProfile, setUserProfile] = useState<UserProfile>(() => memoryManager.getProfile());
@@ -661,7 +640,7 @@ useEffect(() => {
       };
       memoryManager.saveProfile(guestProfile);
       setUserProfile(guestProfile);
-      setCurrentView('dashboard');
+      setCurrentView('commerce');
       setIsMobileSidebarOpen(false);
     } catch (error) {
       console.error('Sign out failed:', error);
@@ -822,28 +801,6 @@ useEffect(() => {
 
         <main className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden pb-20 md:pb-0">
           <Suspense fallback={<div className="flex h-full items-center justify-center text-sm text-slate-400" role="status">Loading...</div>}>
-          {currentView === 'dashboard' && (
-            <DashboardView
-              userProfile={userProfile}
-              sessions={sessions}
-              tasks={tasks}
-              notes={notes}
-              calendarEvents={calendarEvents}
-              onNavigateView={(view) => setCurrentView(view)}
-              onOpenPromptLibrary={() => setIsPromptLibraryOpen(true)}
-              onQuickStartChat={(promptText) => {
-                setCurrentView('chat');
-                handleSendMessage(promptText);
-              }}
-              onAddTask={handleAddTask}
-              onAddCalendarEvent={(evt) => {
-                setCalendarEvents(prev => [...prev, { ...evt, id: `cal-${Date.now()}`, createdAt: new Date().toISOString() }]);
-              }}
-                onOpenAuth={() => setIsAuthOpen(true)}
-  onGoogleSignIn={() => setIsAuthOpen(true)}
-/>
-          )}
-
           {currentView === 'commerce' && (
             <CommerceStudyHubView
               onAskAgentAboutTopic={(topic) => {
@@ -921,7 +878,7 @@ useEffect(() => {
           {currentView === 'terms' && (
             <LegalPage
               type="terms"
-              onBack={() => setCurrentView('dashboard')}
+              onBack={() => setCurrentView('commerce')}
               onOpenOther={(type) => setCurrentView(type)}
             />
           )}
@@ -929,7 +886,7 @@ useEffect(() => {
           {currentView === 'privacy' && (
             <LegalPage
               type="privacy"
-              onBack={() => setCurrentView('dashboard')}
+              onBack={() => setCurrentView('commerce')}
               onOpenOther={(type) => setCurrentView(type)}
             />
           )}

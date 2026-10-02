@@ -24,7 +24,6 @@ import {
   Radio,
   Lock,
   Unlock,
-  LayoutDashboard,
   Wand2,
   GraduationCap,
   LogOut
@@ -354,26 +353,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Main Navigation Tabs */}
       <div className="px-3 pt-3 space-y-1">
-        <button
-          onClick={() => {
-            setCurrentView('dashboard');
-            if (onCloseMobile) onCloseMobile();
-          }}
-          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition ${
-            currentView === 'dashboard'
-              ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
-              : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'
-          }`}
-        >
-          <div className="flex items-center gap-2.5">
-            <LayoutDashboard className="w-4 h-4 text-indigo-400" />
-            <span>Dashboard</span>
-          </div>
-          <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full font-mono">
-            PRO
-          </span>
-        </button>
-
         <button
           onClick={() => {
             setCurrentView('commerce');

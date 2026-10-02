@@ -190,6 +190,6 @@ export interface FlashCard {
   isMastered?: boolean;
 }
 
-export type NavViewMode = 'dashboard' | 'chat' | 'tools' | 'tasks' | 'notes' | 'personas' | 'settings' | 'security';
+export type NavViewMode = 'commerce' | 'chat' | 'tools' | 'tasks' | 'notes' | 'personas' | 'settings' | 'security';
 
 
