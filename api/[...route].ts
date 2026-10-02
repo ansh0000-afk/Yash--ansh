@@ -42,8 +42,26 @@ function json(res: ServerResponse, status: number, payload: unknown) {
   res.end(JSON.stringify(payload));
 }
 
-function cors(res: ServerResponse) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+function cors(req: IncomingMessage, res: ServerResponse) {
+  const configuredOrigins = (process.env.CORS_ALLOWED_ORIGINS || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  const allowedOrigins = new Set([
+    'https://yash-ansh.vercel.app',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'https://localhost',
+    'capacitor://localhost',
+    ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
+    ...(process.env.VERCEL_PROJECT_PRODUCTION_URL ? [`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`] : []),
+    ...configuredOrigins,
+  ]);
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.has(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+  }
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Gemini-API-Key, X-API-Key, X-OpenRouter-API-Key');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
 }
@@ -448,7 +466,7 @@ async function tts(req: IncomingMessage, data: any) {
 }
 
 export default async function handler(req: IncomingMessage & { body?: unknown }, res: ServerResponse) {
-  cors(res);
+  cors(req, res);
   if (req.method === 'OPTIONS') return json(res, 204, {});
 
   const route = Array.isArray((req as any).query?.route)
