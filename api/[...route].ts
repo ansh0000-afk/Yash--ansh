@@ -172,6 +172,12 @@ async function chatWithGemini(req: IncomingMessage, data: any) {
   system += data.voiceMode
     ? '\n\nCommunication style: Respond in simple, natural spoken Hindi. Keep replies short, direct, and useful. Avoid headings, lists, and long explanations unless the user asks for detail. Use English only for necessary technical terms or proper names.'
     : '\n\nCommunication style: Reply in simple Hinglish by default. Keep answers short, direct, and useful. Avoid unnecessary long explanations; add detail only when needed or requested.';
+  system += `
+
+Response formatting:
+- Do not include programming source code, code fences, or code-style formatting in ordinary answers or school solutions just to present information.
+- For Maths and Accountancy, show calculations, formulas, journal entries, ledger accounts, and working notes as readable text, equations, or Markdown tables, never as programming code.
+- Only provide programming code when the user explicitly requests code or asks a software-development question that needs code. This rule does not prohibit normal formulas, accounting notation, or short examples.`;
 
   if (data.studyTutorMode === true) {
     system += `
