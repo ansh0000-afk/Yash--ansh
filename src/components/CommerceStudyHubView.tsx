@@ -8,6 +8,7 @@ import {
   DEFAULT_COMMERCE_TIMETABLE,
   CommerceTimetableSlot,
 } from '../data/commerceData';
+import { apiFetch } from '../lib/apiClient';
 import { 
   BookOpen, 
   Calculator, 
@@ -46,7 +47,7 @@ interface CommerceStudyHubViewProps {
   onAskAgentAboutTopic?: (topic: string) => void;
 }
 
-export type CommerceTab = 'subjects' | 'question_bank' | 'mcq_quiz' | 'sample_papers' | 'timetable' | 'progress';
+export type CommerceTab = 'subjects' | 'question_bank' | 'mcq_quiz' | 'sample_papers' | 'question_papers' | 'timetable' | 'progress';
 
 export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
   onAskAgentAboutTopic
@@ -57,6 +58,24 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [noteTypeFilter, setNoteTypeFilter] = useState<'all' | 'chapter' | 'short' | 'formula'>('all');
   const [qbTypeFilter, setQbTypeFilter] = useState<'all' | 'short' | 'long' | 'numerical'>('all');
+  const [questionPaperState, setQuestionPaperState] = useState<{
+    loading: boolean;
+    title: string;
+    sourceUrl: string;
+    pdfLinks: string[];
+    totalLinks: number;
+    note: string;
+    isClientRendered: boolean;
+    error?: string;
+  }>({
+    loading: false,
+    title: 'Maharashtra HSC Question Paper',
+    sourceUrl: 'https://mahahsscboard.in/en/questionPaper',
+    pdfLinks: [],
+    totalLinks: 0,
+    note: 'Fetching official Board question-paper links…',
+    isClientRendered: false,
+  });
 
   const [completedChapterIds, setCompletedChapterIds] = useState<Record<string, string[]>>(() => {
     try {
@@ -145,6 +164,63 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
   };
+
+  useEffect(() => {
+    if (activeTab !== 'question_papers') return;
+
+    let ignore = false;
+
+    const fetchBoardPapers = async () => {
+      setQuestionPaperState((current) => ({ ...current, loading: true, error: undefined, note: 'Fetching official Board question-paper links…' }));
+
+      try {
+        const response = await apiFetch<{ success: boolean; title?: string; sourceUrl?: string; pdfLinks?: string[]; totalLinks?: number; note?: string; isClientRendered?: boolean; error?: string; }>('/api/question-paper');
+
+        if (ignore) return;
+
+        if (!response.ok || !response.data.success) {
+          setQuestionPaperState({
+            loading: false,
+            title: 'Maharashtra HSC Question Paper',
+            sourceUrl: 'https://mahahsscboard.in/en/questionPaper',
+            pdfLinks: [],
+            totalLinks: 0,
+            note: response.data?.error || 'Unable to load official Board question-paper links right now.',
+            isClientRendered: true,
+            error: response.data?.error || 'fetch_failed',
+          });
+          return;
+        }
+
+        const payload = response.data;
+        setQuestionPaperState({
+          loading: false,
+          title: payload.title || 'Maharashtra HSC Question Paper',
+          sourceUrl: payload.sourceUrl || 'https://mahahsscboard.in/en/questionPaper',
+          pdfLinks: Array.isArray(payload.pdfLinks) ? payload.pdfLinks : [],
+          totalLinks: payload.totalLinks || 0,
+          note: payload.note || 'Official Board question-paper links were loaded.',
+          isClientRendered: Boolean(payload.isClientRendered),
+          error: undefined,
+        });
+      } catch (error: any) {
+        if (ignore) return;
+        setQuestionPaperState({
+          loading: false,
+          title: 'Maharashtra HSC Question Paper',
+          sourceUrl: 'https://mahahsscboard.in/en/questionPaper',
+          pdfLinks: [],
+          totalLinks: 0,
+          note: 'Unable to load official Board question-paper links. Please try again.',
+          isClientRendered: true,
+          error: error?.message || 'load_error',
+        });
+      }
+    };
+
+    fetchBoardPapers();
+    return () => { ignore = true; };
+  }, [activeTab]);
 
   const getSubjectIcon = (iconName: string) => {
     switch (iconName) {
@@ -242,6 +318,7 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
           { id: 'question_bank', label: 'Question Bank', icon: HelpCircle },
           { id: 'mcq_quiz', label: 'MCQs Quiz Test', icon: Zap },
           { id: 'sample_papers', label: 'Sample Papers & PYQs', icon: FileText },
+          { id: 'question_papers', label: 'Official Papers', icon: Download },
           { id: 'timetable', label: 'Study Schedule', icon: Calendar },
           { id: 'progress', label: 'Progress & Goals', icon: BarChart3 }
         ].map((tab) => {
@@ -264,7 +341,7 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
         })}
       </div>
       {/* Subject Chips Navigation */}
-      {(activeTab === 'subjects' || activeTab === 'question_bank' || activeTab === 'mcq_quiz' || activeTab === 'sample_papers') && (
+      {(activeTab === 'subjects' || activeTab === 'question_bank' || activeTab === 'mcq_quiz' || activeTab === 'sample_papers' || activeTab === 'question_papers') && (
         <div className="px-4 py-2 bg-slate-950 border-b border-slate-800/80 flex items-center gap-2 overflow-x-auto shrink-0 no-scrollbar">
           <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-wider mr-1">Subject:</span>
           {CLASS_12_MAHARASHTRA_COMMERCE_SUBJECTS.map((subj) => {
@@ -563,6 +640,72 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
                   </div>
                 );
               })}
+            </div>
+          </div>
+        )}
+
+        {/* 4. OFFICIAL BOARD QUESTION PAPERS TAB */}
+        {activeTab === 'question_papers' && (
+          <div className="space-y-6 max-w-5xl mx-auto">
+            <div className="p-6 rounded-3xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 text-white shadow-2xl">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <div className="text-[10px] font-mono font-extrabold uppercase tracking-wider bg-white/15 border border-white/25 px-2.5 py-1 rounded-full inline-block">Official Portal</div>
+                  <h3 className="mt-3 text-xl font-black">{questionPaperState.title}</h3>
+                </div>
+                <a
+                  href={questionPaperState.sourceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center px-4 py-2 rounded-2xl bg-white/10 border border-white/20 text-xs font-bold hover:bg-white/20 transition"
+                >
+                  Open Board Page
+                </a>
+              </div>
+            </div>
+
+            <div className="p-5 rounded-3xl bg-slate-900/80 border border-slate-800 shadow-xl space-y-4">
+              <div className="flex items-center justify-between gap-3">
+                <h4 className="text-sm font-black text-white">Available official links</h4>
+                <span className="text-[10px] font-mono text-slate-400">{questionPaperState.totalLinks} links</span>
+              </div>
+
+              {questionPaperState.loading ? (
+                <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-sm text-slate-300">Loading official paper links from Maharashtra Board…</div>
+              ) : questionPaperState.error ? (
+                <div className="p-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 text-amber-200 text-sm">
+                  {questionPaperState.note}
+                </div>
+              ) : questionPaperState.pdfLinks.length > 0 ? (
+                <div className="space-y-3">
+                  {questionPaperState.pdfLinks.map((link, index) => (
+                    <a
+                      key={`${link}-${index}`}
+                      href={link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block p-3 rounded-2xl border border-slate-800 bg-slate-950 hover:border-indigo-500/50 hover:bg-slate-900 transition"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <div className="text-[10px] font-mono uppercase tracking-wider text-indigo-300">PDF {index + 1}</div>
+                          <div className="text-sm font-bold text-white break-all">{link}</div>
+                        </div>
+                        <Download className="w-4 h-4 text-indigo-300 shrink-0" />
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-4 rounded-2xl border border-slate-800 bg-slate-950 text-sm text-slate-300">
+                  {questionPaperState.note || 'No direct official PDF links were found in the initial source page. The Board site may require client-side rendering.'}
+                </div>
+              )}
+
+              <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-slate-300 leading-relaxed">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300 block mb-1">Source note</span>
+                {questionPaperState.note}
+              </div>
             </div>
           </div>
         )}

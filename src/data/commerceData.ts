@@ -67,6 +67,55 @@ export const MAHARASHTRA_BOARD_INFO = {
   passingMarks: 35
 };
 
+const OFFICIAL_HSC_PAPER_URLS = {
+  accountancy: {
+    2024: 'https://state-board-strapi-upload.blr1.digitaloceanspaces.com/J_897_b5ab03b296.pdf',
+    2025: 'https://state-board-strapi-upload.blr1.digitaloceanspaces.com/J_347_9af74d0b20.pdf',
+    2026: 'https://state-board-strapi-upload.blr1.digitaloceanspaces.com/J_196_47090d5c4a.pdf',
+  },
+  ocm: {
+    2024: 'https://state-board-strapi-upload.blr1.digitaloceanspaces.com/J_828_1df1d12b13.pdf',
+    2025: 'https://state-board-strapi-upload.blr1.digitaloceanspaces.com/J_278_eaace94384.pdf',
+    2026: 'https://state-board-strapi-upload.blr1.digitaloceanspaces.com/J_128_1f7539fe96.pdf',
+  },
+  economics: {
+    2024: 'https://state-board-strapi-upload.blr1.digitaloceanspaces.com/J_904_76b0ffe2f5.pdf',
+    2025: 'https://state-board-strapi-upload.blr1.digitaloceanspaces.com/J_354_25150562d6.pdf',
+    2026: 'https://state-board-strapi-upload.blr1.digitaloceanspaces.com/J_183_e254dac27f.pdf',
+  },
+  secretarialPractice: {
+    2024: 'https://state-board-strapi-upload.blr1.digitaloceanspaces.com/J_841_f19650382f.pdf',
+    2025: 'https://state-board-strapi-upload.blr1.digitaloceanspaces.com/J_291_c7e81ceea8.pdf',
+    2026: 'https://state-board-strapi-upload.blr1.digitaloceanspaces.com/J_141_cdd4583202.pdf',
+  },
+  mathematics: {
+    2024: 'https://state-board-strapi-upload.blr1.digitaloceanspaces.com/J_866_c47ff4347a.pdf',
+    2025: 'https://state-board-strapi-upload.blr1.digitaloceanspaces.com/J_316_1d2016f594.pdf',
+    2026: 'https://state-board-strapi-upload.blr1.digitaloceanspaces.com/J_169_f6db0a8d52.pdf',
+  },
+  english: {
+    2024: 'https://state-board-strapi-upload.blr1.digitaloceanspaces.com/J_801_e8841e0007.pdf',
+    2025: 'https://state-board-strapi-upload.blr1.digitaloceanspaces.com/J_251_d163542f57.pdf',
+    2026: 'https://state-board-strapi-upload.blr1.digitaloceanspaces.com/J_101_bf26b0b5ee.pdf',
+  },
+} as const;
+
+function officialPreviousYearPapers(
+  subjectId: keyof typeof OFFICIAL_HSC_PAPER_URLS,
+  subjectName: string,
+) {
+  return Object.entries(OFFICIAL_HSC_PAPER_URLS[subjectId]).map(([year, sourceUrl]) => ({
+    id: `${subjectId}-official-${year}`,
+    year: `March ${year}`,
+    board: 'Maharashtra HSC Board',
+    title: `HSC Board ${subjectName} Paper March ${year}`,
+    totalMarks: 80,
+    solutionsSummary: 'Official Board question paper PDF; an answer key is not included.',
+    sourceUrl,
+    sourceVerified: true,
+  }));
+}
+
 export const CLASS_12_COMMERCE_SUBJECTS: SubjectContent[] = [
   {
     id: 'accountancy',
@@ -235,24 +284,7 @@ export const CLASS_12_COMMERCE_SUBJECTS: SubjectContent[] = [
         solutions: 'Full step-by-step solutions with Ledger Formats, Working Notes, Journal Entries, and Balance Sheets as per Balbharati textbook standard.'
       }
     ],
-    previousYearPapers: [
-      {
-        id: 'bk-pyp1',
-        year: 'March 2024',
-        board: 'Maharashtra HSC Board',
-        title: 'HSC Board Book Keeping & Accountancy Paper March 2024',
-        totalMarks: 80,
-        solutionsSummary: 'Paper and official answer-key source are not linked; verify this reference against an official Board paper before study.'
-      },
-      {
-        id: 'bk-pyp2',
-        year: 'July 2023',
-        board: 'Maharashtra HSC Board',
-        title: 'HSC Board Book Keeping & Accountancy Supplementary Paper July 2023',
-        totalMarks: 80,
-        solutionsSummary: 'Paper and solution source are not linked; verify this reference against an official Board paper before study.'
-      }
-    ]
+    previousYearPapers: officialPreviousYearPapers('accountancy', 'Book Keeping & Accountancy')
   },
   {
     id: 'ocm',
@@ -372,16 +404,7 @@ export const CLASS_12_COMMERCE_SUBJECTS: SubjectContent[] = [
         solutions: 'Full HSC Board standard answers with clear headings, sub-points, and textbook diagrams.'
       }
     ],
-    previousYearPapers: [
-      {
-        id: 'ocm-pyp1',
-        year: 'March 2024',
-        board: 'Maharashtra HSC Board',
-        title: 'HSC Board OCM Exam Paper March 2024',
-        totalMarks: 80,
-        solutionsSummary: 'Complete March 2024 HSC Board paper with model answers and marking scheme.'
-      }
-    ]
+    previousYearPapers: officialPreviousYearPapers('ocm', 'Organisation of Commerce & Management')
   },
   {
     id: 'economics',
@@ -497,16 +520,7 @@ export const CLASS_12_COMMERCE_SUBJECTS: SubjectContent[] = [
         solutions: 'Includes full micro/macro diagrams, law of demand & DMU schedules, and numerical steps.'
       }
     ],
-    previousYearPapers: [
-      {
-        id: 'eco-pyp1',
-        year: 'March 2024',
-        board: 'Maharashtra HSC Board',
-        title: 'HSC Board Economics Exam Paper March 2024',
-        totalMarks: 80,
-        solutionsSummary: 'Complete March 2024 HSC Board exam paper with official Board answer key.'
-      }
-    ]
+    previousYearPapers: officialPreviousYearPapers('economics', 'Economics')
   },
   {
     id: 'sp',
@@ -591,16 +605,7 @@ export const CLASS_12_COMMERCE_SUBJECTS: SubjectContent[] = [
         solutions: 'Complete secretarial letter formats and board model answers.'
       }
     ],
-    previousYearPapers: [
-      {
-        id: 'sp-pyp1',
-        year: 'March 2024',
-        board: 'Maharashtra HSC Board',
-        title: 'HSC Board Secretarial Practice Paper March 2024',
-        totalMarks: 80,
-        solutionsSummary: 'Complete March 2024 HSC Board exam paper with solutions.'
-      }
-    ]
+    previousYearPapers: officialPreviousYearPapers('secretarialPractice', 'Secretarial Practice')
   },
   {
     id: 'maths',
@@ -683,16 +688,7 @@ export const CLASS_12_COMMERCE_SUBJECTS: SubjectContent[] = [
         solutions: 'Step-by-step mathematical derivations, logic truth tables, and linear programming graph solutions.'
       }
     ],
-    previousYearPapers: [
-      {
-        id: 'math-pyp1',
-        year: 'March 2024',
-        board: 'Maharashtra HSC Board',
-        title: 'HSC Board Math & Stats Exam Paper March 2024',
-        totalMarks: 80,
-        solutionsSummary: 'Complete March 2024 HSC Board exam paper with solutions.'
-      }
-    ]
+    previousYearPapers: officialPreviousYearPapers('mathematics', 'Mathematics & Statistics (Commerce)')
   },
   {
     id: 'english',
@@ -763,16 +759,7 @@ export const CLASS_12_COMMERCE_SUBJECTS: SubjectContent[] = [
         solutions: 'Complete English paper solutions including passage answers, grammar transforms, writing skills, and novel answers.'
       }
     ],
-    previousYearPapers: [
-      {
-        id: 'eng-pyp1',
-        year: 'March 2024',
-        board: 'Maharashtra HSC Board',
-        title: 'HSC Board English Exam Paper March 2024',
-        totalMarks: 80,
-        solutionsSummary: 'Complete March 2024 HSC English Board exam paper with official solutions.'
-      }
-    ]
+    previousYearPapers: officialPreviousYearPapers('english', 'English')
   },
   {
     id: 'marathi',

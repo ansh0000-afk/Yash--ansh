@@ -501,6 +501,68 @@ async function tts(req: IncomingMessage, data: any) {
   return { audioData: `data:${mimeType};base64,${audio}` };
 }
 
+const OFFICIAL_QUESTION_PAPER_URL = 'https://mahahsscboard.in/en/questionPaper';
+
+function extractQuestionPaperLinks(html: string): string[] {
+  const urlPattern = /(https?:\/\/[^\s"'<>]+(?:\.pdf|\.PDF)(?:\?[^\s"'<>]*)?)/gi;
+  const urls = new Set<string>();
+
+  for (const match of html.matchAll(urlPattern)) {
+    const value = match[1]?.trim();
+    if (value) urls.add(value);
+  }
+
+  const anchorPattern = /(?:href|src)=["']([^"']+)["']/gi;
+  for (const match of html.matchAll(anchorPattern)) {
+    const value = match[1]?.trim();
+    if (!value) continue;
+    if (/\.(pdf|PDF)(?:\?|$)/.test(value)) urls.add(value);
+  }
+
+  const rawMatches = Array.from(urls)
+    .map((link) => {
+      try {
+        return /^https?:\/\//i.test(link) ? new URL(link).toString() : link;
+      } catch {
+        return link;
+      }
+    })
+    .filter((link) => /\.(pdf|PDF)(?:\?|$)/.test(link) || /question|paper|sample/i.test(link));
+
+  return rawMatches.slice(0, 40);
+}
+
+async function fetchQuestionPaperMetadata() {
+  const response = await fetch(OFFICIAL_QUESTION_PAPER_URL, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+      Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    },
+    redirect: 'error',
+    signal: AbortSignal.timeout(10_000),
+  });
+
+  if (!response.ok) {
+    throw Object.assign(new Error(`Unable to fetch the question paper page (${response.status}).`), { status: response.status });
+  }
+
+  const html = await response.text();
+  const pdfLinks = extractQuestionPaperLinks(html);
+  const titleMatch = html.match(/<title>([^<]+)<\/title>/i) || html.match(/"title"\s*:\s*"([^"]+)"/i);
+
+  return {
+    sourceUrl: OFFICIAL_QUESTION_PAPER_URL,
+    canonicalUrl: response.url || OFFICIAL_QUESTION_PAPER_URL,
+    title: titleMatch?.[1]?.trim() || 'Maharashtra HSC Question Paper',
+    pdfLinks,
+    totalLinks: pdfLinks.length,
+    note: pdfLinks.length
+      ? 'Official PDF/question-paper links were extracted from the source page.'
+      : 'The source page is client-rendered; no direct PDF links were found in the initial HTML. Open the page in a browser to fetch the final rendered links.',
+    isClientRendered: !pdfLinks.length,
+  };
+}
+
 export default async function handler(req: IncomingMessage & { body?: unknown }, res: ServerResponse) {
   cors(req, res);
   if (req.method === 'OPTIONS') return json(res, 204, {});
@@ -537,6 +599,28 @@ export default async function handler(req: IncomingMessage & { body?: unknown },
         openRouterConfigured: !!getOpenRouterKey(req),
         autoFallbackAvailable: true,
       });
+    }
+
+    if (route === 'question-paper') {
+      if (req.method !== 'GET') return json(res, 405, { success: false, error: 'Method not allowed.' });
+
+      try {
+        const result = await fetchQuestionPaperMetadata();
+        return json(res, 200, {
+          success: true,
+          ...result,
+          source: 'mahahsscboard.in',
+        });
+      } catch (err: any) {
+        return json(res, Number(err?.status) || 500, {
+          success: false,
+          error: err?.message || 'Unable to fetch question paper metadata.',
+          sourceUrl: OFFICIAL_QUESTION_PAPER_URL,
+          pdfLinks: [],
+          totalLinks: 0,
+          isClientRendered: true,
+        });
+      }
     }
 
     if (Object.hasOwn(ROUTE_LIMITS, route)) {
