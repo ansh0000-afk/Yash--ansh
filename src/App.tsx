@@ -499,7 +499,7 @@ useEffect(() => {
 };
   
 
-  const handleSendMessage = async (content: string, attachedImage?: string, attachedDoc?: DocumentAttachment) => {
+  const handleSendMessage = async (content: string, attachedImage?: string, attachedDoc?: DocumentAttachment, studyTutorMode = false) => {
     let finalContent = content;
     if (attachedDoc && attachedDoc.textContent) {
       finalContent = `${content}\n\n[Attached Document: "${attachedDoc.name}" (${attachedDoc.type}, ${attachedDoc.pageCount || 1} pages)]:\n\n${attachedDoc.textContent.slice(0, 10000)}`;
@@ -540,7 +540,8 @@ useEffect(() => {
           notes,
           userProfile,
           userMemory: memoryManager.getMemories(),
-          attachedImage
+          attachedImage,
+          studyTutorMode
         })
       });
 
@@ -777,7 +778,7 @@ useEffect(() => {
             <CommerceStudyHubView
               onAskAgentAboutTopic={(topic) => {
                 setCurrentView('chat');
-                handleSendMessage(`Explain this Class 12 Commerce concept in detail with examples and step-by-step notes: ${topic}`);
+                handleSendMessage(`Start a guided Maharashtra HSC Class 12 Commerce study session for: ${topic}. Begin with step 1 only.`, undefined, undefined, true);
               }}
             />
           )}

@@ -649,7 +649,7 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
               </div>
 
               <div className="text-xs font-mono bg-amber-500/20 text-amber-300 font-bold px-3 py-1.5 rounded-2xl border border-amber-500/30 shrink-0">
-                Weekly Target: 20 Hours
+                Weekly Target: 27.5 Hours
               </div>
             </div>
 
