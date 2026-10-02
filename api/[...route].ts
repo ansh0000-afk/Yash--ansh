@@ -218,7 +218,7 @@ Maharashtra HSC Class 12 Commerce study-tutor mode:
           maxOutputTokens: Number(data.settings?.maxTokens) || 2048,
         },
       };
-      if (data.settings?.enableSearch !== false) payload.tools = [{ googleSearch: {} }];
+      if (data.settings?.enableSearch === true) payload.tools = [{ googleSearch: {} }];
       if (model !== 'gemini-3.6-flash' && model !== 'gemini-3.5-flash') payload.tools = [ ...((payload.tools || [])), ...toolDeclarations() ];
       else payload.tools = [ ...((payload.tools || [])), ...toolDeclarations() ];
 

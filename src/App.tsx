@@ -1,27 +1,26 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { lazy, Suspense, useState, useEffect, useRef } from 'react';
 import { Sidebar } from './components/Sidebar';
-import { ChatView } from './components/ChatView';
-import { TaskBoardView } from './components/TaskBoardView';
-import { KnowledgeBaseView } from './components/KnowledgeBaseView';
-import { PersonaSelectorView } from './components/PersonaSelectorView';
-import { SettingsModal } from './components/SettingsModal';
-import { AuthModal } from './components/AuthModal';
-import { AuthGate } from './components/AuthGate';
-import { VoiceConversationModal } from './components/VoiceConversationModal';
-import { AppLockModal } from './components/AppLockModal';
-import { SplashScreen } from './components/SplashScreen';
+const ChatView = lazy(() => import('./components/ChatView').then(module => ({ default: module.ChatView })));
+const TaskBoardView = lazy(() => import('./components/TaskBoardView').then(module => ({ default: module.TaskBoardView })));
+const KnowledgeBaseView = lazy(() => import('./components/KnowledgeBaseView').then(module => ({ default: module.KnowledgeBaseView })));
+const PersonaSelectorView = lazy(() => import('./components/PersonaSelectorView').then(module => ({ default: module.PersonaSelectorView })));
+const SettingsModal = lazy(() => import('./components/SettingsModal').then(module => ({ default: module.SettingsModal })));
+const AuthModal = lazy(() => import('./components/AuthModal').then(module => ({ default: module.AuthModal })));
+const AuthGate = lazy(() => import('./components/AuthGate').then(module => ({ default: module.AuthGate })));
+const VoiceConversationModal = lazy(() => import('./components/VoiceConversationModal').then(module => ({ default: module.VoiceConversationModal })));
+const AppLockModal = lazy(() => import('./components/AppLockModal').then(module => ({ default: module.AppLockModal })));
+const SplashScreen = lazy(() => import('./components/SplashScreen').then(module => ({ default: module.SplashScreen })));
 import { BottomNavigation } from './components/BottomNavigation';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { SmartPromptLibraryModal } from './components/SmartPromptLibraryModal';
+const SmartPromptLibraryModal = lazy(() => import('./components/SmartPromptLibraryModal').then(module => ({ default: module.SmartPromptLibraryModal })));
 import { FloatingAssistantWidget } from './components/FloatingAssistantWidget';
-import { OnboardingTutorialModal } from './components/OnboardingTutorialModal';
-import { DashboardView } from './components/DashboardView';
-import { AIWorkspaceToolsView } from './components/AIWorkspaceToolsView';
-import { CommerceStudyHubView } from './components/CommerceStudyHubView';
+const OnboardingTutorialModal = lazy(() => import('./components/OnboardingTutorialModal').then(module => ({ default: module.OnboardingTutorialModal })));
+const DashboardView = lazy(() => import('./components/DashboardView').then(module => ({ default: module.DashboardView })));
+const AIWorkspaceToolsView = lazy(() => import('./components/AIWorkspaceToolsView').then(module => ({ default: module.AIWorkspaceToolsView })));
+const CommerceStudyHubView = lazy(() => import('./components/CommerceStudyHubView').then(module => ({ default: module.CommerceStudyHubView })));
 import { AppNotification, NotificationCenter } from './components/NotificationCenter';
-import { LegalPage } from './components/LegalPage';
+const LegalPage = lazy(() => import('./components/LegalPage').then(module => ({ default: module.LegalPage })));
 import { DeviceSecurity } from './lib/deviceSecurity';
-import { AnimatePresence, motion } from 'motion/react';
 import { Shield, EyeOff, ShieldAlert } from 'lucide-react';
 import { DEFAULT_PERSONAS } from './data/defaultPersonas';
 import { AgentPersona, ChatMessage, ChatSession, Task, KnowledgeNote, AgentSettings, UserProfile, DocumentAttachment, AppLockSettings, CalendarEvent } from './types';
@@ -138,11 +137,18 @@ export default function App() {
   const [settings, setSettings] = useState<AgentSettings>(() => {
     const saved = localStorage.getItem('agent_settings');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) {}
+      try {
+        const savedSettings = JSON.parse(saved);
+        if (localStorage.getItem('alpha_search_preference_migrated') !== 'true') {
+          savedSettings.enableSearch = false;
+          localStorage.setItem('alpha_search_preference_migrated', 'true');
+        }
+        return savedSettings;
+      } catch (e) {}
     }
     return {
       activePersonaId: activePersona.id,
-      enableSearch: true,
+      enableSearch: false,
       enableVoiceResponse: true,
       preferredLanguage: 'Hinglish',
       voiceSettings: {
@@ -719,9 +725,9 @@ useEffect(() => {
   if (showSplash) {
     return (
       <ErrorBoundary>
-        <AnimatePresence>
+        <Suspense fallback={<div className="flex h-screen items-center justify-center bg-slate-950 text-sm text-slate-400" role="status">Loading...</div>}>
           <SplashScreen onComplete={handleSplashComplete} />
-        </AnimatePresence>
+        </Suspense>
       </ErrorBoundary>
     );
   }
@@ -733,13 +739,15 @@ useEffect(() => {
     // Here we ensure AuthGate only shows if explicitly required:
     return (
       <ErrorBoundary>
-        <AuthGate
-          onUpdateProfile={(updated) => {
-            const finalUpdated = { ...updated, isLoggedIn: true };
-            memoryManager.saveProfile(finalUpdated);
-            setUserProfile(finalUpdated);
-          }}
-        />
+        <Suspense fallback={<div className="flex h-screen items-center justify-center bg-slate-950 text-sm text-slate-400" role="status">Loading...</div>}>
+          <AuthGate
+            onUpdateProfile={(updated) => {
+              const finalUpdated = { ...updated, isLoggedIn: true };
+              memoryManager.saveProfile(finalUpdated);
+              setUserProfile(finalUpdated);
+            }}
+          />
+        </Suspense>
       </ErrorBoundary>
     );
   }
@@ -758,19 +766,12 @@ useEffect(() => {
           </div>
         )}
 
-        <AnimatePresence>
-          {screenshotToast && (
-            <motion.div
-              initial={{ opacity: 0, y: -20, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, scale: 0.9 }}
-              className="fixed top-4 left-1/2 -translate-x-1/2 z-100 bg-rose-950/90 border border-rose-500/40 text-rose-200 px-4 py-2.5 rounded-2xl shadow-2xl backdrop-blur-xl flex items-center gap-2.5 text-xs font-semibold"
-            >
-              <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0 animate-bounce" />
-              <span>Screenshot / Screen Recording Detected — Protected Content</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {screenshotToast && (
+          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-100 bg-rose-950/90 border border-rose-500/40 text-rose-200 px-4 py-2.5 rounded-2xl shadow-2xl backdrop-blur-xl flex items-center gap-2.5 text-xs font-semibold">
+            <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0" />
+            <span>Screenshot / Screen Recording Detected — Protected Content</span>
+          </div>
+        )}
 
         {isMobileSidebarOpen && (
           <div
@@ -820,6 +821,7 @@ useEffect(() => {
         />
 
         <main className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden pb-20 md:pb-0">
+          <Suspense fallback={<div className="flex h-full items-center justify-center text-sm text-slate-400" role="status">Loading...</div>}>
           {currentView === 'dashboard' && (
             <DashboardView
               userProfile={userProfile}
@@ -949,6 +951,7 @@ useEffect(() => {
               onToggleLockSession={handleToggleLockSession}
             />
           )}
+          </Suspense>
         </main>
 
         <BottomNavigation
@@ -966,59 +969,79 @@ useEffect(() => {
         />
 
         {isAppLocked && settings.appLock?.isEnabled && (
-          <AppLockModal
-            mode="unlock-app"
-            appLockSettings={settings.appLock}
-            onSuccess={() => setIsAppLocked(false)}
-            onResetAppLock={handleResetAppLock}
-          />
+          <Suspense fallback={null}>
+            <AppLockModal
+              mode="unlock-app"
+              appLockSettings={settings.appLock}
+              onSuccess={() => setIsAppLocked(false)}
+              onResetAppLock={handleResetAppLock}
+            />
+          </Suspense>
         )}
 
         {pinModalState.isOpen && (
-          <AppLockModal
-            mode={pinModalState.mode}
-            targetChatTitle={pinModalState.targetChatTitle}
-            appLockSettings={settings.appLock}
-            onSuccess={handlePinModalSuccess}
-            onCancel={() => setPinModalState(prev => ({ ...prev, isOpen: false }))}
-            onResetAppLock={handleResetAppLock}
-          />
+          <Suspense fallback={null}>
+            <AppLockModal
+              mode={pinModalState.mode}
+              targetChatTitle={pinModalState.targetChatTitle}
+              appLockSettings={settings.appLock}
+              onSuccess={handlePinModalSuccess}
+              onCancel={() => setPinModalState(prev => ({ ...prev, isOpen: false }))}
+              onResetAppLock={handleResetAppLock}
+            />
+          </Suspense>
         )}
 
-        <AuthModal
-          isOpen={isAuthOpen}
-          userProfile={userProfile}
-          onUpdateProfile={(updated) => {
-            memoryManager.saveProfile(updated);
-            setUserProfile(updated);
-          }}
-          onClose={() => setIsAuthOpen(false)}
-        />
+        {isAuthOpen && (
+          <Suspense fallback={null}>
+            <AuthModal
+              isOpen={isAuthOpen}
+              userProfile={userProfile}
+              onUpdateProfile={(updated) => {
+                memoryManager.saveProfile(updated);
+                setUserProfile(updated);
+              }}
+              onClose={() => setIsAuthOpen(false)}
+            />
+          </Suspense>
+        )}
 
-        <VoiceConversationModal
-          isOpen={isVoiceModalOpen}
-          onClose={() => setIsVoiceModalOpen(false)}
-          activePersona={activePersona}
-          settings={settings}
-          onSendMessageToChat={handleSendMessage}
-        />
+        {isVoiceModalOpen && (
+          <Suspense fallback={null}>
+            <VoiceConversationModal
+              isOpen={isVoiceModalOpen}
+              onClose={() => setIsVoiceModalOpen(false)}
+              activePersona={activePersona}
+              settings={settings}
+              onSendMessageToChat={handleSendMessage}
+            />
+          </Suspense>
+        )}
 
-        <SmartPromptLibraryModal
-          isOpen={isPromptLibraryOpen}
-          onClose={() => setIsPromptLibraryOpen(false)}
-          onSelectPrompt={(promptText) => {
-            if (currentView !== 'chat') setCurrentView('chat');
-            handleSendMessage(promptText);
-          }}
-        />
+        {isPromptLibraryOpen && (
+          <Suspense fallback={null}>
+            <SmartPromptLibraryModal
+              isOpen={isPromptLibraryOpen}
+              onClose={() => setIsPromptLibraryOpen(false)}
+              onSelectPrompt={(promptText) => {
+                if (currentView !== 'chat') setCurrentView('chat');
+                handleSendMessage(promptText);
+              }}
+            />
+          </Suspense>
+        )}
 
-        <OnboardingTutorialModal
-          isOpen={isOnboardingOpen}
-          onClose={() => {
-            localStorage.setItem('alpha_onboarding_completed', 'true');
-            setIsOnboardingOpen(false);
-          }}
-        />
+        {isOnboardingOpen && (
+          <Suspense fallback={null}>
+            <OnboardingTutorialModal
+              isOpen={isOnboardingOpen}
+              onClose={() => {
+                localStorage.setItem('alpha_onboarding_completed', 'true');
+                setIsOnboardingOpen(false);
+              }}
+            />
+          </Suspense>
+        )}
 
         <FloatingAssistantWidget
           onOpenVoiceModal={() => setIsVoiceModalOpen(true)}
