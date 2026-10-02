@@ -5,6 +5,7 @@ const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
 const IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL || 'gemini-3.1-flash-image';
 const TTS_MODEL = process.env.GEMINI_TTS_MODEL || 'gemini-3.1-flash-tts-preview';
+const UPSTREAM_TIMEOUT_MS = 25_000;
 const MAX_REQUEST_BODY_BYTES = 12 * 1024 * 1024;
 const AUTH_ATTEMPT_LIMIT = { maxRequests: 30, windowMs: 60_000 };
 const verifiedFirebaseTokens = new Map<string, { uid: string; expiresAt: number }>();
@@ -225,6 +226,8 @@ function maskKey(key?: string | null) {
 }
 
 function errorStatus(message: string) {
+  if (/timed out|timeout|aborted/i.test(message)) return 504;
+  if (/fetch failed|network error|failed to fetch/i.test(message)) return 502;
   if (/429|RESOURCE_EXHAUSTED|rate limit|quota/i.test(message)) return 429;
   if (/401|403|unauthorized|forbidden/i.test(message)) return 401;
   if (/404|not found/i.test(message)) return 404;
@@ -236,6 +239,7 @@ async function geminiGenerate(apiKey: string, model: string, payload: any) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
     body: JSON.stringify(payload),
+    signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
   });
   const text = await response.text();
   let data: any = {};
@@ -298,7 +302,6 @@ function toolDeclarations() {
 
 async function chatWithGemini(req: IncomingMessage, data: any) {
   const apiKey = getGeminiKey(req);
-  if (!apiKey) throw Object.assign(new Error('GEMINI_API_KEY is not configured on Vercel.'), { status: 500 });
 
   const persona = data.persona || { systemPrompt: 'You are Alpha AI, a helpful personal AI assistant.' };
   let system = String(persona.systemPrompt || 'You are Alpha AI, a helpful personal AI assistant.');
@@ -356,6 +359,8 @@ Maharashtra HSC Class 12 Commerce study-tutor mode:
       } catch (err) { lastError = err; continue; }
     }
 
+    if (!apiKey) continue;
+
     try {
       const payload: any = {
         contents: toGeminiContents(data.messages, data.attachedImage),
@@ -399,7 +404,11 @@ Maharashtra HSC Class 12 Commerce study-tutor mode:
     }
   }
 
-  throw lastError || new Error('All configured AI models failed.');
+  if (lastError) throw lastError;
+  throw Object.assign(
+    new Error('No AI provider is available. Configure GEMINI_API_KEY or select a model with a configured provider key.'),
+    { status: 503, code: 'AI_PROVIDER_NOT_CONFIGURED' },
+  );
 }
 
 async function groqChat(apiKey: string, data: any, system: string) {
@@ -411,6 +420,7 @@ async function groqChat(apiKey: string, data: any, system: string) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({ model: 'openai/gpt-oss-20b', messages, max_tokens: Number(data.settings?.maxTokens) || 2048 }),
+    signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
   });
   const result: any = await response.json().catch(() => ({}));
   if (!response.ok) throw Object.assign(new Error(result?.error?.message || `Groq error ${response.status}`), { status: response.status });
@@ -432,6 +442,7 @@ async function openRouterChat(apiKey: string, model: string, data: any, system: 
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({ model, messages, max_tokens: Number(data.settings?.maxTokens) || 2048 }),
+    signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
   });
   const result: any = await response.json().catch(() => ({}));
   if (!response.ok) throw Object.assign(new Error(result?.error?.message || `OpenRouter error ${response.status}`), { status: response.status });
@@ -455,7 +466,7 @@ async function analyze(req: IncomingMessage, data: any) {
 
 async function generateImage(req: IncomingMessage, data: any) {
   const apiKey = getGeminiKey(req);
-  if (!apiKey) throw Object.assign(new Error('GEMINI_API_KEY is not configured on Vercel.'), { status: 500 });
+  if (!apiKey) throw Object.assign(new Error('GEMINI_API_KEY is not configured on Vercel.'), { status: 503, code: 'GEMINI_API_KEY_MISSING' });
   if (!data.prompt) throw Object.assign(new Error('Prompt is required'), { status: 400 });
 
   const payload = {
@@ -477,7 +488,7 @@ async function generateImage(req: IncomingMessage, data: any) {
 
 async function tts(req: IncomingMessage, data: any) {
   const apiKey = getGeminiKey(req);
-  if (!apiKey) throw Object.assign(new Error('GEMINI_API_KEY is not configured on Vercel.'), { status: 500 });
+  if (!apiKey) throw Object.assign(new Error('GEMINI_API_KEY is not configured on Vercel.'), { status: 503, code: 'GEMINI_API_KEY_MISSING' });
   if (!data.text) throw Object.assign(new Error('Text is required'), { status: 400 });
 
   const payload = {
@@ -678,11 +689,19 @@ export default async function handler(req: IncomingMessage & { body?: unknown },
 
     return json(res, 404, { error: `API route POST /api/${route} not found` });
   } catch (err: any) {
-    console.error('[Alpha AI Vercel API]', err);
     const status = Number(err?.status) || errorStatus(String(err?.message || err));
+    console.error('[Alpha AI Vercel API] Request failed', {
+      method: req.method,
+      route,
+      status,
+      code: err?.code,
+      name: err?.name,
+      message: err?.message || String(err),
+    });
     const isRateLimit = status === 429;
     return json(res, status, {
       error: err?.message || 'Server error',
+      code: err?.code,
       isRateLimit,
       text: isRateLimit
         ? '⚠️ Rate limit reached. Please try again shortly.'

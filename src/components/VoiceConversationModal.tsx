@@ -73,6 +73,7 @@ export const VoiceConversationModal: React.FC<VoiceConversationModalProps> = ({
       setIsListening(false);
     } else {
       setUserTranscript('');
+      setIsListening(true);
       voiceController.startListening(
         (transcript, isFinal) => {
           setUserTranscript(transcript);
@@ -83,13 +84,13 @@ export const VoiceConversationModal: React.FC<VoiceConversationModalProps> = ({
         (err) => {
           console.error('Voice Error:', err);
           setIsListening(false);
+          setLiveLog(prev => [...prev, { role: 'assistant', text: err }]);
         },
         () => {
           setIsListening(false);
         },
         'hi-IN'
       );
-      setIsListening(true);
     }
   };
 
@@ -111,6 +112,10 @@ export const VoiceConversationModal: React.FC<VoiceConversationModalProps> = ({
         })
       });
 
+      if (!res.ok) {
+        throw new Error(res.error || res.data?.error || 'Voice chat request failed.');
+      }
+
       const data = res.data || {};
       const aiReply = data.text || 'I understood your query.';
       setAiResponseText(aiReply);
@@ -123,8 +128,8 @@ export const VoiceConversationModal: React.FC<VoiceConversationModalProps> = ({
       });
     } catch (err) {
       console.error('Voice processing failed:', err);
-      const fallbackMsg = 'Audio response unavailable. Please try again.';
-      setLiveLog(prev => [...prev, { role: 'assistant', text: fallbackMsg }]);
+      const message = err instanceof Error ? err.message : 'Audio response unavailable. Please try again.';
+      setLiveLog(prev => [...prev, { role: 'assistant', text: message }]);
     } finally {
       setIsProcessing(false);
     }

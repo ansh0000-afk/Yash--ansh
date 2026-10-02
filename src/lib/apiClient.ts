@@ -5,7 +5,8 @@
 import { getIdToken } from 'firebase/auth';
 import { auth } from './firebase';
 
-const API_BASE = 'https://yash-ansh.vercel.app';
+const NATIVE_API_BASE = (import.meta.env.VITE_API_BASE_URL || 'https://yash-ansh.vercel.app').replace(/\/+$/, '');
+const API_REQUEST_TIMEOUT_MS = 35_000;
 
 export interface ApiResponse<T = any> {
   ok: boolean;
@@ -70,21 +71,27 @@ export async function apiFetch<T = any>(
   options: RequestInit = {},
   maxRetries: number = 3
 ): Promise<ApiResponse<T>> {
-  const isLocalDevelopment = typeof window !== 'undefined'
-    && ['localhost', '127.0.0.1'].includes(window.location.hostname);
-  const apiBase = isLocalDevelopment ? '' : API_BASE;
-  const fullUrl = url.startsWith('http') ? url : `${apiBase}${url}`;
+  const isNativeApp = typeof window !== 'undefined'
+    && ['capacitor:', 'ionic:'].includes(window.location.protocol);
+  const apiBase = isNativeApp ? NATIVE_API_BASE : '';
+  const fullUrl = /^https?:\/\//i.test(url) ? url : `${apiBase}${url}`;
   let attempt = 0;
   let delayMs = 1000;
 
   while (true) {
     attempt++;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), API_REQUEST_TIMEOUT_MS);
+    const forwardAbort = () => controller.abort();
+    options.signal?.addEventListener('abort', forwardAbort, { once: true });
+    if (options.signal?.aborted) forwardAbort();
+
     try {
       const headers = new Headers(options.headers);
       if (auth.currentUser) {
         headers.set('Authorization', `Bearer ${await getIdToken(auth.currentUser)}`);
       }
-      const res = await fetch(fullUrl, { ...options, headers });
+      const res = await fetch(fullUrl, { ...options, headers, signal: controller.signal });
       const parsed = await safeParseResponse<T>(res);
 
       const isRateLimit = res.status === 429 || (parsed.data && typeof parsed.data === 'object' && (parsed.data as any).isRateLimit);
@@ -103,6 +110,16 @@ export async function apiFetch<T = any>(
         throw err;
       }
 
+      if (controller.signal.aborted) {
+        const timeoutMessage = 'The request timed out. Please try again.';
+        return {
+          ok: false,
+          status: 408,
+          data: { error: timeoutMessage } as any,
+          error: timeoutMessage
+        };
+      }
+
       if (attempt <= maxRetries) {
         console.warn(`[API Client] Fetch network error on ${fullUrl}. Retry ${attempt}/${maxRetries} after ${delayMs}ms...`, err);
         await new Promise(resolve => setTimeout(resolve, delayMs));
@@ -114,9 +131,16 @@ export async function apiFetch<T = any>(
       return {
         ok: false,
         status: 0,
-        data: { error: errMsg } as any,
-        error: errMsg
+        data: { error: errMsg === 'Failed to fetch'
+          ? 'Could not reach the AI service. Check your connection and Vercel deployment.'
+          : errMsg } as any,
+        error: errMsg === 'Failed to fetch'
+          ? 'Could not reach the AI service. Check your connection and Vercel deployment.'
+          : errMsg
       };
+    } finally {
+      clearTimeout(timeoutId);
+      options.signal?.removeEventListener('abort', forwardAbort);
     }
   }
 }
