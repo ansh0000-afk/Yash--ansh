@@ -18,6 +18,7 @@ import { OnboardingTutorialModal } from './components/OnboardingTutorialModal';
 import { DashboardView } from './components/DashboardView';
 import { AIWorkspaceToolsView } from './components/AIWorkspaceToolsView';
 import { CommerceStudyHubView } from './components/CommerceStudyHubView';
+import { AppNotification, NotificationCenter } from './components/NotificationCenter';
 import { LegalPage } from './components/LegalPage';
 import { DeviceSecurity } from './lib/deviceSecurity';
 import { AnimatePresence, motion } from 'motion/react';
@@ -26,7 +27,7 @@ import { DEFAULT_PERSONAS } from './data/defaultPersonas';
 import { AgentPersona, ChatMessage, ChatSession, Task, KnowledgeNote, AgentSettings, UserProfile, DocumentAttachment, AppLockSettings, CalendarEvent } from './types';
 import { memoryManager } from './lib/memoryManager';
 import { apiFetch } from './lib/apiClient';
-import { auth, onAuthStateChanged } from './lib/firebase';
+import { auth, onAuthStateChanged, signOut } from './lib/firebase';
 
 const INITIAL_TASKS: Task[] = [
   {
@@ -76,6 +77,14 @@ export default function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
+  const [notifications, setNotifications] = useState<AppNotification[]>(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('alpha_notifications') || '[]');
+      return Array.isArray(saved) ? saved : [];
+    } catch {
+      return [];
+    }
+  });
   
   // Calendar Events
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([
@@ -99,6 +108,24 @@ export default function App() {
   
   // User Profile
   const [userProfile, setUserProfile] = useState<UserProfile>(() => memoryManager.getProfile());
+
+  const addAppNotification = (title: string, message: string) => {
+    const notification: AppNotification = {
+      id: `notification-${Date.now()}`,
+      title,
+      message,
+      createdAt: new Date().toISOString(),
+      isRead: false,
+    };
+    setNotifications((current) => [notification, ...current].slice(0, 50));
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+      try {
+        new Notification(title, { body: message, tag: notification.id });
+      } catch (error) {
+        console.warn('Browser notification could not be shown:', error);
+      }
+    }
+  };
 
   // Personas
   const [personas] = useState<AgentPersona[]>(DEFAULT_PERSONAS);
@@ -310,8 +337,6 @@ useEffect(() => {
       memoryManager.saveProfile(updatedProfile);
       setUserProfile(updatedProfile);
     } else {
-      // Firebase says there is no logged-in user.
-      // Keep the app in logged-out state.
       setUserProfile(prev => ({
         ...prev,
         isLoggedIn: false,
@@ -326,6 +351,10 @@ useEffect(() => {
   useEffect(() => {
     localStorage.setItem('agent_settings', JSON.stringify(settings));
   }, [settings]);
+
+  useEffect(() => {
+    localStorage.setItem('alpha_notifications', JSON.stringify(notifications));
+  }, [notifications]);
 
   useEffect(() => {
     localStorage.setItem('alpha_chat_sessions', JSON.stringify(sessions));
@@ -564,6 +593,7 @@ useEffect(() => {
               createdAt: new Date().toISOString()
             };
             setTasks(prev => [newTask, ...prev]);
+            addAppNotification('Task created', newTask.title);
           } else if (tool.name === 'save_note' && tool.args?.title && tool.args?.content) {
             const newNote: KnowledgeNote = {
               id: `n-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`,
@@ -610,6 +640,29 @@ useEffect(() => {
       setIsLoading(false);
     }
   };
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      const guestProfile: UserProfile = {
+        id: 'usr-guest',
+        name: 'Guest User',
+        email: 'guest@alpha.ai',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+        provider: 'guest',
+        isLoggedIn: false,
+        emailVerified: false,
+        joinedAt: new Date().toISOString(),
+      };
+      memoryManager.saveProfile(guestProfile);
+      setUserProfile(guestProfile);
+      setCurrentView('dashboard');
+      setIsMobileSidebarOpen(false);
+    } catch (error) {
+      console.error('Sign out failed:', error);
+      addAppNotification('Sign out failed', 'Please try again.');
+    }
+  };
+
   const handleAddTask = (newTask: Omit<Task, 'id' | 'createdAt'>) => {
     const task: Task = {
       ...newTask,
@@ -617,9 +670,14 @@ useEffect(() => {
       createdAt: new Date().toISOString()
     };
     setTasks(prev => [task, ...prev]);
+    addAppNotification('Task created', task.title);
   };
 
   const handleUpdateTaskStatus = (id: string, status: Task['status']) => {
+    const task = tasks.find((item) => item.id === id);
+    if (status === 'completed' && task && task.status !== 'completed') {
+      addAppNotification('Task completed', task.title);
+    }
     setTasks(prev => prev.map(t => t.id === id ? { ...t, status } : t));
   };
 
@@ -744,11 +802,21 @@ useEffect(() => {
           onRenameSession={handleRenameSession}
           userProfile={userProfile}
           onOpenAuth={() => setIsAuthOpen(true)}
+          onSignOut={handleSignOut}
           isOpenMobile={isMobileSidebarOpen}
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
           onOpenVoiceModal={() => setIsVoiceModalOpen(true)}
           onOpenPromptLibrary={() => setIsPromptLibraryOpen(true)}
           onOpenOnboarding={() => setIsOnboardingOpen(true)}
+        />
+
+        <NotificationCenter
+          notifications={notifications}
+          onMarkRead={(id) => setNotifications((current) => current.map((notification) =>
+            notification.id === id ? { ...notification, isRead: true } : notification,
+          ))}
+          onMarkAllRead={() => setNotifications((current) => current.map((notification) => ({ ...notification, isRead: true })))}
+          onClearAll={() => setNotifications([])}
         />
 
         <main className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden pb-20 md:pb-0">

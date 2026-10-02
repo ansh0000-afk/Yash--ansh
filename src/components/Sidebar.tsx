@@ -26,7 +26,8 @@ import {
   Unlock,
   LayoutDashboard,
   Wand2,
-  GraduationCap
+  GraduationCap,
+  LogOut
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -54,6 +55,7 @@ interface SidebarProps {
   // User Profile
   userProfile: UserProfile;
   onOpenAuth: () => void;
+  onSignOut: () => void;
   // Mobile drawer control
   isOpenMobile?: boolean;
   onCloseMobile?: () => void;
@@ -86,6 +88,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onRenameSession,
   userProfile,
   onOpenAuth,
+  onSignOut,
   isOpenMobile,
   onCloseMobile,
   onOpenVoiceModal,
@@ -644,6 +647,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
           <Sparkles className="w-4 h-4 text-indigo-400 shrink-0" />
         </div>
+        {userProfile.isLoggedIn && (
+          <button
+            type="button"
+            onClick={onSignOut}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-xs font-semibold text-rose-300 transition hover:bg-rose-500/20"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            Sign out
+          </button>
+        )}
       </div>
     </aside>
   );
