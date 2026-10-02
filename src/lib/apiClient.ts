@@ -2,6 +2,9 @@
  * API Client with safe JSON response parsing and exponential backoff retry for 429 rate limits.
  */
 
+import { getIdToken } from 'firebase/auth';
+import { auth } from './firebase';
+
 const API_BASE = 'https://yash-ansh.vercel.app';
 
 export interface ApiResponse<T = any> {
@@ -67,19 +70,27 @@ export async function apiFetch<T = any>(
   options: RequestInit = {},
   maxRetries: number = 3
 ): Promise<ApiResponse<T>> {
-  const fullUrl = url.startsWith('http') ? url : `${API_BASE}${url}`;
+  const isLocalDevelopment = typeof window !== 'undefined'
+    && ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  const apiBase = isLocalDevelopment ? '' : API_BASE;
+  const fullUrl = url.startsWith('http') ? url : `${apiBase}${url}`;
   let attempt = 0;
   let delayMs = 1000;
 
   while (true) {
     attempt++;
     try {
-      const res = await fetch(fullUrl, options);
+      const headers = new Headers(options.headers);
+      if (auth.currentUser) {
+        headers.set('Authorization', `Bearer ${await getIdToken(auth.currentUser)}`);
+      }
+      const res = await fetch(fullUrl, { ...options, headers });
       const parsed = await safeParseResponse<T>(res);
 
       const isRateLimit = res.status === 429 || (parsed.data && typeof parsed.data === 'object' && (parsed.data as any).isRateLimit);
+      const isServerRateLimit = parsed.data && typeof parsed.data === 'object' && (parsed.data as any).retryable === false;
 
-      if (isRateLimit && attempt <= maxRetries) {
+      if (isRateLimit && !isServerRateLimit && attempt <= maxRetries) {
         console.warn(`[API Client] 429 Rate limit hit on ${fullUrl}. Retry ${attempt}/${maxRetries} after ${delayMs}ms...`);
         await new Promise(resolve => setTimeout(resolve, delayMs));
         delayMs *= 2;

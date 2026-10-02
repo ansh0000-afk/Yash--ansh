@@ -612,8 +612,9 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
             <div className="space-y-4 pt-4 border-t border-slate-800">
               <h3 className="text-base font-black text-white flex items-center gap-2">
                 <Award className="w-5 h-5 text-purple-400" />
-                <span>Previous Year Board Question Papers (PYQs 2021-2025)</span>
+                <span>Previous Year Paper References</span>
               </h3>
+              <p className="text-xs text-slate-400">References without an official source link are unverified and may not cover every exam year.</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {selectedSubject.previousYearPapers.map((pyq) => (
@@ -626,9 +627,23 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
                     </div>
 
                     <h4 className="text-xs font-bold text-white">{pyq.title}</h4>
+                    <span className={`inline-flex rounded-md border px-2 py-1 text-[10px] font-semibold ${
+                      pyq.sourceVerified && pyq.sourceUrl
+                        ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+                        : 'border-amber-500/30 bg-amber-500/10 text-amber-300'
+                    }`}>
+                      {pyq.sourceVerified && pyq.sourceUrl ? 'Source verified' : 'Source not verified'}
+                    </span>
                     <p className="text-[11px] text-slate-400 leading-relaxed bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                      {pyq.solutionsSummary}
+                      {pyq.sourceVerified && pyq.sourceUrl
+                        ? pyq.solutionsSummary
+                        : 'No official paper or answer-key link is attached. Treat this as an unverified reference.'}
                     </p>
+                    {pyq.sourceVerified && pyq.sourceUrl && (
+                      <a href={pyq.sourceUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-indigo-300 underline underline-offset-2">
+                        Open source
+                      </a>
+                    )}
                   </div>
                 ))}
               </div>

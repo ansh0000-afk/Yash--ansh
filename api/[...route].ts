@@ -1,9 +1,20 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import firebaseConfig from '../firebase-applet-config.json';
 
 const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
 const IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL || 'gemini-3.1-flash-image';
 const TTS_MODEL = process.env.GEMINI_TTS_MODEL || 'gemini-3.1-flash-tts-preview';
+const verifiedFirebaseTokens = new Map<string, { uid: string; expiresAt: number }>();
+const requestBudgets = new Map<string, { windowStart: number; count: number }>();
+
+const ROUTE_LIMITS: Record<string, { maxRequests: number; windowMs: number }> = {
+  chat: { maxRequests: 30, windowMs: 60_000 },
+  analyze: { maxRequests: 20, windowMs: 60_000 },
+  'generate-image': { maxRequests: 5, windowMs: 60_000 },
+  tts: { maxRequests: 20, windowMs: 60_000 },
+  'security/validate': { maxRequests: 5, windowMs: 60_000 },
+};
 
 const MODEL_ALIASES: Record<string, string> = {
   'gemini-3.5-flash': 'gemini-3.5-flash',
@@ -67,6 +78,87 @@ function getOpenRouterKey(req: IncomingMessage): string | null {
   const headerKey = headers['x-openrouter-api-key'];
   if (typeof headerKey === 'string' && headerKey.trim()) return headerKey.trim();
   return process.env.OPENROUTER_API_KEY?.trim() || null;
+}
+
+async function verifyFirebaseUser(req: IncomingMessage): Promise<{ uid: string } | null> {
+  const authorization = req.headers.authorization;
+  const token = typeof authorization === 'string' && authorization.startsWith('Bearer ')
+    ? authorization.slice(7).trim()
+    : '';
+  if (!token) return null;
+
+  const cached = verifiedFirebaseTokens.get(token);
+  if (cached && cached.expiresAt > Date.now()) return { uid: cached.uid };
+  if (cached) verifiedFirebaseTokens.delete(token);
+
+  let response: Response;
+  try {
+    response = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${encodeURIComponent(firebaseConfig.apiKey)}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken: token }),
+        signal: AbortSignal.timeout(5000),
+      },
+    );
+  } catch {
+    throw Object.assign(new Error('Authentication service is temporarily unavailable.'), { status: 503 });
+  }
+
+  if (response.status === 400 || response.status === 401) return null;
+  if (!response.ok) {
+    throw Object.assign(new Error('Could not verify the signed-in user.'), { status: 503 });
+  }
+
+  const result = await response.json() as { users?: Array<{ localId?: string }> };
+  const uid = result.users?.[0]?.localId;
+  if (!uid) return null;
+
+  const tokenPayload = token.split('.')[1];
+  let tokenExpiry = Date.now() + 60_000;
+  try {
+    const payload = JSON.parse(Buffer.from(tokenPayload, 'base64url').toString('utf8'));
+    if (typeof payload.exp === 'number') tokenExpiry = Math.min(payload.exp * 1000, tokenExpiry);
+  } catch {
+    return null;
+  }
+
+  if (tokenExpiry > Date.now()) {
+    if (verifiedFirebaseTokens.size >= 1000) {
+      const oldestToken = verifiedFirebaseTokens.keys().next().value;
+      if (oldestToken) verifiedFirebaseTokens.delete(oldestToken);
+    }
+    verifiedFirebaseTokens.set(token, { uid, expiresAt: tokenExpiry });
+  }
+  return { uid };
+}
+
+function consumeRequestBudget(uid: string, route: string) {
+  const limit = ROUTE_LIMITS[route];
+  if (!limit) return { allowed: true, retryAfterSeconds: 0 };
+
+  const now = Date.now();
+  const key = `${uid}:${route}`;
+  const bucket = requestBudgets.get(key);
+  if (!bucket || now - bucket.windowStart >= limit.windowMs) {
+    requestBudgets.set(key, { windowStart: now, count: 1 });
+    return { allowed: true, retryAfterSeconds: 0 };
+  }
+  if (bucket.count >= limit.maxRequests) {
+    return {
+      allowed: false,
+      retryAfterSeconds: Math.max(1, Math.ceil((limit.windowMs - (now - bucket.windowStart)) / 1000)),
+    };
+  }
+
+  bucket.count += 1;
+  if (requestBudgets.size > 5000) {
+    for (const [bucketKey, value] of requestBudgets) {
+      if (now - value.windowStart >= limit.windowMs) requestBudgets.delete(bucketKey);
+    }
+  }
+  return { allowed: true, retryAfterSeconds: 0 };
 }
 
 function getGroqKey(): string | null {
@@ -394,6 +486,21 @@ export default async function handler(req: IncomingMessage & { body?: unknown },
     }
 
     const data = await body(req);
+
+    if (Object.hasOwn(ROUTE_LIMITS, route)) {
+      const user = await verifyFirebaseUser(req);
+      if (!user) return json(res, 401, { error: 'Please sign in to use this service.' });
+
+      const budget = consumeRequestBudget(user.uid, route);
+      if (!budget.allowed) {
+        res.setHeader('Retry-After', String(budget.retryAfterSeconds));
+        return json(res, 429, {
+          error: 'Request limit reached. Please wait before trying again.',
+          isRateLimit: true,
+          retryable: false,
+        });
+      }
+    }
 
     if (req.method === 'POST' && route === 'security/validate') {
       const apiKey = String(data.apiKey || '').trim();

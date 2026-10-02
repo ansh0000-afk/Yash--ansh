@@ -61,6 +61,8 @@ export interface HSCPYQ {
   totalMarks: number;
   board: string;
   solutionsSummary: string;
+  sourceUrl?: string;
+  sourceVerified?: boolean;
 }
 
 export interface HSCCommerceSubject {

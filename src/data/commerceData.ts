@@ -53,6 +53,8 @@ export interface SubjectContent {
     title: string;
     totalMarks: number;
     solutionsSummary: string;
+    sourceUrl?: string;
+    sourceVerified?: boolean;
   }[];
 }
 
@@ -240,7 +242,7 @@ export const CLASS_12_COMMERCE_SUBJECTS: SubjectContent[] = [
         board: 'Maharashtra HSC Board',
         title: 'HSC Board Book Keeping & Accountancy Paper March 2024',
         totalMarks: 80,
-        solutionsSummary: 'Complete March 2024 HSC Board exam paper with official Board Moderator Answer Key and step-by-step working notes.'
+        solutionsSummary: 'Paper and official answer-key source are not linked; verify this reference against an official Board paper before study.'
       },
       {
         id: 'bk-pyp2',
@@ -248,7 +250,7 @@ export const CLASS_12_COMMERCE_SUBJECTS: SubjectContent[] = [
         board: 'Maharashtra HSC Board',
         title: 'HSC Board Book Keeping & Accountancy Supplementary Paper July 2023',
         totalMarks: 80,
-        solutionsSummary: 'Complete July 2023 Supplementary Board exam paper with solutions.'
+        solutionsSummary: 'Paper and solution source are not linked; verify this reference against an official Board paper before study.'
       }
     ]
   },
