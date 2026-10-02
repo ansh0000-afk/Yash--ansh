@@ -1,10 +1,9 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { Capacitor } from '@capacitor/core';
 import {
   getAuth,
+  GithubAuthProvider,
   GoogleAuthProvider,
   signInWithPopup,
-  signInWithRedirect,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
@@ -35,22 +34,22 @@ googleProvider.setCustomParameters({
   prompt: 'select_account'
 });
 
-/** Use redirect auth in Capacitor WebViews, where browser popups are blocked. */
-export async function signInWithGoogle() {
-  if (Capacitor.isNativePlatform()) {
-    await signInWithRedirect(auth, googleProvider);
-    return null;
-  }
+export const githubProvider = new GithubAuthProvider();
 
+export function signInWithGoogle() {
   return signInWithPopup(auth, googleProvider);
+}
+
+export function signInWithGithub() {
+  return signInWithPopup(auth, githubProvider);
 }
 
 export type { FirebaseUser };
 
 export {
+  GithubAuthProvider,
   GoogleAuthProvider,
   signInWithPopup,
-  signInWithRedirect,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
@@ -76,7 +75,7 @@ export function getFriendlyAuthErrorMessage(errorCode: string, defaultMessage?: 
     case 'auth/weak-password':
       return 'Password should be at least 6 characters long.';
     case 'auth/popup-closed-by-user':
-      return 'Google sign-in popup was closed before completing.';
+      return 'The sign-in popup was closed before completing.';
     case 'auth/popup-blocked':
       return 'Sign-in popup was blocked by browser settings. Please allow popups for this site.';
     case 'auth/unauthorized-domain':
