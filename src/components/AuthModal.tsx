@@ -126,7 +126,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       }, 600);
     } catch (err: any) {
       console.error('Google Auth Error:', err);
-      setErrorMsg(getFriendlyAuthErrorMessage(err.code, err.message));
+      setErrorMsg(
+        getFriendlyAuthErrorMessage(
+          err?.code || 'auth/unknown-error',
+          'Unable to sign in with Google. Please try again.'
+        )
+      );
     } finally {
       setLoading(false);
     }

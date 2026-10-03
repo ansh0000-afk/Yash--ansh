@@ -1,9 +1,12 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
+import { Capacitor } from '@capacitor/core';
+import { SocialLogin } from '@capgo/capacitor-social-login';
 import {
   getAuth,
   GithubAuthProvider,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithCredential,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
@@ -36,7 +39,35 @@ googleProvider.setCustomParameters({
 
 export const githubProvider = new GithubAuthProvider();
 
-export function signInWithGoogle() {
+export async function signInWithGoogle() {
+  if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
+    const webClientId = import.meta.env.VITE_GOOGLE_WEB_CLIENT_ID?.trim();
+    if (!webClientId) {
+      throw new Error('Native Google sign-in requires VITE_GOOGLE_WEB_CLIENT_ID.');
+    }
+
+    await SocialLogin.initialize({
+      google: {
+        webClientId,
+        mode: 'online'
+      }
+    });
+
+    const { result } = await SocialLogin.login({
+      provider: 'google',
+      options: {
+        scopes: ['email', 'profile']
+      }
+    });
+
+    if (result.responseType !== 'online' || !result.idToken) {
+      throw new Error('Native Google sign-in did not return an ID token.');
+    }
+
+    const credential = GoogleAuthProvider.credential(result.idToken);
+    return signInWithCredential(auth, credential);
+  }
+
   return signInWithPopup(auth, googleProvider);
 }
 

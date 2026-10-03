@@ -88,7 +88,10 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onUpdateProfile }) => {
   } catch (err: any) {
     const code = err?.code || 'auth/unknown-error';
     const message = err?.message || 'No Firebase error message returned';
-    const friendlyMessage = getFriendlyAuthErrorMessage(code, message);
+    const friendlyMessage = getFriendlyAuthErrorMessage(
+      code,
+      'Unable to sign in with Google. Please try again.'
+    );
 
     console.error('[Google Sign-In] Firebase error:', {
       code,
