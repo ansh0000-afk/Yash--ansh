@@ -24,11 +24,13 @@ project and go to **Authentication → Settings → Authorized domains**. Select
 each production/custom domain used to open the app. For preview deployments,
 add each preview hostname that needs sign-in; preview hostnames may change.
 
-Also confirm **Authentication → Sign-in method → Google** is enabled. Keep
-`authDomain` set to `alpha-ai-881d8.firebaseapp.com` in
-`firebase-applet-config.json`; it is Firebase's auth handler domain, not the
-Vercel site hostname. No code/config change is required to authorize a Vercel
-hostname.
+Also confirm **Authentication → Sign-in method → Google** is enabled and add
+`yash-ansh.vercel.app` under **Authentication → Settings → Authorized domains**.
+The app uses `yash-ansh.vercel.app` as its `authDomain`; Vercel proxies
+`/__/auth/*` to `alpha-ai-881d8.firebaseapp.com` so Firebase's auth helper is
+served from the app's domain. After deployment, verify that
+`https://yash-ansh.vercel.app/__/auth/handler` returns Firebase's auth helper,
+not the app's `index.html`.
 
 ## 4. Test the backend
 

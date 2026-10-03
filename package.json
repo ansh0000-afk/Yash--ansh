@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "vite build && esbuild server.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outdir=dist",
-    "start": "node dist/server.js",
-    "clean": "rm -rf dist server.js",
+    "build": "vite build && esbuild server.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outdir=server-dist",
+    "start": "node server-dist/server.js",
+    "clean": "rm -rf dist server-dist",
     "lint": "tsc --noEmit"
   },
   "dependencies": {

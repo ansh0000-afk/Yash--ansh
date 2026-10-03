@@ -7,6 +7,10 @@
   },
   "rewrites": [
     {
+      "source": "/__/auth/(.*)",
+      "destination": "https://alpha-ai-881d8.firebaseapp.com/__/auth/$1"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/[...route].ts"
     },
