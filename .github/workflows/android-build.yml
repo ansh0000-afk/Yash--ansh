@@ -42,7 +42,13 @@ jobs:
         run: npm ci
 
       - name: Build Web App
+        env:
+          VITE_GOOGLE_WEB_CLIENT_ID: ${{ secrets.VITE_GOOGLE_WEB_CLIENT_ID || vars.VITE_GOOGLE_WEB_CLIENT_ID }}
         run: |
+          if [ -z "$VITE_GOOGLE_WEB_CLIENT_ID" ]; then
+            echo "::error::Configure VITE_GOOGLE_WEB_CLIENT_ID as a GitHub Actions secret or variable before building the Android APK."
+            exit 1
+          fi
           npm run build
 
       - name: Add and Sync Capacitor Android
