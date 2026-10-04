@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "524557465201-1mqmm2uo0fh4jlag66ttd69mtb90a006.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.alphaai.app",
+            "certificate_hash": "3a89daa322c0a5d40ccb7a4754c18774a7cf1118"
+          }
+        },
+        {
           "client_id": "524557465201-ikq8qmr1lca9d06gfe0dtso0cai92l36.apps.googleusercontent.com",
           "client_type": 3
         }
