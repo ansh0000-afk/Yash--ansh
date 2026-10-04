@@ -1,3 +1,4 @@
+
 export type TaskPriority = 'high' | 'medium' | 'low';
 export type TaskStatus = 'todo' | 'in_progress' | 'completed';
 
