@@ -40,35 +40,47 @@ googleProvider.setCustomParameters({
 export const githubProvider = new GithubAuthProvider();
 
 export async function signInWithGoogle() {
-  if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
-    const webClientId = import.meta.env.VITE_GOOGLE_WEB_CLIENT_ID?.trim();
-    if (!webClientId) {
-      throw new Error('Native Google sign-in requires VITE_GOOGLE_WEB_CLIENT_ID.');
+  let stage = 'platform detection';
+
+  try {
+    if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
+      stage = 'web client ID validation';
+      const webClientId = import.meta.env.VITE_GOOGLE_WEB_CLIENT_ID?.trim();
+      if (!webClientId) {
+        throw new Error('Native Google sign-in requires VITE_GOOGLE_WEB_CLIENT_ID.');
+      }
+
+      stage = 'native plugin initialization';
+      await SocialLogin.initialize({
+        google: {
+          webClientId,
+          mode: 'online'
+        }
+      });
+
+      stage = 'native Google credential request';
+      const { result } = await SocialLogin.login({
+        provider: 'google',
+        options: {
+          scopes: ['email', 'profile']
+        }
+      });
+
+      if (result.responseType !== 'online' || !result.idToken) {
+        throw new Error('Native Google sign-in did not return an ID token.');
+      }
+
+      stage = 'Firebase credential exchange';
+      const credential = GoogleAuthProvider.credential(result.idToken);
+      return await signInWithCredential(auth, credential);
     }
 
-    await SocialLogin.initialize({
-      google: {
-        webClientId,
-        mode: 'online'
-      }
-    });
-
-    const { result } = await SocialLogin.login({
-      provider: 'google',
-      options: {
-        scopes: ['email', 'profile']
-      }
-    });
-
-    if (result.responseType !== 'online' || !result.idToken) {
-      throw new Error('Native Google sign-in did not return an ID token.');
-    }
-
-    const credential = GoogleAuthProvider.credential(result.idToken);
-    return signInWithCredential(auth, credential);
+    stage = 'Firebase web popup';
+    return await signInWithPopup(auth, googleProvider);
+  } catch (error) {
+    console.error(`[Google Sign-In] Failed during ${stage}:`, error);
+    throw error;
   }
-
-  return signInWithPopup(auth, googleProvider);
 }
 
 export function signInWithGithub() {

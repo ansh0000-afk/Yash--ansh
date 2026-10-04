@@ -92,14 +92,21 @@ export const AuthGate: React.FC<AuthGateProps> = ({ onUpdateProfile }) => {
       code,
       'Unable to sign in with Google. Please try again.'
     );
+    const displayMessage =
+      message && message !== friendlyMessage
+        ? `${friendlyMessage}\n\nDetails: ${message}`
+        : friendlyMessage;
 
     console.error('[Google Sign-In] Firebase error:', {
       code,
       message,
+      error: err,
     });
 
+    window.alert(displayMessage);
+
     // Keep 3D modal open when login fails
-    setErrorMsg(friendlyMessage);
+    setErrorMsg(displayMessage);
   } finally {
     setLoading(false);
   }
