@@ -39,6 +39,11 @@ googleProvider.setCustomParameters({
 
 export const githubProvider = new GithubAuthProvider();
 
+function isGoogleAccountReauthError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return /\b16\b[\s\S]*account reauth failed|account reauth failed[\s\S]*\b16\b/i.test(message);
+}
+
 export async function signInWithGoogle() {
   let stage = 'platform detection';
 
@@ -59,12 +64,36 @@ export async function signInWithGoogle() {
       });
 
       stage = 'native Google credential request';
-      const { result } = await SocialLogin.login({
-        provider: 'google',
-        options: {
-          scopes: ['email', 'profile']
+      let result;
+      try {
+        ({ result } = await SocialLogin.login({
+          provider: 'google',
+          options: {
+            scopes: ['email', 'profile']
+          }
+        }));
+      } catch (error) {
+        if (!isGoogleAccountReauthError(error)) {
+          throw error;
         }
-      });
+
+        stage = 'clear stale Google credential state';
+        await SocialLogin.logout({ provider: 'google' });
+        await SocialLogin.initialize({
+          google: {
+            webClientId,
+            mode: 'online'
+          }
+        });
+
+        stage = 'retry native Google credential request';
+        ({ result } = await SocialLogin.login({
+          provider: 'google',
+          options: {
+            scopes: ['email', 'profile']
+          }
+        }));
+      }
 
       if (result.responseType !== 'online' || !result.idToken) {
         throw new Error('Native Google sign-in did not return an ID token.');
