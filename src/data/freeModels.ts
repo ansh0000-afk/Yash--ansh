@@ -25,17 +25,6 @@ export const FREE_AI_MODELS: FreeAIModel[] = [
     supportsImage: true
   },
   {
-    id: 'gemini-2.0-flash',
-    name: 'Gemini 2.0 Flash',
-    provider: 'google',
-    providerLabel: 'Google Gemini',
-    description: 'Fast versatile model for multi-turn chat and structured responses.',
-    contextWindow: '1M tokens',
-    speed: 'Ultra Fast',
-    isFree: true,
-    supportsImage: true
-  },
-  {
     id: 'gemini-3.1-pro-preview',
     name: 'Gemini 3.1 Pro Preview',
     provider: 'google',
@@ -58,16 +47,6 @@ export const FREE_AI_MODELS: FreeAIModel[] = [
     isFree: true,
     badge: 'Fast Tasks',
     supportsImage: true
-  },
-  {
-    id: 'gemini-2.0-flash-lite',
-    name: 'Gemini 2.0 Flash Lite',
-    provider: 'google',
-    providerLabel: 'Google Gemini',
-    description: 'Ultra-lean Flash variant for instant low-power pings.',
-    contextWindow: '1M tokens',
-    speed: 'Ultra Fast',
-    isFree: true
   },
   {
     id: 'deepseek/deepseek-r1:free',
