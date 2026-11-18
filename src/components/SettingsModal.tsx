@@ -816,8 +816,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <optgroup label="Google Gemini Free API">
                   <option value="gemini-3.5-flash">Gemini 3.5 Flash (Recommended - Current Stable Flagship)</option>
                   <option value="gemini-3.6-flash">Gemini 3.6 Flash (Multimodal & High Speed)</option>
-                  <option value="gemini-2.0-flash">Gemini 2.0 Flash (Multimodal & Dialogue)</option>
-                  <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite (Ultra Lean)</option>
                 </optgroup>
                 <optgroup label="OpenRouter Free Models">
                   <option value="deepseek/deepseek-r1:free">DeepSeek R1 (Free - Chain of Thought Reasoning)</option>
