@@ -118,16 +118,16 @@ export default function App() {
     if (saved) {
       try {
         const savedSettings = JSON.parse(saved);
-        if (localStorage.getItem('alpha_search_preference_migrated') !== 'true') {
-          savedSettings.enableSearch = false;
-          localStorage.setItem('alpha_search_preference_migrated', 'true');
+        if (localStorage.getItem('alpha_search_default_on_v2') !== 'true') {
+          savedSettings.enableSearch = true;
+          localStorage.setItem('alpha_search_default_on_v2', 'true');
         }
         return savedSettings;
       } catch (e) {}
     }
     return {
       activePersonaId: activePersona.id,
-      enableSearch: false,
+      enableSearch: true,
       enableVoiceResponse: true,
       preferredLanguage: 'Hinglish',
       voiceSettings: {
