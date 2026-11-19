@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ShieldCheck, Sparkles, Lock, Cpu, CheckCircle2, Fingerprint, ScanFace, Globe, KeyRound } from 'lucide-react';
+import { ShieldCheck, Lock, Cpu, CheckCircle2, Fingerprint, ScanFace, Globe, KeyRound } from 'lucide-react';
 import { DeviceSecurity, IntegrityCheckResult } from '../lib/deviceSecurity';
 
 interface SplashScreenProps {
@@ -12,9 +12,9 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   const [integrityStatus, setIntegrityStatus] = useState<IntegrityCheckResult | null>(null);
 
   const securitySteps = [
-    { label: 'Checking Device Root & Debugger Integrity...', icon: ShieldCheck, color: 'text-indigo-400' },
+    { label: 'Checking Device Root & Debugger Integrity...', icon: ShieldCheck, color: 'text-blue-400' },
     { label: 'Verifying SSL Certificate Pinning & Transport...', icon: Globe, color: 'text-emerald-400' },
-    { label: 'Initializing AES-256 WebCrypto Vault...', icon: Lock, color: 'text-purple-400' },
+    { label: 'Initializing AES-256 WebCrypto Vault...', icon: Lock, color: 'text-cyan-400' },
     { label: 'Connecting Server-Side API Proxy...', icon: KeyRound, color: 'text-amber-400' },
     { label: 'Alpha AI Core System Ready!', icon: CheckCircle2, color: 'text-cyan-400' }
   ];
@@ -52,7 +52,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
       className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-slate-950 text-slate-100 select-none overflow-hidden"
     >
       {/* Background Glass Gradients & Glowing Aura */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-tr from-indigo-600/20 via-purple-600/20 to-cyan-500/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-tr from-blue-600/20 via-cyan-600/20 to-cyan-500/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-900/40 via-slate-950 to-slate-950 pointer-events-none" />
 
       {/* Main Glass Card Container */}
@@ -65,12 +65,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
           transition={{ type: 'spring', stiffness: 200, damping: 15 }}
           className="relative"
         >
-          <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-cyan-500 p-0.5 shadow-xl shadow-indigo-500/30 flex items-center justify-center">
-            <div className="w-full h-full bg-slate-950/90 rounded-[22px] flex items-center justify-center relative overflow-hidden">
-              <Sparkles className="w-10 h-10 text-indigo-400 animate-pulse" />
-              <div className="absolute inset-0 bg-gradient-to-t from-indigo-500/10 to-transparent" />
-            </div>
-          </div>
+          <img src="/app_icon.png" alt="Alpha AI" className="w-24 h-24 rounded-[26px] shadow-2xl shadow-blue-500/40 ring-1 ring-white/25 object-cover" />
           <div className="absolute -bottom-1 -right-1 p-1 bg-slate-900 rounded-full border border-slate-700 shadow-md">
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
           </div>
@@ -85,7 +80,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
             className="text-2xl font-black tracking-tight text-white flex items-center justify-center gap-1.5"
           >
             <span>ALPHA AI</span>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-extrabold uppercase">
+            <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 font-extrabold uppercase">
               PRO
             </span>
           </motion.h1>
@@ -107,7 +102,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
           <div className="space-y-1">
             <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800/80 p-0.5">
               <motion.div
-                className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-400 rounded-full"
+                className="h-full bg-gradient-to-r from-blue-500 via-cyan-500 to-cyan-400 rounded-full"
                 initial={{ width: '0%' }}
                 animate={{ width: `${progressPercent}%` }}
                 transition={{ ease: 'easeOut', duration: 0.3 }}
@@ -125,10 +120,10 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
           <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">
             SSL Pinned
           </span>
-          <span className="px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 font-semibold">
+          <span className="px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-semibold">
             AES Vault
           </span>
-          <span className="px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-semibold">
+          <span className="px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-semibold">
             Server Proxy
           </span>
         </div>

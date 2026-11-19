@@ -145,13 +145,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
         title={`Created: ${formatDateTime(session.createdAt)}\nUpdated: ${formatDateTime(session.updatedAt)}`}
         className={`group relative p-2 rounded-xl text-xs font-medium cursor-pointer transition-all duration-200 flex items-center justify-between ${
           isActive
-            ? 'bg-indigo-600/25 border border-indigo-500/40 text-white shadow-sm'
+            ? 'bg-blue-600/25 border border-blue-500/40 text-white shadow-sm'
             : 'text-slate-300 hover:bg-slate-800/70 hover:text-white border border-transparent'
         }`}
       >
         <div className="flex items-center gap-2 min-w-0 pr-2 flex-1">
           <MessageSquare className={`w-3.5 h-3.5 shrink-0 ${
-            session.isPinned ? 'text-amber-400' : session.isFavorite ? 'text-yellow-400' : session.isArchived ? 'text-slate-500' : 'text-indigo-400/80'
+            session.isPinned ? 'text-amber-400' : session.isFavorite ? 'text-yellow-400' : session.isArchived ? 'text-slate-500' : 'text-blue-400/80'
           }`} />
           
           {isEditing ? (
@@ -165,7 +165,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   if (e.key === 'Enter') handleSaveRename(session.id);
                   if (e.key === 'Escape') setEditingSessionId(null);
                 }}
-                className="bg-slate-950 border border-indigo-500 text-xs text-white rounded px-2 py-0.5 w-full focus:outline-none"
+                className="bg-slate-950 border border-blue-500 text-xs text-white rounded px-2 py-0.5 w-full focus:outline-none"
               />
               <button
                 onClick={() => handleSaveRename(session.id)}
@@ -243,7 +243,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {/* Rename */}
             <button
               onClick={(e) => handleStartRename(e, session)}
-              className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-indigo-300 transition"
+              className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-blue-300 transition"
               title="Rename inline"
             >
               <Edit2 className="w-3 h-3" />
@@ -256,7 +256,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   e.stopPropagation();
                   onDuplicateSession(session.id);
                 }}
-                className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-purple-300 transition"
+                className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-cyan-300 transition"
                 title="Duplicate chat"
               >
                 <Copy className="w-3 h-3" />
@@ -302,12 +302,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="p-4 border-b border-slate-800 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center font-bold text-base shadow-lg shadow-indigo-500/20">
-              α
-            </div>
+            <img src="/app_icon.png" alt="Alpha AI" className="w-10 h-10 rounded-xl shadow-lg shadow-blue-500/30 ring-1 ring-white/15 object-cover" />
             <div>
               <h1 className="font-extrabold text-white text-base tracking-tight leading-none">Alpha AI</h1>
-              <p className="text-[10px] text-indigo-400 font-semibold tracking-wider uppercase mt-1">
+              <p className="text-[10px] text-sky-400 font-semibold tracking-wider uppercase mt-1">
                 Think. Build. Learn.
               </p>
             </div>
@@ -318,7 +316,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition border border-slate-700"
             title="User Profile & Auth"
           >
-            <User className="w-4 h-4 text-indigo-400" />
+            <User className="w-4 h-4 text-blue-400" />
           </button>
         </div>
 
@@ -330,7 +328,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               setCurrentView('chat');
               if (onCloseMobile) onCloseMobile();
             }}
-            className="col-span-4 py-2.5 px-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-indigo-600/20 transition-all"
+            className="col-span-4 py-2.5 px-3.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-blue-600/20 transition-all"
           >
             <Plus className="w-4 h-4" />
             <span>New Chat</span>
@@ -380,15 +378,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
           }}
           className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition ${
             currentView === 'chat'
-              ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
+              ? 'bg-blue-600/20 text-blue-300 border border-blue-500/30'
               : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'
           }`}
         >
           <div className="flex items-center gap-2.5">
-            <MessageSquare className="w-4 h-4 text-purple-400" />
+            <MessageSquare className="w-4 h-4 text-cyan-400" />
             <span>AI Workspace Chat</span>
           </div>
-          <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full font-mono">
+          <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-mono">
             {sessions.length}
           </span>
         </button>
@@ -400,7 +398,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           }}
           className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition ${
             currentView === 'tools'
-              ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
+              ? 'bg-blue-600/20 text-blue-300 border border-blue-500/30'
               : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'
           }`}
         >
@@ -420,7 +418,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           }}
           className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition ${
             currentView === 'tasks'
-              ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
+              ? 'bg-blue-600/20 text-blue-300 border border-blue-500/30'
               : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'
           }`}
         >
@@ -442,7 +440,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           }}
           className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition ${
             currentView === 'notes'
-              ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
+              ? 'bg-blue-600/20 text-blue-300 border border-blue-500/30'
               : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'
           }`}
         >
@@ -468,7 +466,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             placeholder="Search titles & messages..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-800/80 border border-slate-700/80 rounded-xl pl-8 pr-3 py-1.5 text-[11px] text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-all"
+            className="w-full bg-slate-800/80 border border-slate-700/80 rounded-xl pl-8 pr-3 py-1.5 text-[11px] text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-all"
           />
           {searchQuery && (
             <button
@@ -560,13 +558,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onOpenPromptLibrary();
               if (onCloseMobile) onCloseMobile();
             }}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition border border-indigo-500/30 bg-indigo-950/30"
+            className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition border border-blue-500/30 bg-blue-950/30"
           >
             <div className="flex items-center gap-2.5">
-              <Sparkles className="w-4 h-4 text-indigo-400 animate-pulse" />
+              <Sparkles className="w-4 h-4 text-blue-400 animate-pulse" />
               <span>Smart Tools & Prompts</span>
             </div>
-            <span className="text-[9px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded font-mono font-bold">
+            <span className="text-[9px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded font-mono font-bold">
               PRO
             </span>
           </button>
@@ -617,14 +615,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <img
               src={userProfile.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'}
               alt={userProfile.name}
-              className="w-7 h-7 rounded-full object-cover ring-1 ring-indigo-500 shrink-0"
+              className="w-7 h-7 rounded-full object-cover ring-1 ring-blue-500 shrink-0"
             />
             <div className="min-w-0">
               <p className="text-xs font-bold text-white truncate leading-tight">{userProfile.name}</p>
-              <p className="text-[10px] text-indigo-400 capitalize truncate font-medium">{userProfile.provider} mode</p>
+              <p className="text-[10px] text-blue-400 capitalize truncate font-medium">{userProfile.provider} mode</p>
             </div>
           </div>
-          <Sparkles className="w-4 h-4 text-indigo-400 shrink-0" />
+          <Sparkles className="w-4 h-4 text-blue-400 shrink-0" />
         </div>
         {userProfile.isLoggedIn && (
           <button

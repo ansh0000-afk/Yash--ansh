@@ -25,7 +25,6 @@ import {
   RefreshCw,
   Trash2,
   X,
-  Bot,
   User,
   Wand2,
   Mic,
@@ -322,7 +321,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
                     <img
             src={activePersona.avatar}
             alt={activePersona.name}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover ring-2 ring-indigo-500/50 shrink-0"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover ring-2 ring-blue-500/50 shrink-0"
           />
 
           <div className="flex flex-col min-w-0">
@@ -332,7 +331,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
               </h2>
               <button
                 onClick={() => setIsRenameModalOpen(true)}
-                className="p-1 text-slate-400 hover:text-indigo-400 rounded transition"
+                className="p-1 text-slate-400 hover:text-blue-400 rounded transition"
                 title="Rename Chat Title"
               >
                 <Edit3 className="w-3.5 h-3.5" />
@@ -347,7 +346,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
                       const p = personas.find(x => x.id === e.target.value);
                       if (p) onSelectPersona(p);
                     }}
-                    className="bg-indigo-950/80 border border-indigo-500/50 text-indigo-300 text-[11px] font-bold rounded-xl px-2.5 py-1 focus:outline-none focus:border-indigo-400 cursor-pointer shadow-xs hover:bg-indigo-900/80 transition"
+                    className="bg-blue-950/80 border border-blue-500/50 text-blue-300 text-[11px] font-bold rounded-xl px-2.5 py-1 focus:outline-none focus:border-blue-400 cursor-pointer shadow-xs hover:bg-blue-900/80 transition"
                     title="Switch AI Agent Persona"
                   >
                     {personas.map((p) => (
@@ -358,7 +357,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
                   </select>
                 </div>
               ) : (
-                <span className="hidden sm:inline-block text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-semibold shrink-0">
+                <span className="hidden sm:inline-block text-[10px] bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-semibold shrink-0">
                   {activePersona.name}
                 </span>
               )}
@@ -408,14 +407,14 @@ export const ChatView: React.FC<ChatViewProps> = ({
               onClick={() => setIsOptionsOpen(!isOptionsOpen)}
               className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl border transition-all ${
                 isOptionsOpen
-                  ? 'bg-indigo-600/20 border-indigo-500/50 text-indigo-300 font-semibold shadow-lg'
+                  ? 'bg-blue-600/20 border-blue-500/50 text-blue-300 font-semibold shadow-lg'
                   : 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white hover:border-slate-600'
               }`}
               title="Chat Options & Management"
             >
               <MoreVertical className="w-5 h-5 sm:hidden" />
 
-<SlidersHorizontal className="hidden sm:block w-3.5 h-3.5 text-indigo-400" />
+<SlidersHorizontal className="hidden sm:block w-3.5 h-3.5 text-blue-400" />
 
 <span className="hidden sm:inline font-medium">Options</span>
 
@@ -441,7 +440,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
                   className="w-full flex items-center justify-between px-3 py-2 text-xs text-slate-200 hover:text-white hover:bg-slate-800 rounded-xl transition-colors"
                 >
                   <div className="flex items-center gap-2">
-                    <Edit3 className="w-4 h-4 text-indigo-400" />
+                    <Edit3 className="w-4 h-4 text-blue-400" />
                     <span className="font-medium">Rename Chat</span>
                   </div>
                 </button>
@@ -490,7 +489,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
                     className="w-full flex items-center justify-between px-3 py-2 text-xs text-slate-200 hover:text-white hover:bg-slate-800 rounded-xl transition-colors"
                   >
                     <div className="flex items-center gap-2">
-                      <Copy className="w-4 h-4 text-purple-400" />
+                      <Copy className="w-4 h-4 text-cyan-400" />
                       <span className="font-medium">Duplicate Chat</span>
                     </div>
                   </button>
@@ -564,7 +563,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
                   className="w-full flex items-center justify-between px-3 py-2 text-xs text-slate-200 hover:text-white hover:bg-slate-800 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   <div className="flex items-center gap-2">
-                    <Download className="w-4 h-4 text-indigo-400" />
+                    <Download className="w-4 h-4 text-blue-400" />
                     <span className="font-medium">Export as PDF</span>
                   </div>
                   <span className="text-[10px] text-slate-500 font-mono">.pdf</span>
@@ -581,7 +580,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
                   className="w-full flex items-center justify-between px-3 py-2 text-xs text-slate-200 hover:text-white hover:bg-slate-800 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   <div className="flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-purple-400" />
+                    <FileText className="w-4 h-4 text-cyan-400" />
                     <span className="font-medium">Export as TXT</span>
                   </div>
                   <span className="text-[10px] text-slate-500 font-mono">.txt</span>
@@ -634,9 +633,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
       <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 md:p-6 space-y-4 md:space-y-6">
         {messages.length === 0 ? (
           <div className="max-w-2xl mx-auto my-8 text-center space-y-6">
-            <div className="inline-flex p-4 rounded-3xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 shadow-2xl">
-              <Bot className="w-10 h-10" />
-            </div>
+            <img src="/app_icon.png" alt="Alpha AI" className="inline-block w-20 h-20 rounded-[22px] shadow-2xl shadow-blue-500/40 ring-1 ring-white/20 object-cover" />
 
             <div>
               <h3 className="text-2xl font-extrabold text-white tracking-tight">
@@ -662,7 +659,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
                         onClick={() => onSelectPersona(p)}
                         className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${
                           isSelected
-                            ? 'bg-indigo-600 text-white border-indigo-400 shadow-md shadow-indigo-600/20'
+                            ? 'bg-blue-600 text-white border-blue-400 shadow-md shadow-blue-600/20'
                             : 'bg-slate-900/90 text-slate-300 hover:bg-slate-800 hover:text-white border-slate-800'
                         }`}
                       >
@@ -681,10 +678,10 @@ export const ChatView: React.FC<ChatViewProps> = ({
                 <button
                   key={idx}
                   onClick={() => onSendMessage(prompt)}
-                  className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-indigo-500/50 text-xs text-slate-200 hover:text-white transition-all group flex items-start justify-between gap-3 shadow-lg"
+                  className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-blue-500/50 text-xs text-slate-200 hover:text-white transition-all group flex items-start justify-between gap-3 shadow-lg"
                 >
                   <span className="font-medium leading-snug">{prompt}</span>
-                  <Wand2 className="w-4 h-4 text-indigo-400 group-hover:scale-110 shrink-0 mt-0.5 transition-transform" />
+                  <Wand2 className="w-4 h-4 text-blue-400 group-hover:scale-110 shrink-0 mt-0.5 transition-transform" />
                 </button>
               ))}
             </div>
@@ -701,7 +698,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
                 <img
                   src={activePersona.avatar}
                   alt={activePersona.name}
-                  className="w-8 h-8 rounded-full object-cover ring-2 ring-indigo-500/40 shrink-0 mt-1"
+                  className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-500/40 shrink-0 mt-1"
                 />
               )}
 
@@ -715,8 +712,8 @@ export const ChatView: React.FC<ChatViewProps> = ({
 
                 {/* User Attached Document Card */}
                 {msg.attachedDoc && (
-                  <div className="p-3 rounded-xl bg-slate-800 border border-indigo-500/30 flex items-center gap-3 text-xs mb-2 max-w-sm">
-                    <FileCheck className="w-5 h-5 text-indigo-400 shrink-0" />
+                  <div className="p-3 rounded-xl bg-slate-800 border border-blue-500/30 flex items-center gap-3 text-xs mb-2 max-w-sm">
+                    <FileCheck className="w-5 h-5 text-blue-400 shrink-0" />
                     <div className="min-w-0">
                       <p className="font-bold text-white truncate">{msg.attachedDoc.name}</p>
                       <p className="text-[10px] text-slate-400">
@@ -729,7 +726,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
                 <div
                   className={`p-4 md:p-5 rounded-2xl text-xs md:text-sm leading-relaxed shadow-lg ${
                     msg.role === 'user'
-                      ? 'bg-indigo-600 text-white rounded-tr-none font-medium'
+                      ? 'bg-blue-600 text-white rounded-tr-none font-medium'
                       : 'bg-slate-900 border border-slate-800 text-slate-100 rounded-tl-none'
                   }`}
                 >
@@ -749,7 +746,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
                               return (
                                 <div className="my-3 rounded-xl border border-slate-800 bg-slate-950 overflow-hidden font-mono text-xs">
                                   <div className="px-4 py-2 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-slate-400">
-                                    <span className="font-semibold text-indigo-400 uppercase text-[10px]">
+                                    <span className="font-semibold text-blue-400 uppercase text-[10px]">
                                       {match ? match[1] : 'code'}
                                     </span>
                                     <button
@@ -774,7 +771,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
                               );
                             }
                             return (
-                              <code className="bg-slate-800/80 text-indigo-300 px-1.5 py-0.5 rounded font-mono text-[11px]" {...props}>
+                              <code className="bg-slate-800/80 text-blue-300 px-1.5 py-0.5 rounded font-mono text-[11px]" {...props}>
                                 {children}
                               </code>
                             );
@@ -793,8 +790,8 @@ export const ChatView: React.FC<ChatViewProps> = ({
                     <div className="mt-4 rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
                       <img src={msg.imageUrl} alt="Generated visual" className="w-full h-auto object-cover max-h-80" />
                       <div className="p-2.5 bg-slate-900 text-[11px] text-slate-400 flex items-center justify-between border-t border-slate-800">
-                        <span className="flex items-center gap-1.5 font-semibold text-indigo-300">
-                          <ImageIcon className="w-3.5 h-3.5 text-indigo-400" /> Generated Visual
+                        <span className="flex items-center gap-1.5 font-semibold text-blue-300">
+                          <ImageIcon className="w-3.5 h-3.5 text-blue-400" /> Generated Visual
                         </span>
                       </div>
                     </div>
@@ -825,9 +822,9 @@ export const ChatView: React.FC<ChatViewProps> = ({
                           )}
                           {tool.name === 'generate_image' && (
                             <>
-                              <Sparkles className="w-4 h-4 text-purple-400 shrink-0" />
+                              <Sparkles className="w-4 h-4 text-cyan-400 shrink-0" />
                               <div>
-                                <span className="font-bold text-purple-400">Image Generated:</span>{' '}
+                                <span className="font-bold text-cyan-400">Image Generated:</span>{' '}
                                 <span className="text-slate-300">"{tool.args.prompt}"</span>
                               </div>
                             </>
@@ -867,13 +864,13 @@ export const ChatView: React.FC<ChatViewProps> = ({
                     <button
                       onClick={() => handleSpeak(msg.id, msg.content)}
                       className={`flex items-center gap-1 hover:text-white transition ${
-                        speakingMessageId === msg.id ? 'text-indigo-400 font-bold' : ''
+                        speakingMessageId === msg.id ? 'text-blue-400 font-bold' : ''
                       }`}
                       title="Read Aloud with Voice"
                     >
                       {speakingMessageId === msg.id ? (
                         <>
-                          <VolumeX className="w-3.5 h-3.5 text-indigo-400 animate-pulse" /> Stop
+                          <VolumeX className="w-3.5 h-3.5 text-blue-400 animate-pulse" /> Stop
                         </>
                       ) : (
                         <>
@@ -935,7 +932,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
               </div>
 
               {msg.role === 'user' && (
-                <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white shrink-0 mt-1 shadow-md font-bold text-xs">
+                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white shrink-0 mt-1 shadow-md font-bold text-xs">
                   <User className="w-4 h-4" />
                 </div>
               )}
@@ -949,10 +946,10 @@ export const ChatView: React.FC<ChatViewProps> = ({
             <img
               src={activePersona.avatar}
               alt={activePersona.name}
-              className="w-8 h-8 rounded-full object-cover ring-2 ring-indigo-500/40 shrink-0 mt-1"
+              className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-500/40 shrink-0 mt-1"
             />
             <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-slate-200 text-xs flex items-center gap-3 shadow-lg">
-              <RefreshCw className="w-4 h-4 text-indigo-400 animate-spin" />
+              <RefreshCw className="w-4 h-4 text-blue-400 animate-spin" />
               <span className="font-semibold text-slate-200">{activePersona.name} is thinking & typing...</span>
               
               {onStopGenerating && (
@@ -988,8 +985,8 @@ export const ChatView: React.FC<ChatViewProps> = ({
             )}
 
             {attachedDoc && (
-              <div className="relative inline-flex items-center gap-2 p-2 rounded-xl bg-slate-800 border border-indigo-500/40 text-xs">
-                <FileCheck className="w-5 h-5 text-indigo-400" />
+              <div className="relative inline-flex items-center gap-2 p-2 rounded-xl bg-slate-800 border border-blue-500/40 text-xs">
+                <FileCheck className="w-5 h-5 text-blue-400" />
                 <div className="max-w-xs">
                   <p className="font-bold text-white truncate">{attachedDoc.name}</p>
                   <p className="text-[10px] text-slate-400">{attachedDoc.type} • {attachedDoc.pageCount || 1} pgs</p>
@@ -1004,8 +1001,8 @@ export const ChatView: React.FC<ChatViewProps> = ({
             )}
 
             {isProcessingDoc && (
-              <div className="p-2 rounded-xl bg-slate-800 text-xs text-indigo-300 flex items-center gap-2">
-                <RefreshCw className="w-4 h-4 animate-spin text-indigo-400" /> Extracting PDF content...
+              <div className="p-2 rounded-xl bg-slate-800 text-xs text-blue-300 flex items-center gap-2">
+                <RefreshCw className="w-4 h-4 animate-spin text-blue-400" /> Extracting PDF content...
               </div>
             )}
           </div>
@@ -1186,7 +1183,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
 
       {/* Floating Toast Alert */}
       {toastMessage && (
-        <div className="fixed bottom-20 right-6 z-50 bg-indigo-600 text-white text-xs font-semibold px-4 py-2.5 rounded-2xl shadow-2xl border border-indigo-400/30 flex items-center gap-2 animate-in fade-in slide-in-from-bottom-3 duration-200">
+        <div className="fixed bottom-20 right-6 z-50 bg-blue-600 text-white text-xs font-semibold px-4 py-2.5 rounded-2xl shadow-2xl border border-blue-400/30 flex items-center gap-2 animate-in fade-in slide-in-from-bottom-3 duration-200">
           <CheckCircle2 className="w-4 h-4 text-emerald-300" />
           <span>{toastMessage}</span>
         </div>

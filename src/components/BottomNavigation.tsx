@@ -46,7 +46,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
               {isActive && (
                 <motion.div
                   layoutId="bottomNavPill"
-                  className="absolute inset-0 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-2xl shadow-lg shadow-indigo-600/30 -z-10"
+                  className="absolute inset-0 bg-gradient-to-tr from-blue-600 to-cyan-600 rounded-2xl shadow-lg shadow-blue-600/30 -z-10"
                   transition={{ type: 'spring', stiffness: 350, damping: 25 }}
                 />
               )}
