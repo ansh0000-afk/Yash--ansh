@@ -35,7 +35,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
   };
 
   return (
-    <div className="fixed right-4 top-4 z-[100]">
+    <div className="fixed right-4 top-[4.5rem] z-[100]">
       <button
         type="button"
         onClick={() => setIsOpen((open) => !open)}
