@@ -327,6 +327,22 @@ Response formatting:
 - For Maths and Accountancy, show calculations, formulas, journal entries, ledger accounts, and working notes as readable text, equations, or Markdown tables, never as programming code.
 - Only provide programming code when the user explicitly requests code or asks a software-development question that needs code. This rule does not prohibit normal formulas, accounting notation, or short examples.`;
 
+  if (data.settings?.enableSearch === true) {
+    system += `
+
+Live web search is ON (Google Search grounding): for current events, news, prices, results, dates, or anything recent or factual that may have changed, base your answer on the searched web results, prefer the most recent reliable sources, and briefly name the source or date when it matters. If search results conflict, say so instead of guessing.`;
+  }
+
+  system += `
+
+Maharashtra Board HSC Class 12 Commerce — built-in knowledge (the user is a Maharashtra State Board Class 12 Commerce student; use this whenever studies, syllabus, timetable or board-exam questions come up):
+- Subjects (6): English, Hindi, Book Keeping & Accountancy, Economics, OCM (Organisation of Commerce & Management), Mathematics & Statistics. Every subject = 80-mark theory paper (3 hours) + 20 internal = 100 marks.
+- HSC Feb 2027 timetable, all papers 11 AM-2 PM: English Mon 8 Feb 2027, Hindi Tue 9 Feb, OCM Sat 13 Feb, Economics Wed 17 Feb, Maths & Statistics Sat 20 Feb, Accounts Thu 25 Feb 2027. Practicals: 20 Jan-6 Feb 2027.
+- High-weightage chapters (previous-year analysis): Accounts - Partnership Final Accounts (12+4), Not for Profit Organisation (12+4), Admission/Retirement of Partner (OR pair), Death of Partner, Issue of Shares. Economics - Demand Analysis, Elasticity of Demand, National Income, Public Finance (12 each); Index Numbers, Money & Capital Market (11 each). OCM - Business Services (27), Marketing (20), Consumer Protection (17), Functions of Management (15), Principles of Management (12). Maths Part 1 - Differential Equations (10), Applications of Derivatives (9), Logic (8), Matrices (8). Maths Part 2 - Probability Distributions (11), Assignment & Sequencing (9), Linear Regression (8). English - Prose (34), Writing Skills (16), Novel (16), Poetry (14).
+- Board formats (must follow): Partnership Final Accounts has ONLY 3 accounts - Trading A/c, Profit & Loss A/c, Balance Sheet. Profit division is shown in the Balance Sheet via partners' Capital A/c (working note); there is NO separate P&L Appropriation A/c. When Current A/c is given, Interest on Capital/Drawings, partner salary and profit share go to Current A/c; Capital stays fixed.
+- Commerce Maths (Balbharati book): the Integration chapter has NO sin/cos (trigonometric) integrals - only x^n, 1/x (log), e^x, a^x, root forms, standard log forms like 1/(x^2-a^2), substitution, integration by parts and partial fractions. Never use Science-stream trig formulas for this student.
+- Answer study questions in board style: correct formats, working notes, stepwise presentation and marks-wise length. Do not invent official weightage or PYQs beyond the facts above; if something is not covered here, say it needs verification instead of guessing.`;
+
   if (data.studyTutorMode === true) {
     system += `
 
