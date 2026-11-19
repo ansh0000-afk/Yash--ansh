@@ -9,10 +9,12 @@ import { copyConversationToClipboard, shareChatSession, formatDateTime } from '.
 import { ConfirmationModal } from './ConfirmationModal';
 import { RenameModal } from './RenameModal';
 import { ModelSelector } from './ModelSelector';
-import { 
-  Send, 
-  Paperclip, 
-  Search, 
+import {
+  Send,
+  ArrowUp,
+  Globe,
+  Paperclip,
+  Search,
   Sparkles, 
   Image as ImageIcon, 
   Volume2, 
@@ -385,19 +387,19 @@ export const ChatView: React.FC<ChatViewProps> = ({
             </button>
           )}
 
-          {/* Grounding toggle button */}
+          {/* Grounding toggle button — ChatGPT/Gemini style pill */}
           <button
             onClick={() => setEnableSearch(!enableSearch)}
-            className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl border transition-all ${
+            className={`flex items-center gap-1.5 text-xs pl-2.5 pr-3 py-1.5 rounded-full border transition-all ${
               enableSearch
-                ? 'bg-blue-600/20 border-blue-500/40 text-blue-300 font-semibold'
-                : 'bg-slate-800 border-slate-700 text-slate-400'
+                ? 'bg-blue-600 border-blue-500 text-white font-semibold shadow-lg shadow-blue-600/25'
+                : 'bg-slate-800/80 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500'
             }`}
-            title="Toggle Web Search Grounding"
+            title="Real-time Web Search (Google grounding)"
           >
-            <Search className="w-3.5 h-3.5" />
+            <Globe className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Search</span>
-            <span className="text-[10px] font-bold">{enableSearch ? 'ON' : 'OFF'}</span>
+            <span className={`w-1.5 h-1.5 rounded-full ${enableSearch ? 'bg-emerald-300' : 'bg-slate-500'}`} />
           </button>
 
           {/* Options Dropdown */}
@@ -1009,7 +1011,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
           </div>
 
           <form onSubmit={handleSend} className="relative flex items-end gap-2">
-            <div className="flex-1 bg-slate-950 border border-slate-800 focus-within:border-indigo-500 rounded-2xl p-2.5 transition-all shadow-inner">
+            <div className="flex-1 bg-slate-950/90 border border-slate-700/70 focus-within:border-blue-400/70 focus-within:ring-4 focus-within:ring-blue-500/10 rounded-[26px] p-2.5 transition-all shadow-2xl">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -1017,7 +1019,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
                 placeholder={
                   isListening
                     ? 'Listening... Speak now...'
-                    : `Ask ${activePersona.name} anything... (Class 12 studies, coding, websites, YouTube, PDFs)`
+                    : `Message ${activePersona.name}...`
                 }
                 rows={2}
                 className="w-full bg-transparent text-white text-sm resize-none focus:outline-none px-2 py-1 placeholder-slate-500"
@@ -1025,6 +1027,21 @@ export const ChatView: React.FC<ChatViewProps> = ({
 
               <div className="flex items-center justify-between pt-1 border-t border-slate-800 px-1">
                 <div className="flex items-center gap-1.5">
+                  {/* Real-time Search pill (composer, ChatGPT-style) */}
+                  <button
+                    type="button"
+                    onClick={() => setEnableSearch(!enableSearch)}
+                    className={`flex items-center gap-1.5 pl-2.5 pr-3 py-1.5 rounded-full text-[11px] font-semibold border transition-all ${
+                      enableSearch
+                        ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-600/25'
+                        : 'bg-transparent border-slate-700 text-slate-400 hover:text-white hover:border-slate-500'
+                    }`}
+                    title="Real-time Web Search on/off"
+                  >
+                    <Globe className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Search</span>
+                  </button>
+
                   {/* Image input */}
                   <input
                     type="file"
@@ -1036,10 +1053,10 @@ export const ChatView: React.FC<ChatViewProps> = ({
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                    className="p-2 rounded-full text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
                     title="Attach Image for Visual Analysis / OCR"
                   >
-                    <ImageIcon className="w-4 h-4 text-indigo-400" />
+                    <ImageIcon className="w-4 h-4" />
                   </button>
 
                   {/* Camera capture input for mobile/Android */}
@@ -1054,10 +1071,10 @@ export const ChatView: React.FC<ChatViewProps> = ({
                   <button
                     type="button"
                     onClick={() => cameraInputRef.current?.click()}
-                    className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors sm:hidden"
+                    className="p-2 rounded-full text-slate-300 hover:text-white hover:bg-slate-800 transition-colors sm:hidden"
                     title="Camera Capture"
                   >
-                    <Camera className="w-4 h-4 text-emerald-400" />
+                    <Camera className="w-4 h-4" />
                   </button>
 
                   {/* Document / PDF Input */}
@@ -1071,10 +1088,10 @@ export const ChatView: React.FC<ChatViewProps> = ({
                   <button
                     type="button"
                     onClick={() => docInputRef.current?.click()}
-                    className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                    className="p-2 rounded-full text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
                     title="Upload PDF or Document"
                   >
-                    <Paperclip className="w-4 h-4 text-amber-400" />
+                    <Paperclip className="w-4 h-4" />
                   </button>
 
                   {/* Smart Prompt Library Button */}
@@ -1082,10 +1099,10 @@ export const ChatView: React.FC<ChatViewProps> = ({
                     <button
                       type="button"
                       onClick={onOpenPromptLibrary}
-                      className="p-2 rounded-xl text-slate-400 hover:text-indigo-300 hover:bg-slate-800 transition-colors"
+                      className="p-2 rounded-full text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
                       title="Smart Tools & Prompt Library"
                     >
-                      <Wand2 className="w-4 h-4 text-purple-400" />
+                      <Wand2 className="w-4 h-4" />
                     </button>
                   )}
 
@@ -1093,14 +1110,14 @@ export const ChatView: React.FC<ChatViewProps> = ({
                   <button
                     type="button"
                     onClick={toggleVoiceInput}
-                    className={`p-2 rounded-xl transition-all ${
+                    className={`p-2 rounded-full transition-all ${
                       isListening
                         ? 'bg-rose-600 text-white animate-pulse'
                         : 'text-slate-400 hover:text-white hover:bg-slate-800'
                     }`}
                     title={isListening ? 'Stop Listening' : 'Voice Input (STT)'}
                   >
-                    {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4 text-emerald-400" />}
+                    {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
                   </button>
 
                   <span className="text-[10px] text-slate-500 font-mono hidden sm:inline ml-2">
@@ -1113,9 +1130,10 @@ export const ChatView: React.FC<ChatViewProps> = ({
                   <button
                     type="submit"
                     disabled={(!input.trim() && !attachedImage && !attachedDoc) || isLoading}
-                    className="p-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-30 text-white font-bold transition-all shadow-lg shadow-indigo-600/20"
+                    className="p-3 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 active:scale-95 disabled:opacity-30 disabled:active:scale-100 text-white transition-all shadow-lg shadow-blue-600/30"
+                    title="Send message"
                   >
-                    <Send className="w-4 h-4" />
+                    <ArrowUp className="w-4 h-4" strokeWidth={2.75} />
                   </button>
                 </div>
               </div>
