@@ -136,7 +136,7 @@ export default function App() {
         pitch: 1.0,
         autoSpeak: false
       },
-      userCustomInstructions: 'Always reply in simple Hinglish step by step. Help me with Class 12 Commerce studies (Accountancy, Business Studies, Economics, English, Hindi, Computer Applications, Entrepreneurship, Physical Education) in a friendly and accurate manner.'
+      userCustomInstructions: 'Always reply in simple Hinglish step by step. Help me with Maharashtra Board HSC Class 12 Commerce studies (Book Keeping & Accountancy, Economics, OCM, Mathematics & Statistics, English, Hindi) in a friendly and accurate manner.'
     };
   });
 
@@ -737,7 +737,7 @@ useEffect(() => {
 
         {isWindowBlurred && settings.appLock?.isEnabled && (
           <div className="fixed inset-0 z-100 bg-slate-950/90 backdrop-blur-3xl flex flex-col items-center justify-center space-y-3 pointer-events-auto select-none p-6 text-center">
-            <div className="p-4 rounded-3xl bg-indigo-500/25 text-indigo-400 border border-indigo-500/30 animate-pulse">
+            <div className="p-4 rounded-3xl bg-blue-500/25 text-blue-400 border border-blue-500/30 animate-pulse">
               <EyeOff className="w-10 h-10" />
             </div>
             <h2 className="text-lg font-bold text-white">Protected Workspace View</h2>
