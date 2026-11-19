@@ -134,7 +134,7 @@ export function exportChatToPDF(session: ChatSession): void {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(10);
       if (isUser) {
-        doc.setTextColor(99, 102, 241); // indigo-500
+        doc.setTextColor(37, 99, 235); // blue-600
       } else if (msg.role === 'assistant') {
         doc.setTextColor(168, 85, 247); // purple-500
       } else {
