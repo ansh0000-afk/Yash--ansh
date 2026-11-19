@@ -5,7 +5,7 @@ export const DEFAULT_PERSONAS: AgentPersona[] = [
     id: 'alpha-ai',
     name: 'Alpha AI',
     title: 'Flagship Intelligent Multimodal AI',
-    avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80',
+    avatar: '/app_icon.png',
     iconName: 'Sparkles',
     category: 'General',
     description: 'Next-generation intelligent AI assistant to help you learn faster, build faster, and think smarter in simple Hinglish or your preferred language.',
