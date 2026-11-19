@@ -1,6 +1,11 @@
 {
-  "name": "Maharashtra HSC Class 12 Commerce AI",
-  "description": "Dedicated Maharashtra State Board Class 12 (HSC) Commerce Study Platform with Book Keeping & Accountancy, OCM, Economics, SP, Math & Stats, English, Marathi, Hindi & IT Notes, Question Bank, MCQs, PYQs & Study Planner.",
-  "requestFramePermissions": ["microphone", "camera"],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "name": "Alpha AI \u2014 Next-Gen Personal AI Assistant",
+  "description": "Alpha AI: AI chat, live voice and real-time web search, with a built-in Maharashtra Board HSC Class 12 Commerce study hub (Book Keeping & Accountancy, Economics, OCM, Maths & Statistics, English, Hindi) \u2014 notes, question bank, PYQs and study planner.",
+  "requestFramePermissions": [
+    "microphone",
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }
