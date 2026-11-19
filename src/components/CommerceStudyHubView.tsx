@@ -494,7 +494,7 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-3 gap-3">
               <div>
                 <h3 className="text-base font-black text-white flex items-center gap-2">
-                  <HelpCircle className="w-5 h-5 text-indigo-400" />
+                  <HelpCircle className="w-5 h-5 text-blue-400" />
                   <span>{selectedSubject.name} Question Bank</span>
                 </h3>
                 <p className="text-xs text-slate-400">Short, Long & Numerical Board Exam Model Questions with Full Answers</p>
@@ -513,7 +513,7 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
                     onClick={() => setQbTypeFilter(f.id as any)}
                     className={`px-3 py-1 rounded-xl text-xs font-bold transition border ${
                       qbTypeFilter === f.id
-                        ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40'
+                        ? 'bg-blue-500/20 text-blue-300 border-blue-500/40'
                         : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
                     }`}
                   >
@@ -530,7 +530,7 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
                     <span className="font-mono text-slate-400 font-semibold">{qb.chapter}</span>
                     <div className="flex items-center gap-2">
                       <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase border ${
-                        qb.type === 'long' ? 'bg-purple-500/20 text-purple-300 border-purple-500/30' : 'bg-blue-500/20 text-blue-300 border-blue-500/30'
+                        qb.type === 'long' ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30' : 'bg-blue-500/20 text-blue-300 border-blue-500/30'
                       }`}>
                         {qb.type} ({qb.marks} Marks)
                       </span>
@@ -572,7 +572,7 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
                 </div>
                 <div className="text-center">
                   <div className="text-xs text-slate-500 font-bold uppercase">Answered</div>
-                  <div className="text-xl font-black text-indigo-400">{Object.keys(userMcqAnswers).length}</div>
+                  <div className="text-xl font-black text-blue-400">{Object.keys(userMcqAnswers).length}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-xs text-slate-500 font-bold uppercase">Score</div>
@@ -632,8 +632,8 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
                     </div>
 
                     {isAnswered && (
-                      <div className="p-3.5 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 text-xs text-indigo-200 space-y-1 animate-fade-in">
-                        <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider block">Explanation:</span>
+                      <div className="p-3.5 rounded-2xl bg-blue-950/40 border border-blue-500/30 text-xs text-blue-200 space-y-1 animate-fade-in">
+                        <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider block">Explanation:</span>
                         <p className="leading-relaxed">{mcq.explanation}</p>
                       </div>
                     )}
@@ -647,7 +647,7 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
         {/* 4. OFFICIAL BOARD QUESTION PAPERS TAB */}
         {activeTab === 'question_papers' && (
           <div className="space-y-6 max-w-5xl mx-auto">
-            <div className="p-6 rounded-3xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 text-white shadow-2xl">
+            <div className="p-6 rounded-3xl bg-gradient-to-r from-blue-600 via-violet-600 to-fuchsia-600 text-white shadow-2xl">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <div className="text-[10px] font-mono font-extrabold uppercase tracking-wider bg-white/15 border border-white/25 px-2.5 py-1 rounded-full inline-block">Official Portal</div>
@@ -684,14 +684,14 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
                       href={link}
                       target="_blank"
                       rel="noreferrer"
-                      className="block p-3 rounded-2xl border border-slate-800 bg-slate-950 hover:border-indigo-500/50 hover:bg-slate-900 transition"
+                      className="block p-3 rounded-2xl border border-slate-800 bg-slate-950 hover:border-blue-500/50 hover:bg-slate-900 transition"
                     >
                       <div className="flex items-center justify-between gap-3">
                         <div>
-                          <div className="text-[10px] font-mono uppercase tracking-wider text-indigo-300">PDF {index + 1}</div>
+                          <div className="text-[10px] font-mono uppercase tracking-wider text-blue-300">PDF {index + 1}</div>
                           <div className="text-sm font-bold text-white break-all">{link}</div>
                         </div>
-                        <Download className="w-4 h-4 text-indigo-300 shrink-0" />
+                        <Download className="w-4 h-4 text-blue-300 shrink-0" />
                       </div>
                     </a>
                   ))}
@@ -754,7 +754,7 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
             {/* PYQs Section */}
             <div className="space-y-4 pt-4 border-t border-slate-800">
               <h3 className="text-base font-black text-white flex items-center gap-2">
-                <Award className="w-5 h-5 text-purple-400" />
+                <Award className="w-5 h-5 text-cyan-400" />
                 <span>Previous Year Paper References</span>
               </h3>
               <p className="text-xs text-slate-400">References without an official source link are unverified and may not cover every exam year.</p>
@@ -763,7 +763,7 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
                 {selectedSubject.previousYearPapers.map((pyq) => (
                   <div key={pyq.id} className="p-5 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-3 shadow-xl">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono text-purple-300 font-bold uppercase bg-purple-500/10 px-2.5 py-0.5 rounded-md border border-purple-500/20">
+                      <span className="text-[10px] font-mono text-cyan-300 font-bold uppercase bg-cyan-500/10 px-2.5 py-0.5 rounded-md border border-cyan-500/20">
                         {pyq.board} • {pyq.year}
                       </span>
                       <span className="text-xs font-bold text-slate-400">{pyq.totalMarks} Marks</span>
@@ -783,7 +783,7 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
                         : 'No official paper or answer-key link is attached. Treat this as an unverified reference.'}
                     </p>
                     {pyq.sourceVerified && pyq.sourceUrl && (
-                      <a href={pyq.sourceUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-indigo-300 underline underline-offset-2">
+                      <a href={pyq.sourceUrl} target="_blank" rel="noreferrer" className="text-xs font-semibold text-blue-300 underline underline-offset-2">
                         Open source
                       </a>
                     )}
@@ -832,7 +832,7 @@ export const CommerceStudyHubView: React.FC<CommerceStudyHubViewProps> = ({
                   </div>
 
                   <div className="flex items-center gap-2 self-end sm:self-auto">
-                    <span className="text-[10px] font-bold uppercase px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
+                    <span className="text-[10px] font-bold uppercase px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20">
                       {slot.type}
                     </span>
                     <span className="text-[10px] font-mono text-slate-500 font-semibold">{slot.duration}</span>

@@ -40,7 +40,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({
 
         <button
           onClick={onBack}
-          className="mb-6 inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/70 px-3 py-2 text-xs font-semibold text-slate-300 hover:text-white hover:border-indigo-500/50"
+          className="mb-6 inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/70 px-3 py-2 text-xs font-semibold text-slate-300 hover:text-white hover:border-blue-500/50"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Alpha AI
@@ -50,9 +50,9 @@ export const LegalPage: React.FC<LegalPageProps> = ({
 
           <div className="flex items-start gap-4 border-b border-slate-800 pb-6">
 
-            <div className="w-12 h-12 shrink-0 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center">
+            <div className="w-12 h-12 shrink-0 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center">
               {isTerms ? (
-                <FileText className="w-6 h-6 text-indigo-400" />
+                <FileText className="w-6 h-6 text-blue-400" />
               ) : (
                 <ShieldCheck className="w-6 h-6 text-emerald-400" />
               )}
@@ -277,7 +277,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({
                 onClick={() =>
                   onOpenOther(isTerms ? 'privacy' : 'terms')
                 }
-                className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 px-4 py-2.5 text-xs font-bold text-white"
+                className="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-500 px-4 py-2.5 text-xs font-bold text-white"
               >
                 {isTerms
                   ? 'Read Privacy Policy'

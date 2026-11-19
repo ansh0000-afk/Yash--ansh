@@ -217,7 +217,7 @@ export const AppLockModal: React.FC<AppLockModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/95 backdrop-blur-xl text-slate-100 p-4 select-none">
       {/* Background Animated Glow */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-indigo-950/40 via-purple-950/20 to-slate-950 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-tr from-blue-950/40 via-cyan-950/20 to-slate-950 pointer-events-none" />
 
       {/* Main Lock Card */}
       <div className={`w-full max-w-sm bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-2xl relative z-10 flex flex-col items-center text-center space-y-5 transition-transform ${isShaking ? 'animate-bounce' : ''}`}>
@@ -235,7 +235,7 @@ export const AppLockModal: React.FC<AppLockModalProps> = ({
 
         {/* Lock Icon Badge */}
         <div className="relative">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-lg shadow-indigo-500/30">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-cyan-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/30">
             {mode === 'unlock-chat' ? (
               <Lock className="w-8 h-8 text-white" />
             ) : stage === 'confirm-new' ? (
@@ -264,7 +264,7 @@ export const AppLockModal: React.FC<AppLockModalProps> = ({
                 key={idx}
                 className={`w-4 h-4 rounded-full transition-all duration-200 border-2 ${
                   isFilled
-                    ? 'bg-indigo-500 border-indigo-400 scale-110 shadow-md shadow-indigo-500/50'
+                    ? 'bg-blue-500 border-blue-400 scale-110 shadow-md shadow-blue-500/50'
                     : 'bg-slate-800 border-slate-700'
                 }`}
               />
@@ -282,19 +282,19 @@ export const AppLockModal: React.FC<AppLockModalProps> = ({
 
         {/* Biometric Scanning Dialog Overlay */}
         {biometricScanning !== 'none' && (
-          <div className="w-full p-4 rounded-2xl bg-indigo-950/90 border border-indigo-500/40 space-y-3 animate-fade-in">
+          <div className="w-full p-4 rounded-2xl bg-blue-950/90 border border-blue-500/40 space-y-3 animate-fade-in">
             <div className="flex items-center justify-center gap-3">
               {biometricScanning === 'fingerprint' ? (
-                <Fingerprint className="w-10 h-10 text-indigo-400 animate-pulse" />
+                <Fingerprint className="w-10 h-10 text-blue-400 animate-pulse" />
               ) : (
-                <ScanFace className="w-10 h-10 text-purple-400 animate-pulse" />
+                <ScanFace className="w-10 h-10 text-cyan-400 animate-pulse" />
               )}
             </div>
             <div className="space-y-1">
-              <p className="text-xs font-bold text-indigo-200">{scanStatus}</p>
+              <p className="text-xs font-bold text-blue-200">{scanStatus}</p>
               <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-200"
+                  className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all duration-200"
                   style={{ width: `${scanProgress}%` }}
                 />
               </div>
@@ -314,7 +314,7 @@ export const AppLockModal: React.FC<AppLockModalProps> = ({
             <button
               key={digit}
               onClick={() => handleDigit(digit)}
-              className="w-full h-12 rounded-2xl bg-slate-800/80 hover:bg-slate-700/90 active:bg-indigo-600 text-white font-bold text-lg flex items-center justify-center transition-all border border-slate-700/60 shadow-xs active:scale-95"
+              className="w-full h-12 rounded-2xl bg-slate-800/80 hover:bg-slate-700/90 active:bg-blue-600 text-white font-bold text-lg flex items-center justify-center transition-all border border-slate-700/60 shadow-xs active:scale-95"
             >
               {digit}
             </button>
@@ -331,7 +331,7 @@ export const AppLockModal: React.FC<AppLockModalProps> = ({
 
           <button
             onClick={() => handleDigit('0')}
-            className="w-full h-12 rounded-2xl bg-slate-800/80 hover:bg-slate-700/90 active:bg-indigo-600 text-white font-bold text-lg flex items-center justify-center transition-all border border-slate-700/60 shadow-xs active:scale-95"
+            className="w-full h-12 rounded-2xl bg-slate-800/80 hover:bg-slate-700/90 active:bg-blue-600 text-white font-bold text-lg flex items-center justify-center transition-all border border-slate-700/60 shadow-xs active:scale-95"
           >
             0
           </button>
@@ -351,10 +351,10 @@ export const AppLockModal: React.FC<AppLockModalProps> = ({
             {isFingerprintAllowed && (
               <button
                 onClick={triggerFingerprintScan}
-                className="flex-1 py-2 px-3 rounded-xl bg-slate-800/80 hover:bg-indigo-950/80 text-indigo-300 hover:text-indigo-200 border border-slate-700 hover:border-indigo-500/50 text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95"
+                className="flex-1 py-2 px-3 rounded-xl bg-slate-800/80 hover:bg-blue-950/80 text-blue-300 hover:text-blue-200 border border-slate-700 hover:border-blue-500/50 text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95"
                 title="Fingerprint Unlock"
               >
-                <Fingerprint className="w-4 h-4 text-indigo-400" />
+                <Fingerprint className="w-4 h-4 text-blue-400" />
                 <span>Fingerprint</span>
               </button>
             )}
@@ -362,10 +362,10 @@ export const AppLockModal: React.FC<AppLockModalProps> = ({
             {isFaceUnlockAllowed && (
               <button
                 onClick={triggerFaceUnlock}
-                className="flex-1 py-2 px-3 rounded-xl bg-slate-800/80 hover:bg-purple-950/80 text-purple-300 hover:text-purple-200 border border-slate-700 hover:border-purple-500/50 text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95"
+                className="flex-1 py-2 px-3 rounded-xl bg-slate-800/80 hover:bg-cyan-950/80 text-cyan-300 hover:text-cyan-200 border border-slate-700 hover:border-cyan-500/50 text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95"
                 title="Face Unlock"
               >
-                <ScanFace className="w-4 h-4 text-purple-400" />
+                <ScanFace className="w-4 h-4 text-cyan-400" />
                 <span>Face Unlock</span>
               </button>
             )}
@@ -389,7 +389,7 @@ export const AppLockModal: React.FC<AppLockModalProps> = ({
           <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-xs w-full space-y-4 text-center">
             <h3 className="font-extrabold text-white text-base">Reset App Lock PIN</h3>
             <p className="text-xs text-slate-400">
-              Type <strong className="text-indigo-400 font-mono">RESET</strong> to clear your current Security PIN and regain full access.
+              Type <strong className="text-blue-400 font-mono">RESET</strong> to clear your current Security PIN and regain full access.
             </p>
             <form onSubmit={handleForgotSubmit} className="space-y-3">
               <input
@@ -397,7 +397,7 @@ export const AppLockModal: React.FC<AppLockModalProps> = ({
                 placeholder="Type RESET"
                 value={forgotInput}
                 onChange={(e) => setForgotInput(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white text-center font-bold tracking-widest focus:outline-none focus:border-indigo-500 uppercase"
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white text-center font-bold tracking-widest focus:outline-none focus:border-blue-500 uppercase"
               />
               <div className="flex gap-2">
                 <button
@@ -409,7 +409,7 @@ export const AppLockModal: React.FC<AppLockModalProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl"
+                  className="flex-1 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl"
                 >
                   Reset PIN
                 </button>

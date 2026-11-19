@@ -252,9 +252,9 @@ export const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({
                     type="button"
                     onClick={handleAiAutoCategory}
                     disabled={isAiLoading || !newContent.trim()}
-                    className="flex items-center gap-1 text-[10px] font-semibold text-indigo-600 hover:text-indigo-800 disabled:opacity-40"
+                    className="flex items-center gap-1 text-[10px] font-semibold text-blue-600 hover:text-blue-800 disabled:opacity-40"
                   >
-                    {isAiLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3 text-indigo-500" />}
+                    {isAiLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3 text-blue-500" />}
                     <span>AI Auto-Category</span>
                   </button>
                 </div>
@@ -274,9 +274,9 @@ export const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({
                     type="button"
                     onClick={handleAiPolishText}
                     disabled={isAiLoading || !newContent.trim()}
-                    className="flex items-center gap-1 text-[10px] font-semibold text-purple-600 hover:text-purple-800 disabled:opacity-40"
+                    className="flex items-center gap-1 text-[10px] font-semibold text-cyan-600 hover:text-cyan-800 disabled:opacity-40"
                   >
-                    {isAiLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3 text-purple-500" />}
+                    {isAiLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3 text-cyan-500" />}
                     <span>AI Polish & Fix</span>
                   </button>
                 </div>

@@ -21,7 +21,7 @@ export const OnboardingTutorialModal: React.FC<OnboardingTutorialModalProps> = (
       subtitle: 'Next-Generation Intelligent AI Assistant',
       description: 'Experience cutting-edge AI models, live voice conversations, encrypted memory vault, and multi-agent personas built for high productivity.',
       icon: Sparkles,
-      color: 'from-indigo-600 to-purple-600',
+      color: 'from-blue-600 to-cyan-600',
       badge: 'Step 1 of 3'
     },
     {
@@ -29,7 +29,7 @@ export const OnboardingTutorialModal: React.FC<OnboardingTutorialModalProps> = (
       subtitle: 'Upload documents or photos for instant analysis',
       description: 'Upload PDF files, code documents, images, or snap photos using your camera. Alpha AI extracts insights, summarizes text, and solves complex problems.',
       icon: FileCheck,
-      color: 'from-purple-600 to-cyan-600',
+      color: 'from-cyan-600 to-cyan-600',
       badge: 'Step 2 of 3'
     },
     {
@@ -59,7 +59,7 @@ export const OnboardingTutorialModal: React.FC<OnboardingTutorialModalProps> = (
         
         {/* Top Header Badge */}
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-mono font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+          <span className="text-[10px] font-mono font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
             {currentSlide.badge}
           </span>
           <button
@@ -91,7 +91,7 @@ export const OnboardingTutorialModal: React.FC<OnboardingTutorialModalProps> = (
         {/* Text Details */}
         <div className="space-y-2">
           <h3 className="text-lg font-black text-white tracking-tight">{currentSlide.title}</h3>
-          <p className="text-xs font-bold text-indigo-400">{currentSlide.subtitle}</p>
+          <p className="text-xs font-bold text-blue-400">{currentSlide.subtitle}</p>
           <p className="text-xs text-slate-400 leading-relaxed px-2">{currentSlide.description}</p>
         </div>
 
@@ -101,7 +101,7 @@ export const OnboardingTutorialModal: React.FC<OnboardingTutorialModalProps> = (
             <div
               key={idx}
               className={`h-2 rounded-full transition-all duration-300 ${
-                idx === step ? 'w-6 bg-indigo-500' : 'w-2 bg-slate-800'
+                idx === step ? 'w-6 bg-blue-500' : 'w-2 bg-slate-800'
               }`}
             />
           ))}
@@ -111,7 +111,7 @@ export const OnboardingTutorialModal: React.FC<OnboardingTutorialModalProps> = (
         <div className="pt-2">
           <button
             onClick={handleNext}
-            className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-extrabold text-xs flex items-center justify-center gap-2 transition shadow-xl shadow-indigo-600/30 active:scale-95"
+            className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-blue-600 via-cyan-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-extrabold text-xs flex items-center justify-center gap-2 transition shadow-xl shadow-blue-600/30 active:scale-95"
           >
             <span>{step === slides.length - 1 ? 'Get Started Now' : 'Continue'}</span>
             {step === slides.length - 1 ? <CheckCircle2 className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}

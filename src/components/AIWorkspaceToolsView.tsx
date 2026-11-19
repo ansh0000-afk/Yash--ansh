@@ -62,12 +62,12 @@ export const AIWorkspaceToolsView: React.FC<AIWorkspaceToolsViewProps> = ({
   const [mindMapRoot, setMindMapRoot] = useState<MindMapNode>({
     id: 'root-1',
     label: 'Artificial Intelligence & Neural Networks',
-    color: 'bg-indigo-600',
+    color: 'bg-blue-600',
     children: [
       {
         id: 'node-1',
         label: 'Machine Learning',
-        color: 'bg-purple-600',
+        color: 'bg-cyan-600',
         children: [
           { id: 'node-1-1', label: 'Supervised Learning', color: 'bg-slate-800' },
           { id: 'node-1-2', label: 'Unsupervised Learning', color: 'bg-slate-800' }
@@ -141,12 +141,12 @@ export const AIWorkspaceToolsView: React.FC<AIWorkspaceToolsViewProps> = ({
       setMindMapRoot({
         id: `root-${Date.now()}`,
         label: mindMapTopic,
-        color: 'bg-indigo-600',
+        color: 'bg-blue-600',
         children: [
           {
             id: 'n1',
             label: 'Core Fundamentals',
-            color: 'bg-purple-600',
+            color: 'bg-cyan-600',
             children: [{ id: 'n1-1', label: 'Key Principles' }, { id: 'n1-2', label: 'Architecture' }]
           },
           {
@@ -250,13 +250,13 @@ export const AIWorkspaceToolsView: React.FC<AIWorkspaceToolsViewProps> = ({
       {/* Top Header & Sub-tool Tabs */}
       <div className="p-4 border-b border-slate-800/80 bg-slate-900/90 backdrop-blur-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-cyan-500 text-white shadow-lg shadow-indigo-600/20">
+          <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-blue-600 via-cyan-600 to-cyan-500 text-white shadow-lg shadow-blue-600/20">
             <Sparkles className="w-5 h-5 animate-pulse" />
           </div>
           <div>
             <h2 className="text-lg font-black text-white tracking-tight flex items-center gap-2">
               <span>AI Workspace & Smart Tools Hub</span>
-              <span className="text-[10px] bg-indigo-500/20 text-indigo-300 font-extrabold px-2 py-0.5 rounded-full border border-indigo-500/30">
+              <span className="text-[10px] bg-blue-500/20 text-blue-300 font-extrabold px-2 py-0.5 rounded-full border border-blue-500/30">
                 PRO SUITE
               </span>
             </h2>
@@ -282,7 +282,7 @@ export const AIWorkspaceToolsView: React.FC<AIWorkspaceToolsViewProps> = ({
                 onClick={() => setActiveSubTool(tab.id as WorkspaceSubTool)}
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap border ${
                   isActive
-                    ? 'bg-indigo-600 text-white border-indigo-400 shadow-md shadow-indigo-600/20'
+                    ? 'bg-blue-600 text-white border-blue-400 shadow-md shadow-blue-600/20'
                     : 'bg-slate-950/80 text-slate-400 hover:text-white hover:bg-slate-800 border-slate-800'
                 }`}
               >
@@ -303,7 +303,7 @@ export const AIWorkspaceToolsView: React.FC<AIWorkspaceToolsViewProps> = ({
             <div className="p-5 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-4 shadow-xl">
               <div className="space-y-1">
                 <h3 className="text-base font-black text-white flex items-center gap-2">
-                  <Grid className="w-5 h-5 text-indigo-400" />
+                  <Grid className="w-5 h-5 text-blue-400" />
                   <span>Interactive AI Mind Map Generator</span>
                 </h3>
                 <p className="text-xs text-slate-400">Visualize complex topics, project outlines, or study topics into interactive node maps.</p>
@@ -315,12 +315,12 @@ export const AIWorkspaceToolsView: React.FC<AIWorkspaceToolsViewProps> = ({
                   value={mindMapTopic}
                   onChange={(e) => setMindMapTopic(e.target.value)}
                   placeholder="Enter topic (e.g., Accountancy Partnership, Microeconomics, Business Studies)..."
-                  className="flex-1 bg-slate-950 border border-slate-800 rounded-2xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  className="flex-1 bg-slate-950 border border-slate-800 rounded-2xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
                 />
                 <button
                   onClick={handleGenerateMindMap}
                   disabled={!mindMapTopic.trim() || isGeneratingMindMap}
-                  className="px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs flex items-center gap-2 transition disabled:opacity-40 shadow-lg shadow-indigo-600/20"
+                  className="px-4 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs flex items-center gap-2 transition disabled:opacity-40 shadow-lg shadow-blue-600/20"
                 >
                   <Wand2 className="w-4 h-4" />
                   <span>{isGeneratingMindMap ? 'Building Map...' : 'Generate Map'}</span>
@@ -332,13 +332,13 @@ export const AIWorkspaceToolsView: React.FC<AIWorkspaceToolsViewProps> = ({
             <div className="p-6 rounded-3xl bg-slate-900/40 border border-slate-800/80 min-h-[350px] flex flex-col items-center justify-center space-y-6 relative overflow-x-auto shadow-2xl">
               
               {/* Root Node */}
-              <div className={`px-6 py-3 rounded-2xl ${mindMapRoot.color} text-white font-black text-sm shadow-xl shadow-indigo-600/30 flex items-center gap-2 border border-white/20 animate-fade-in`}>
-                <Brain className="w-5 h-5 text-indigo-200" />
+              <div className={`px-6 py-3 rounded-2xl ${mindMapRoot.color} text-white font-black text-sm shadow-xl shadow-blue-600/30 flex items-center gap-2 border border-white/20 animate-fade-in`}>
+                <Brain className="w-5 h-5 text-blue-200" />
                 <span>{mindMapRoot.label}</span>
               </div>
 
               {/* Connecting Line */}
-              <div className="w-0.5 h-6 bg-indigo-500/50" />
+              <div className="w-0.5 h-6 bg-blue-500/50" />
 
               {/* Level 1 Subnodes */}
               <div className="flex flex-wrap justify-center gap-6 w-full">
@@ -373,7 +373,7 @@ export const AIWorkspaceToolsView: React.FC<AIWorkspaceToolsViewProps> = ({
             <div className="p-5 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-4 shadow-xl">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-black text-white flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-purple-400" />
+                  <FileText className="w-5 h-5 text-cyan-400" />
                   <span>AI Content & Document Writer</span>
                 </h3>
 
@@ -391,7 +391,7 @@ export const AIWorkspaceToolsView: React.FC<AIWorkspaceToolsViewProps> = ({
                       onClick={() => setDocCategory(cat.id as any)}
                       className={`px-3 py-1 rounded-xl text-xs font-bold transition ${
                         docCategory === cat.id
-                          ? 'bg-purple-600 text-white'
+                          ? 'bg-cyan-600 text-white'
                           : 'bg-slate-950 text-slate-400 hover:text-white'
                       }`}
                     >
@@ -406,14 +406,14 @@ export const AIWorkspaceToolsView: React.FC<AIWorkspaceToolsViewProps> = ({
                 onChange={(e) => setDocPrompt(e.target.value)}
                 placeholder={`Describe your ${docCategory.toUpperCase()} request (e.g., Draft a polite refund request email to customer support)...`}
                 rows={3}
-                className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 resize-none"
+                className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 resize-none"
               />
 
               <div className="flex justify-end">
                 <button
                   onClick={handleGenerateDoc}
                   disabled={!docPrompt.trim() || isGeneratingDoc}
-                  className="px-5 py-2.5 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs flex items-center gap-2 transition disabled:opacity-40 shadow-lg shadow-purple-600/20"
+                  className="px-5 py-2.5 rounded-2xl bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold text-xs flex items-center gap-2 transition disabled:opacity-40 shadow-lg shadow-cyan-600/20"
                 >
                   <Wand2 className="w-4 h-4" />
                   <span>{isGeneratingDoc ? 'Drafting...' : 'Generate Document'}</span>
@@ -425,7 +425,7 @@ export const AIWorkspaceToolsView: React.FC<AIWorkspaceToolsViewProps> = ({
             {generatedDoc && (
               <div className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-3 shadow-2xl animate-fade-in">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                  <span className="text-xs font-mono text-purple-300 font-extrabold uppercase">Generated Output</span>
+                  <span className="text-xs font-mono text-cyan-300 font-extrabold uppercase">Generated Output</span>
                   <button
                     onClick={() => copyToClipboard(generatedDoc, 'doc')}
                     className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold flex items-center gap-1.5 transition"
@@ -580,7 +580,7 @@ export const AIWorkspaceToolsView: React.FC<AIWorkspaceToolsViewProps> = ({
           <div className="space-y-6 max-w-3xl mx-auto text-center">
             <div className="p-5 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-4 shadow-xl">
               <h3 className="text-base font-black text-white flex items-center justify-center gap-2">
-                <GraduationCap className="w-5 h-5 text-indigo-400" />
+                <GraduationCap className="w-5 h-5 text-blue-400" />
                 <span>AI Study Assistant & Interactive Flashcards</span>
               </h3>
 
@@ -590,12 +590,12 @@ export const AIWorkspaceToolsView: React.FC<AIWorkspaceToolsViewProps> = ({
                   value={studyTopic}
                   onChange={(e) => setStudyTopic(e.target.value)}
                   placeholder="Enter study topic (e.g. Class 12 Accountancy, Macroeconomics, BST)..."
-                  className="flex-1 bg-slate-950 border border-slate-800 rounded-2xl px-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  className="flex-1 bg-slate-950 border border-slate-800 rounded-2xl px-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
                 />
                 <button
                   onClick={handleGenerateStudyFlashcards}
                   disabled={!studyTopic.trim() || isGeneratingStudy}
-                  className="px-4 py-2 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center gap-1.5 transition disabled:opacity-40"
+                  className="px-4 py-2 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 transition disabled:opacity-40"
                 >
                   <Brain className="w-4 h-4" />
                   <span>{isGeneratingStudy ? 'Generating...' : 'Make Cards'}</span>
@@ -608,9 +608,9 @@ export const AIWorkspaceToolsView: React.FC<AIWorkspaceToolsViewProps> = ({
               <div className="space-y-4">
                 <div
                   onClick={() => setShowAnswer(!showAnswer)}
-                  className="w-full max-w-md mx-auto min-h-[200px] bg-slate-900 border border-indigo-500/30 rounded-3xl p-6 shadow-2xl flex flex-col items-center justify-center cursor-pointer transition-transform hover:scale-[1.02] relative"
+                  className="w-full max-w-md mx-auto min-h-[200px] bg-slate-900 border border-blue-500/30 rounded-3xl p-6 shadow-2xl flex flex-col items-center justify-center cursor-pointer transition-transform hover:scale-[1.02] relative"
                 >
-                  <span className="absolute top-4 right-4 text-[10px] font-mono font-bold text-indigo-400 uppercase">
+                  <span className="absolute top-4 right-4 text-[10px] font-mono font-bold text-blue-400 uppercase">
                     {showAnswer ? 'Answer' : 'Question (Tap to flip)'}
                   </span>
                   <div className="text-sm font-bold text-white px-4 leading-relaxed">
@@ -675,7 +675,7 @@ export const AIWorkspaceToolsView: React.FC<AIWorkspaceToolsViewProps> = ({
             {/* Currency Converter */}
             <div className="p-5 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-4 shadow-xl">
               <h3 className="text-sm font-black text-white flex items-center gap-2">
-                <Globe className="w-4 h-4 text-indigo-400" />
+                <Globe className="w-4 h-4 text-blue-400" />
                 <span>AI Multi-Currency Converter</span>
               </h3>
               <div className="space-y-3">
@@ -708,7 +708,7 @@ export const AIWorkspaceToolsView: React.FC<AIWorkspaceToolsViewProps> = ({
                 </div>
                 <button
                   onClick={calculateCurrency}
-                  className="w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs"
+                  className="w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs"
                 >
                   Convert
                 </button>

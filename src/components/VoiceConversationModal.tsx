@@ -149,12 +149,12 @@ export const VoiceConversationModal: React.FC<VoiceConversationModalProps> = ({
       <div className="bg-zinc-900 border border-zinc-800 rounded-3xl w-full max-w-lg p-6 flex flex-col space-y-5 shadow-2xl relative text-white overflow-hidden">
         {/* Background glow effect */}
         <div className="absolute -top-20 -left-20 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-zinc-800/80 pb-4 relative z-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
               <Radio className="w-5 h-5 animate-pulse" />
             </div>
             <div>
@@ -184,7 +184,7 @@ export const VoiceConversationModal: React.FC<VoiceConversationModalProps> = ({
               isListening || isAiSpeaking ? 'scale-125 opacity-100 animate-ping' : 'scale-100 opacity-20'
             }`} />
             <div className={`absolute w-24 h-24 rounded-full bg-blue-500/10 transition-all ${
-              isListening ? 'scale-110 bg-blue-500/20' : isAiSpeaking ? 'scale-110 bg-purple-500/20' : ''
+              isListening ? 'scale-110 bg-blue-500/20' : isAiSpeaking ? 'scale-110 bg-cyan-500/20' : ''
             }`} />
 
             <button
@@ -194,7 +194,7 @@ export const VoiceConversationModal: React.FC<VoiceConversationModalProps> = ({
                 isListening 
                   ? 'bg-rose-600 hover:bg-rose-500 scale-105 shadow-rose-600/30' 
                   : isAiSpeaking
-                  ? 'bg-purple-600 hover:bg-purple-500 scale-105 shadow-purple-600/30 animate-pulse'
+                  ? 'bg-cyan-600 hover:bg-cyan-500 scale-105 shadow-cyan-600/30 animate-pulse'
                   : 'bg-blue-600 hover:bg-blue-500 shadow-blue-600/30'
               }`}
             >
@@ -269,7 +269,7 @@ export const VoiceConversationModal: React.FC<VoiceConversationModalProps> = ({
                     </>
                   ) : (
                     <>
-                      <Bot className="w-3 h-3 text-purple-400" />
+                      <Bot className="w-3 h-3 text-cyan-400" />
                       <span>{activePersona.name}</span>
                     </>
                   )}

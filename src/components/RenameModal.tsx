@@ -41,7 +41,7 @@ export const RenameModal: React.FC<RenameModalProps> = ({
         </button>
 
         <div className="flex items-center gap-3">
-          <div className="p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+          <div className="p-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
             <Edit3 className="w-5 h-5" />
           </div>
           <div>
@@ -57,7 +57,7 @@ export const RenameModal: React.FC<RenameModalProps> = ({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g. Class 12 Accountancy Partnership Notes..."
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
           />
 
           <div className="flex items-center justify-end gap-3 pt-2">
@@ -71,7 +71,7 @@ export const RenameModal: React.FC<RenameModalProps> = ({
             <button
               type="submit"
               disabled={!title.trim()}
-              className="px-5 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-40 transition-all shadow-lg shadow-indigo-600/20 flex items-center gap-1.5"
+              className="px-5 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-40 transition-all shadow-lg shadow-blue-600/20 flex items-center gap-1.5"
             >
               <Check className="w-4 h-4" />
               <span>Save Title</span>

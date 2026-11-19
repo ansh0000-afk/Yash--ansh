@@ -41,7 +41,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
         onClick={() => setIsOpen((open) => !open)}
         aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ''}`}
         aria-expanded={isOpen}
-        className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-700 bg-slate-900 text-slate-200 shadow-lg transition hover:border-indigo-400 hover:text-white"
+        className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-700 bg-slate-900 text-slate-200 shadow-lg transition hover:border-blue-400 hover:text-white"
       >
         <Bell className="h-4 w-4" />
         {unreadCount > 0 && (
@@ -88,7 +88,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
               <button
                 type="button"
                 onClick={enableBrowserNotifications}
-                className="shrink-0 rounded-lg bg-indigo-600 px-2.5 py-1.5 text-[11px] font-semibold text-white transition hover:bg-indigo-500"
+                className="shrink-0 rounded-lg bg-blue-600 px-2.5 py-1.5 text-[11px] font-semibold text-white transition hover:bg-blue-500"
               >
                 Enable
               </button>
@@ -114,7 +114,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                 type="button"
                 onClick={() => onMarkRead(notification.id)}
                 className={`block w-full border-b border-slate-800/80 px-4 py-3 text-left transition hover:bg-slate-800/70 ${
-                  notification.isRead ? 'opacity-70' : 'bg-indigo-950/30'
+                  notification.isRead ? 'opacity-70' : 'bg-blue-950/30'
                 }`}
               >
                 <span className="flex items-start justify-between gap-3">
@@ -125,7 +125,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                       {new Date(notification.createdAt).toLocaleString()}
                     </span>
                   </span>
-                  {!notification.isRead && <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-indigo-400" />}
+                  {!notification.isRead && <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-blue-400" />}
                 </span>
               </button>
             ))}

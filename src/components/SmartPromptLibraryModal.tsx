@@ -84,13 +84,13 @@ export const SmartPromptLibraryModal: React.FC<SmartPromptLibraryModalProps> = (
         {/* Header */}
         <div className="p-5 border-b border-slate-800 bg-slate-900/90 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-600/30">
+            <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-600/30">
               <Sparkles className="w-5 h-5 animate-pulse" />
             </div>
             <div>
               <h2 className="text-lg font-black text-white tracking-tight flex items-center gap-2">
                 <span>Smart AI Tools & Prompt Library</span>
-                <span className="text-[10px] bg-indigo-500/20 text-indigo-300 font-extrabold px-2 py-0.5 rounded-full border border-indigo-500/30">
+                <span className="text-[10px] bg-blue-500/20 text-blue-300 font-extrabold px-2 py-0.5 rounded-full border border-blue-500/30">
                   PRO SUITE
                 </span>
               </h2>
@@ -116,7 +116,7 @@ export const SmartPromptLibraryModal: React.FC<SmartPromptLibraryModalProps> = (
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search AI templates (e.g., Email, Debug Code, Translate, Essay)..."
-              className="w-full bg-slate-900 border border-slate-800 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+              className="w-full bg-slate-900 border border-slate-800 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
             />
           </div>
 
@@ -128,7 +128,7 @@ export const SmartPromptLibraryModal: React.FC<SmartPromptLibraryModalProps> = (
                 onClick={() => setSelectedCategory(cat.id)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border ${
                   selectedCategory === cat.id
-                    ? 'bg-indigo-600 text-white border-indigo-400 shadow-md shadow-indigo-600/20'
+                    ? 'bg-blue-600 text-white border-blue-400 shadow-md shadow-blue-600/20'
                     : 'bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800 border-slate-800'
                 }`}
               >
@@ -146,19 +146,19 @@ export const SmartPromptLibraryModal: React.FC<SmartPromptLibraryModalProps> = (
               return (
                 <div
                   key={template.id}
-                  className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 hover:border-indigo-500/50 transition-all flex flex-col justify-between space-y-3 group hover:shadow-xl"
+                  className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 hover:border-blue-500/50 transition-all flex flex-col justify-between space-y-3 group hover:shadow-xl"
                 >
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <div className="p-2 rounded-xl bg-slate-900 text-indigo-400 border border-slate-800 group-hover:scale-110 transition-transform">
+                      <div className="p-2 rounded-xl bg-slate-900 text-blue-400 border border-slate-800 group-hover:scale-110 transition-transform">
                         <IconComponent className="w-4 h-4" />
                       </div>
-                      <span className="text-[10px] font-mono text-indigo-300/80 font-bold uppercase tracking-wider bg-indigo-500/10 px-2 py-0.5 rounded-md border border-indigo-500/20">
+                      <span className="text-[10px] font-mono text-blue-300/80 font-bold uppercase tracking-wider bg-blue-500/10 px-2 py-0.5 rounded-md border border-blue-500/20">
                         {template.category}
                       </span>
                     </div>
 
-                    <h3 className="font-bold text-xs text-white group-hover:text-indigo-300 transition-colors">
+                    <h3 className="font-bold text-xs text-white group-hover:text-blue-300 transition-colors">
                       {template.title}
                     </h3>
                     <p className="text-[11px] text-slate-400 leading-relaxed">
@@ -177,7 +177,7 @@ export const SmartPromptLibraryModal: React.FC<SmartPromptLibraryModalProps> = (
 
                     <button
                       onClick={() => handleUseTemplate(template)}
-                      className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-sm active:scale-95"
+                      className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-sm active:scale-95"
                     >
                       <span>Use Prompt</span>
                       <Wand2 className="w-3 h-3" />

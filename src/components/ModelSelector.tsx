@@ -48,12 +48,12 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
         className={`flex items-center gap-2 rounded-xl transition-all border ${
           compact
             ? 'px-2.5 py-1 text-xs bg-slate-800/90 border-slate-700/80 hover:bg-slate-800 text-slate-200'
-            : 'px-3 py-1.5 text-xs bg-slate-900/90 border-indigo-500/30 hover:border-indigo-500/60 text-slate-100 shadow-md'
+            : 'px-3 py-1.5 text-xs bg-slate-900/90 border-blue-500/30 hover:border-blue-500/60 text-slate-100 shadow-md'
         }`}
         title="Select AI Model"
       >
         <div className="flex items-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
+          <Sparkles className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
           <span className="font-semibold truncate max-w-[140px] sm:max-w-[180px]">
             {currentModel.name}
           </span>
@@ -70,7 +70,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
           {/* Header */}
           <div className="flex items-center justify-between pb-2 border-b border-slate-800">
             <div className="flex items-center gap-2">
-              <Cpu className="w-4 h-4 text-indigo-400" />
+              <Cpu className="w-4 h-4 text-blue-400" />
               <span className="text-xs font-bold text-white uppercase tracking-wider">
                 Select Free AI Model
               </span>
@@ -83,7 +83,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
           {/* Auto Failover Switch */}
           <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60">
             <div className="flex items-center gap-2">
-              <RefreshCw className="w-3.5 h-3.5 text-indigo-400" />
+              <RefreshCw className="w-3.5 h-3.5 text-blue-400" />
               <div>
                 <div className="text-xs font-semibold text-slate-200">Auto-Fallback Protection</div>
                 <div className="text-[10px] text-slate-400">Switch models if rate-limited</div>
@@ -93,7 +93,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
               type="button"
               onClick={toggleAutoFallback}
               className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-                autoFallback ? 'bg-indigo-600' : 'bg-slate-700'
+                autoFallback ? 'bg-blue-600' : 'bg-slate-700'
               }`}
             >
               <span
@@ -121,7 +121,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                       onClick={() => handleSelectModel(model.id)}
                       className={`w-full text-left p-2.5 rounded-xl transition-all border ${
                         isSelected
-                          ? 'bg-indigo-900/30 border-indigo-500/50 text-white shadow-inner'
+                          ? 'bg-blue-900/30 border-blue-500/50 text-white shadow-inner'
                           : 'bg-slate-800/40 border-slate-800 hover:bg-slate-800/80 hover:border-slate-700 text-slate-300'
                       }`}
                     >
@@ -129,12 +129,12 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-white">{model.name}</span>
                           {model.badge && (
-                            <span className="text-[9px] px-1.5 py-0.2 rounded font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                            <span className="text-[9px] px-1.5 py-0.2 rounded font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30">
                               {model.badge}
                             </span>
                           )}
                         </div>
-                        {isSelected && <Check className="w-4 h-4 text-indigo-400" />}
+                        {isSelected && <Check className="w-4 h-4 text-blue-400" />}
                       </div>
                       <div className="text-[11px] text-slate-400 mt-1 line-clamp-1">
                         {model.description}
@@ -168,7 +168,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                       onClick={() => handleSelectModel(model.id)}
                       className={`w-full text-left p-2.5 rounded-xl transition-all border ${
                         isSelected
-                          ? 'bg-indigo-900/30 border-indigo-500/50 text-white shadow-inner'
+                          ? 'bg-blue-900/30 border-blue-500/50 text-white shadow-inner'
                           : 'bg-slate-800/40 border-slate-800 hover:bg-slate-800/80 hover:border-slate-700 text-slate-300'
                       }`}
                     >
@@ -176,12 +176,12 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-white">{model.name}</span>
                           {model.badge && (
-                            <span className="text-[9px] px-1.5 py-0.2 rounded font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                            <span className="text-[9px] px-1.5 py-0.2 rounded font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
                               {model.badge}
                             </span>
                           )}
                         </div>
-                        {isSelected && <Check className="w-4 h-4 text-indigo-400" />}
+                        {isSelected && <Check className="w-4 h-4 text-blue-400" />}
                       </div>
                       <div className="text-[11px] text-slate-400 mt-1 line-clamp-1">
                         {model.description}

@@ -268,7 +268,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       {/* Header */}
       <div className="h-16 border-b border-slate-800 bg-slate-900/90 px-6 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30">
+          <div className="p-2.5 rounded-xl bg-blue-600/20 text-blue-400 border border-blue-500/30">
             <Settings className="w-5 h-5" />
           </div>
           <div>
@@ -282,7 +282,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         <button
           onClick={handleSave}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/20 transition"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-lg shadow-blue-600/20 transition"
         >
           <Save className="w-4 h-4" /> Save Changes
         </button>
@@ -307,7 +307,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               onClick={() => setActiveTab(tab.id as any)}
               className={`flex items-center gap-2 px-4 py-3 text-xs font-semibold border-b-2 transition whitespace-nowrap ${
                 isActive
-                  ? 'border-indigo-500 text-indigo-400 bg-indigo-500/10'
+                  ? 'border-blue-500 text-blue-400 bg-blue-500/10'
                   : 'border-transparent text-slate-400 hover:text-white hover:bg-slate-800/40'
               }`}
             >
@@ -331,7 +331,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { id: 'dark', label: 'Dark Mode', icon: Moon, desc: 'Deep indigo-slate theme' },
+                  { id: 'dark', label: 'Dark Mode', icon: Moon, desc: 'Deep blue-slate theme' },
                   { id: 'light', label: 'Light Mode', icon: Sun, desc: 'High contrast clean light' },
                   { id: 'system', label: 'System Theme', icon: Monitor, desc: 'Matches device preference' }
                 ].map(t => {
@@ -344,13 +344,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       onClick={() => setTheme(t.id as any)}
                       className={`p-4 rounded-xl border text-left flex flex-col gap-2 transition ${
                         isSelected
-                          ? 'bg-indigo-600/20 border-indigo-500 text-white'
+                          ? 'bg-blue-600/20 border-blue-500 text-white'
                           : 'bg-slate-800/50 border-slate-700/60 text-slate-300 hover:bg-slate-800'
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <Icon className="w-5 h-5 text-indigo-400" />
-                        {isSelected && <Check className="w-4 h-4 text-indigo-400" />}
+                        <Icon className="w-5 h-5 text-blue-400" />
+                        {isSelected && <Check className="w-4 h-4 text-blue-400" />}
                       </div>
                       <span className="font-semibold text-xs text-white">{t.label}</span>
                       <span className="text-[11px] text-slate-400">{t.desc}</span>
@@ -363,7 +363,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             {/* Profile Preferences */}
             <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
               <h3 className="font-semibold text-sm text-white flex items-center gap-2">
-                <UserCheck className="w-4 h-4 text-indigo-400" /> User Identification
+                <UserCheck className="w-4 h-4 text-blue-400" /> User Identification
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -374,7 +374,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     value={userName}
                     onChange={(e) => setUserName(e.target.value)}
                     placeholder="e.g. Anshu"
-                    className="w-full bg-slate-800/90 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full bg-slate-800/90 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500"
                   />
                 </div>
 
@@ -385,7 +385,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     value={preferredLang}
                     onChange={(e) => setPreferredLang(e.target.value)}
                     placeholder="e.g. Simple Hinglish, English, Hindi"
-                    className="w-full bg-slate-800/90 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full bg-slate-800/90 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -400,7 +400,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                  <div className="p-2.5 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/30">
                     <Lock className="w-5 h-5" />
                   </div>
                   <div>
@@ -430,7 +430,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     }
                   }}
                   className={`w-12 h-6 rounded-full transition-colors relative flex items-center p-0.5 shrink-0 ${
-                    appLockEnabled ? 'bg-indigo-600' : 'bg-slate-700'
+                    appLockEnabled ? 'bg-blue-600' : 'bg-slate-700'
                   }`}
                 >
                   <span className={`w-5 h-5 rounded-full bg-white transition-transform ${appLockEnabled ? 'translate-x-6' : 'translate-x-0'}`} />
@@ -450,9 +450,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <button
                     type="button"
                     onClick={() => onOpenPinModal(settings.appLock?.pinHash ? 'change-pin' : 'setup-pin')}
-                    className="px-3.5 py-2 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-xs font-semibold flex items-center gap-1.5 transition"
+                    className="px-3.5 py-2 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 text-xs font-semibold flex items-center gap-1.5 transition"
                   >
-                    <KeyRound className="w-4 h-4 text-indigo-400" />
+                    <KeyRound className="w-4 h-4 text-blue-400" />
                     <span>{settings.appLock?.pinHash ? 'Change PIN' : 'Set PIN'}</span>
                   </button>
                 )}
@@ -462,7 +462,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             {/* Biometric Unlock Settings */}
             <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
               <h3 className="font-semibold text-sm text-white flex items-center gap-2">
-                <Fingerprint className="w-4 h-4 text-purple-400" /> Biometric Authentication Options
+                <Fingerprint className="w-4 h-4 text-cyan-400" /> Biometric Authentication Options
               </h3>
               <p className="text-xs text-slate-400">Use Touch ID, Fingerprint scanner, or Face Unlock to bypass typing your PIN.</p>
 
@@ -470,7 +470,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 {/* Fingerprint Toggle */}
                 <div className="p-3.5 bg-slate-800/40 rounded-xl border border-slate-700/50 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Fingerprint className="w-5 h-5 text-indigo-400" />
+                    <Fingerprint className="w-5 h-5 text-blue-400" />
                     <div>
                       <span className="text-xs font-semibold text-slate-200 block">Fingerprint Unlock</span>
                       <span className="text-[10px] text-slate-400">Allows instant Touch ID or biometric scanner unlock</span>
@@ -491,7 +491,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       type="button"
                       onClick={() => setIsFingerprintEnabled(!isFingerprintEnabled)}
                       className={`w-11 h-5 rounded-full transition-colors relative flex items-center p-0.5 ${
-                        isFingerprintEnabled ? 'bg-indigo-600' : 'bg-slate-700'
+                        isFingerprintEnabled ? 'bg-blue-600' : 'bg-slate-700'
                       }`}
                     >
                       <span className={`w-4 h-4 rounded-full bg-white transition-transform ${isFingerprintEnabled ? 'translate-x-6' : 'translate-x-0'}`} />
@@ -502,7 +502,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 {/* Face Unlock Toggle */}
                 <div className="p-3.5 bg-slate-800/40 rounded-xl border border-slate-700/50 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <ScanFace className="w-5 h-5 text-purple-400" />
+                    <ScanFace className="w-5 h-5 text-cyan-400" />
                     <div>
                       <span className="text-xs font-semibold text-slate-200 block">Face Unlock (Biometric Face ID)</span>
                       <span className="text-[10px] text-slate-400">Allows facial scanning authentication</span>
@@ -523,7 +523,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       type="button"
                       onClick={() => setIsFaceUnlockEnabled(!isFaceUnlockEnabled)}
                       className={`w-11 h-5 rounded-full transition-colors relative flex items-center p-0.5 ${
-                        isFaceUnlockEnabled ? 'bg-indigo-600' : 'bg-slate-700'
+                        isFaceUnlockEnabled ? 'bg-blue-600' : 'bg-slate-700'
                       }`}
                     >
                       <span className={`w-4 h-4 rounded-full bg-white transition-transform ${isFaceUnlockEnabled ? 'translate-x-6' : 'translate-x-0'}`} />
@@ -545,7 +545,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <select
                     value={autoLockTimeout}
                     onChange={(e) => setAutoLockTimeout(parseInt(e.target.value))}
-                    className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-medium"
+                    className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 font-medium"
                   >
                     <option value={0}>Immediately on Unfocus / Blur</option>
                     <option value={1}>After 1 Minute of Inactivity</option>
@@ -566,7 +566,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     type="button"
                     onClick={() => setLockOnBackground(!lockOnBackground)}
                     className={`w-11 h-5 rounded-full transition-colors relative flex items-center p-0.5 shrink-0 ${
-                      lockOnBackground ? 'bg-indigo-600' : 'bg-slate-700'
+                      lockOnBackground ? 'bg-blue-600' : 'bg-slate-700'
                     }`}
                   >
                     <span className={`w-4 h-4 rounded-full bg-white transition-transform ${lockOnBackground ? 'translate-x-6' : 'translate-x-0'}`} />
@@ -580,7 +580,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="font-semibold text-sm text-white flex items-center gap-2">
-                    <Lock className="w-4 h-4 text-indigo-400" /> Lock Specific Chat Conversations
+                    <Lock className="w-4 h-4 text-blue-400" /> Lock Specific Chat Conversations
                   </h3>
                   <p className="text-xs text-slate-400">Lock individual chat histories. Opening locked chats will require your PIN.</p>
                 </div>
@@ -608,7 +608,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition border ${
                           session.isLocked
                             ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 hover:bg-rose-500/30'
-                            : 'bg-slate-700/60 text-slate-300 border-slate-600 hover:bg-indigo-900/60 hover:text-indigo-300'
+                            : 'bg-slate-700/60 text-slate-300 border-slate-600 hover:bg-blue-900/60 hover:text-blue-300'
                         }`}
                       >
                         {session.isLocked ? (
@@ -636,7 +636,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="font-semibold text-sm text-white flex items-center gap-2">
-                    <Brain className="w-4 h-4 text-purple-400" /> Persistent User Memory
+                    <Brain className="w-4 h-4 text-cyan-400" /> Persistent User Memory
                   </h3>
                   <p className="text-xs text-slate-400">Alpha AI uses memory items to recall your goals, stream, and preferred style across chats.</p>
                 </div>
@@ -645,7 +645,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   type="button"
                   onClick={() => setMemoryEnabled(!memoryEnabled)}
                   className={`w-12 h-6 rounded-full transition-colors relative flex items-center p-0.5 shrink-0 ${
-                    memoryEnabled ? 'bg-indigo-600' : 'bg-slate-700'
+                    memoryEnabled ? 'bg-blue-600' : 'bg-slate-700'
                   }`}
                 >
                   <span className={`w-5 h-5 rounded-full bg-white transition-transform ${memoryEnabled ? 'translate-x-6' : 'translate-x-0'}`} />
@@ -659,19 +659,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   placeholder="Key (e.g. Board Target)"
                   value={newMemKey}
                   onChange={(e) => setNewMemKey(e.target.value)}
-                  className="w-1/3 bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                  className="w-1/3 bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
                 />
                 <input
                   type="text"
                   placeholder="Value (e.g. 95% in Class 12 Commerce Board Exam)"
                   value={newMemVal}
                   onChange={(e) => setNewMemVal(e.target.value)}
-                  className="w-2/3 bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                  className="w-2/3 bg-slate-800/90 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
                 />
                 <button
                   type="button"
                   onClick={handleAddMemory}
-                  className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-xl text-xs flex items-center gap-1.5 shrink-0"
+                  className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-xl text-xs flex items-center gap-1.5 shrink-0"
                 >
                   <Plus className="w-4 h-4" /> Add
                 </button>
@@ -694,12 +694,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       >
                         <div className="flex items-center gap-2 min-w-0">
                           {item.category && (
-                            <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider bg-purple-500/15 text-purple-300 border border-purple-500/30 shrink-0">
+                            <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 shrink-0">
                               {item.category}
                             </span>
                           )}
                           <div className="truncate">
-                            <span className="font-semibold text-indigo-400">{item.key}: </span>
+                            <span className="font-semibold text-blue-400">{item.key}: </span>
                             <span className="text-slate-200">{item.value}</span>
                           </div>
                         </div>
@@ -747,7 +747,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   type="button"
                   onClick={() => setAutoSpeak(!autoSpeak)}
                   className={`w-12 h-6 rounded-full transition-colors relative flex items-center p-0.5 shrink-0 ${
-                    autoSpeak ? 'bg-indigo-600' : 'bg-slate-700'
+                    autoSpeak ? 'bg-blue-600' : 'bg-slate-700'
                   }`}
                 >
                   <span className={`w-5 h-5 rounded-full bg-white transition-transform ${autoSpeak ? 'translate-x-6' : 'translate-x-0'}`} />
@@ -759,7 +759,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <select
                   value={selectedVoice}
                   onChange={(e) => setSelectedVoice(e.target.value)}
-                  className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500"
                 >
                   <option value="">Default System Voice</option>
                   {voices.map((v, i) => (
@@ -778,7 +778,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     step="0.1"
                     value={speechRate}
                     onChange={(e) => setSpeechRate(parseFloat(e.target.value))}
-                    className="w-full accent-indigo-500 cursor-pointer"
+                    className="w-full accent-blue-500 cursor-pointer"
                   />
                 </div>
 
@@ -791,7 +791,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     step="0.1"
                     value={speechPitch}
                     onChange={(e) => setSpeechPitch(parseFloat(e.target.value))}
-                    className="w-full accent-indigo-500 cursor-pointer"
+                    className="w-full accent-blue-500 cursor-pointer"
                   />
                 </div>
               </div>
@@ -805,13 +805,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             {/* AI Model Selection */}
             <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3">
               <h3 className="font-semibold text-sm text-white flex items-center gap-2">
-                <Cpu className="w-4 h-4 text-indigo-400" /> AI Model Selection & Provider Routing
+                <Cpu className="w-4 h-4 text-blue-400" /> AI Model Selection & Provider Routing
               </h3>
               <p className="text-xs text-slate-400">Choose your preferred free AI engine (Google Gemini or OpenRouter open models).</p>
               <select
                 value={aiModel}
                 onChange={(e) => setAiModel(e.target.value)}
-                className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-medium"
+                className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 font-medium"
               >
                 <optgroup label="Google Gemini Free API">
                   <option value="gemini-3.5-flash">Gemini 3.5 Flash (Recommended - Current Stable Flagship)</option>
@@ -830,7 +830,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             {/* AI Parameters: Temperature & Max Tokens */}
             <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
               <h3 className="font-semibold text-sm text-white flex items-center gap-2">
-                <Sliders className="w-4 h-4 text-purple-400" /> Generation Parameters
+                <Sliders className="w-4 h-4 text-cyan-400" /> Generation Parameters
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -845,7 +845,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     step="0.05"
                     value={temperature}
                     onChange={(e) => setTemperature(parseFloat(e.target.value))}
-                    className="w-full accent-indigo-500 cursor-pointer"
+                    className="w-full accent-blue-500 cursor-pointer"
                   />
                   <div className="flex justify-between text-[10px] text-slate-500 mt-1">
                     <span>0.0 Precise</span>
@@ -858,7 +858,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <select
                     value={maxTokens}
                     onChange={(e) => setMaxTokens(parseInt(e.target.value))}
-                    className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
                   >
                     <option value={1024}>1,024 Tokens (~750 words)</option>
                     <option value={2048}>2,048 Tokens (~1,500 words)</option>
@@ -885,7 +885,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 type="button"
                 onClick={() => setEnableSearch(!enableSearch)}
                 className={`w-12 h-6 rounded-full transition-colors relative flex items-center p-0.5 shrink-0 ${
-                  enableSearch ? 'bg-indigo-600' : 'bg-slate-700'
+                  enableSearch ? 'bg-blue-600' : 'bg-slate-700'
                 }`}
               >
                 <span className={`w-5 h-5 rounded-full bg-white transition-transform ${enableSearch ? 'translate-x-6' : 'translate-x-0'}`} />
@@ -905,7 +905,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 onChange={(e) => setUserInstructions(e.target.value)}
                 rows={5}
                 placeholder="e.g. Always explain Class 12 Accountancy numericals step-by-step with journal entries..."
-                className="w-full bg-slate-800/90 border border-slate-700/80 rounded-xl p-3.5 text-xs text-white focus:outline-none focus:border-indigo-500 resize-none"
+                className="w-full bg-slate-800/90 border border-slate-700/80 rounded-xl p-3.5 text-xs text-white focus:outline-none focus:border-blue-500 resize-none"
               />
             </div>
           </div>
@@ -918,7 +918,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                  <div className="p-2.5 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/30">
                     <Shield className="w-5 h-5" />
                   </div>
                   <div>
@@ -993,14 +993,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
                 <div className="p-3.5 bg-slate-800/40 border border-slate-700/50 rounded-xl space-y-1">
                   <span className="text-[10px] text-slate-400 font-bold uppercase block">Masked Key Identity</span>
-                  <span className="text-xs font-mono text-indigo-300">
+                  <span className="text-xs font-mono text-blue-300">
                     {securityStatus?.maskedKey || 'AIzaSy...4a9F'}
                   </span>
                 </div>
 
                 <div className="p-3.5 bg-slate-800/40 border border-slate-700/50 rounded-xl space-y-1">
                   <span className="text-[10px] text-slate-400 font-bold uppercase block">SHA-256 Checksum</span>
-                  <span className="text-xs font-mono text-purple-300 truncate block">
+                  <span className="text-xs font-mono text-cyan-300 truncate block">
                     {securityStatus?.keyFingerprint || 'f3a9e201b...'}
                   </span>
                 </div>
@@ -1026,7 +1026,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       value={customInputKey}
                       onChange={(e) => setCustomInputKey(e.target.value)}
                       placeholder="AIzaSy..."
-                      className="w-full bg-slate-800/90 border border-slate-700 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono"
+                      className="w-full bg-slate-800/90 border border-slate-700 rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 font-mono"
                     />
                   </div>
 
@@ -1034,7 +1034,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     type="button"
                     onClick={handleTestKey}
                     disabled={securityLoading}
-                    className="px-3.5 py-2.5 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 font-semibold rounded-xl text-xs flex items-center gap-1.5 shrink-0 transition"
+                    className="px-3.5 py-2.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 font-semibold rounded-xl text-xs flex items-center gap-1.5 shrink-0 transition"
                   >
                     <CheckCircle className="w-4 h-4" /> Test Connection
                   </button>
@@ -1045,11 +1045,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <div className={`p-3 rounded-xl text-xs flex items-center gap-2 border ${
                     securityMsg.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' :
                     securityMsg.type === 'error' ? 'bg-rose-500/10 border-rose-500/30 text-rose-300' :
-                    'bg-indigo-500/10 border-indigo-500/30 text-indigo-300'
+                    'bg-blue-500/10 border-blue-500/30 text-blue-300'
                   }`}>
                     {securityMsg.type === 'success' ? <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" /> :
                      securityMsg.type === 'error' ? <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" /> :
-                     <RefreshCcw className="w-4 h-4 text-indigo-400 animate-spin shrink-0" />}
+                     <RefreshCcw className="w-4 h-4 text-blue-400 animate-spin shrink-0" />}
                     <span>{securityMsg.text}</span>
                   </div>
                 )}
@@ -1059,7 +1059,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     type="button"
                     onClick={handleSaveCustomKey}
                     disabled={securityLoading}
-                    className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-indigo-600/20 transition"
+                    className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-blue-600/20 transition"
                   >
                     <Lock className="w-4 h-4" /> Save Encrypted Key
                   </button>
@@ -1079,9 +1079,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
 
             {/* Architectural Security Guarantee */}
-            <div className="p-5 rounded-2xl bg-indigo-950/40 border border-indigo-500/20 space-y-3">
-              <h4 className="font-semibold text-xs text-indigo-300 uppercase tracking-wider flex items-center gap-2">
-                <Shield className="w-4 h-4 text-indigo-400" /> Security & Privacy Architecture
+            <div className="p-5 rounded-2xl bg-blue-950/40 border border-blue-500/20 space-y-3">
+              <h4 className="font-semibold text-xs text-blue-300 uppercase tracking-wider flex items-center gap-2">
+                <Shield className="w-4 h-4 text-blue-400" /> Security & Privacy Architecture
               </h4>
               <ul className="text-xs text-slate-300 space-y-2 list-disc list-inside">
                 <li><strong>Zero Browser Key Exposure:</strong> All API requests pass strictly through server-side proxies (`/api/*`). Secrets never touch browser JavaScript or client-side bundles.</li>
@@ -1098,14 +1098,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             {/* Account Details & Profile Storage Usage */}
             <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
               <h3 className="font-semibold text-sm text-white flex items-center gap-2">
-                <User className="w-4 h-4 text-indigo-400" /> User Profile & Diagnostics
+                <User className="w-4 h-4 text-blue-400" /> User Profile & Diagnostics
               </h3>
               <div className="p-4 bg-slate-800/50 rounded-xl flex items-center justify-between">
                 <div>
                   <h4 className="font-bold text-white text-sm">{userProfile.name}</h4>
                   <p className="text-xs text-slate-400">{userProfile.email}</p>
                 </div>
-                <span className="text-xs px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full border border-indigo-500/30 capitalize font-medium">
+                <span className="text-xs px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full border border-blue-500/30 capitalize font-medium">
                   {userProfile.provider} Mode
                 </span>
               </div>
@@ -1114,12 +1114,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                 <div className="p-3 bg-slate-800/40 border border-slate-700/50 rounded-xl text-center">
                   <span className="text-[10px] text-slate-400 uppercase font-bold block">Chat Sessions</span>
-                  <span className="text-base font-extrabold text-indigo-400">{chatSessionsCount}</span>
+                  <span className="text-base font-extrabold text-blue-400">{chatSessionsCount}</span>
                 </div>
 
                 <div className="p-3 bg-slate-800/40 border border-slate-700/50 rounded-xl text-center">
                   <span className="text-[10px] text-slate-400 uppercase font-bold block">Memory Items</span>
-                  <span className="text-base font-extrabold text-purple-400">{memories.length}</span>
+                  <span className="text-base font-extrabold text-cyan-400">{memories.length}</span>
                 </div>
 
                 <div className="p-3 bg-slate-800/40 border border-slate-700/50 rounded-xl text-center">
@@ -1136,7 +1136,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             {/* Legal & Privacy */}
 <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
   <h3 className="font-semibold text-sm text-white flex items-center gap-2">
-    <Shield className="w-4 h-4 text-indigo-400" /> Legal & Privacy
+    <Shield className="w-4 h-4 text-blue-400" /> Legal & Privacy
   </h3>
 
   <p className="text-xs text-slate-400">
@@ -1147,7 +1147,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     <button
       type="button"
       onClick={() => onOpenLegalPage?.('terms')}
-      className="px-4 py-2 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 rounded-xl text-xs font-semibold"
+      className="px-4 py-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-xl text-xs font-semibold"
     >
       Terms of Service
     </button>
@@ -1180,17 +1180,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <button
                   type="button"
                   onClick={handleExportData}
-                  className="px-4 py-2 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 rounded-xl text-xs font-semibold flex items-center gap-2"
+                  className="px-4 py-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-xl text-xs font-semibold flex items-center gap-2"
                 >
-                  <Download className="w-4 h-4 text-indigo-400" /> Export JSON Data
+                  <Download className="w-4 h-4 text-blue-400" /> Export JSON Data
                 </button>
 
                 <button
                   type="button"
                   onClick={() => importFileRef.current?.click()}
-                  className="px-4 py-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 rounded-xl text-xs font-semibold flex items-center gap-2"
+                  className="px-4 py-2 bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 border border-cyan-500/30 rounded-xl text-xs font-semibold flex items-center gap-2"
                 >
-                  <Upload className="w-4 h-4 text-purple-400" /> Import JSON Data
+                  <Upload className="w-4 h-4 text-cyan-400" /> Import JSON Data
                 </button>
 
                 <button
