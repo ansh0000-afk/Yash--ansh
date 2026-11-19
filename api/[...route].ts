@@ -388,7 +388,21 @@ Maharashtra HSC Class 12 Commerce study-tutor mode:
       if (model !== 'gemini-3.6-flash' && model !== 'gemini-3.5-flash') payload.tools = [ ...((payload.tools || [])), ...toolDeclarations() ];
       else payload.tools = [ ...((payload.tools || [])), ...toolDeclarations() ];
 
-      const result = await geminiGenerate(apiKey, model, payload);
+      let result;
+      try {
+        result = await geminiGenerate(apiKey, model, payload);
+      } catch (firstErr: any) {
+        // Search (grounding) ki limit alag hoti hai — wo khatm ho to bina search ke
+        // wahi model phir try karo, taaki chat band na ho, sirf live search ruke.
+        const isQuota = firstErr?.status === 429 || /quota|rate.?limit/i.test(firstErr?.message || '');
+        const hasSearchTool = Array.isArray(payload.tools) && payload.tools.some((t: any) => t.googleSearch);
+        if (isQuota && hasSearchTool) {
+          const retryPayload = { ...payload, tools: payload.tools.filter((t: any) => !t.googleSearch) };
+          result = await geminiGenerate(apiKey, model, retryPayload);
+        } else {
+          throw firstErr;
+        }
+      }
       const candidate = result?.candidates?.[0];
       const parts = candidate?.content?.parts || [];
       const text = parts.filter((p: any) => typeof p.text === 'string').map((p: any) => p.text).join('');
@@ -419,6 +433,13 @@ Maharashtra HSC Class 12 Commerce study-tutor mode:
     }
   }
 
+  // Limit khatm ho to Google ka kachcha error kabhi mat dikhao — saaf Hinglish sandesh do.
+  if (lastError && ((lastError as any).status === 429 || /quota|rate.?limit/i.test(lastError.message || ''))) {
+    throw Object.assign(
+      new Error('Abhi AI jawab ki aaj ki limit puri ho gayi hai. Thodi der baad phir koshish karein — tab tak Study Hub, notes aur baaki cheezein chalti rahengi.'),
+      { status: 429, code: 'QUOTA_EXCEEDED' }
+    );
+  }
   if (lastError) throw lastError;
   throw Object.assign(
     new Error('No AI provider is available. Configure GEMINI_API_KEY or select a model with a configured provider key.'),
