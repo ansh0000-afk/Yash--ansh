@@ -12,6 +12,7 @@ import { ModelSelector } from './ModelSelector';
 import {
   Send,
   ArrowUp,
+  Radio,
   Globe,
   Paperclip,
   Search,
@@ -310,82 +311,38 @@ export const ChatView: React.FC<ChatViewProps> = ({
     <div className="flex-1 flex flex-col h-full min-h-0 bg-slate-950 text-slate-100 overflow-hidden relative">
       {/* Top Header */}
       <div className="h-14 border-b border-slate-800 bg-slate-950/95 px-2.5 sm:px-4 flex items-center justify-between shrink-0 backdrop-blur-md z-10">
-        <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center gap-2 min-w-0">
           <button
             onClick={onOpenMobileMenu}
-            className="md:hidden p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white shrink-0"
+            className="md:hidden p-2 rounded-full text-slate-300 hover:text-white hover:bg-slate-800 shrink-0"
           >
             <Menu className="w-5 h-5" />
           </button>
 
-                    <img
-            src={activePersona.avatar}
-            alt={activePersona.name}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover ring-2 ring-blue-500/50 shrink-0"
-          />
+          {/* Model selector - ChatGPT-style top-left */}
+          <ModelSelector settings={settings} onUpdateSettings={onUpdateSettings} compact />
 
-          <div className="flex flex-col min-w-0">
-            <div className="flex items-center gap-2">
-              <h2 className="font-extrabold text-[13px] sm:text-sm text-white tracking-tight truncate max-w-[140px] sm:max-w-none">
-                {activeSession?.title || activePersona.name}
-              </h2>
-              <button
-                onClick={() => setIsRenameModalOpen(true)}
-                className="p-1 text-slate-400 hover:text-blue-400 rounded transition"
-                title="Rename Chat Title"
-              >
-                <Edit3 className="w-3.5 h-3.5" />
-              </button>
-
-              {/* Agent Selector Dropdown Pill */}
-              {onSelectPersona && personas.length > 0 ? (
-                <div className="relative inline-block shrink-0">
-                  <select
-                    value={activePersona.id}
-                    onChange={(e) => {
-                      const p = personas.find(x => x.id === e.target.value);
-                      if (p) onSelectPersona(p);
-                    }}
-                    className="bg-blue-950/80 border border-blue-500/50 text-blue-300 text-[11px] font-bold rounded-xl px-2.5 py-1 focus:outline-none focus:border-blue-400 cursor-pointer shadow-xs hover:bg-blue-900/80 transition"
-                    title="Switch AI Agent Persona"
-                  >
-                    {personas.map((p) => (
-                      <option key={p.id} value={p.id} className="bg-slate-900 text-slate-100 font-medium py-1">
-                        {p.name} — {p.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              ) : (
-                <span className="hidden sm:inline-block text-[10px] bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full font-semibold shrink-0">
-                  {activePersona.name}
-                </span>
-              )}
-            </div>
-            <p className="hidden sm:block text-[10px] text-slate-400 font-medium truncate">
-              Created {formatDateTime(activeSession?.createdAt || '')} • Updated {formatDateTime(activeSession?.updatedAt || '')}
-            </p>
-          </div>
+          {/* Agent switch - subtle ghost select */}
+          {onSelectPersona && personas.length > 0 && (
+            <select
+              value={activePersona.id}
+              onChange={(e) => {
+                const p = personas.find(x => x.id === e.target.value);
+                if (p) onSelectPersona(p);
+              }}
+              className="bg-transparent border border-transparent hover:border-slate-700 text-slate-300 hover:text-white text-xs font-semibold rounded-lg px-1.5 py-1.5 focus:outline-none cursor-pointer max-w-[118px] sm:max-w-[190px] truncate transition"
+              title="Switch AI Agent"
+            >
+              {personas.map((p) => (
+                <option key={p.id} value={p.id} className="bg-slate-900 text-slate-100 font-medium py-1">
+                  {p.name} — {p.title}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          {/* Model Selector Pill */}
-          <div className="hidden sm:block">
-  <ModelSelector settings={settings} onUpdateSettings={onUpdateSettings} compact />
-</div>
-
-          {/* Live Voice button */}
-          {onOpenVoiceModal && (
-            <button
-              onClick={onOpenVoiceModal}
-              className="flex items-center gap-1.5 text-xs px-2 sm:px-3 py-1.5 rounded-xl border border-blue-500/40 bg-blue-600/20 text-blue-300 font-semibold hover:bg-blue-600/30 transition-all shadow-xs"
-              title="Start Real-time Live Voice Conversation"
-            >
-              <Mic className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
-              <span className="hidden sm:inline">Live Voice</span>
-            </button>
-          )}
-
           {/* Grounding toggle button — ChatGPT/Gemini style pill */}
           <button
             onClick={() => setEnableSearch(!enableSearch)}
@@ -636,7 +593,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
             <img src="/app_icon.png" alt="Alpha AI" className="inline-block w-20 h-20 rounded-[22px] shadow-2xl shadow-blue-500/40 ring-1 ring-white/20 object-cover" />
 
             <div>
-              <h3 className="text-2xl font-extrabold text-white tracking-tight">
+              <h3 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
                 Hello, I am {activePersona.name}
               </h3>
               <p className="text-xs md:text-sm text-slate-400 mt-2 max-w-md mx-auto leading-relaxed">
@@ -690,7 +647,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
           messages.map((msg) => (
             <div
               key={msg.id}
-              className={`flex gap-3 max-w-4xl mx-auto ${
+              className={`flex gap-3 max-w-3xl mx-auto ${
                 msg.role === 'user' ? 'justify-end' : 'justify-start'
               }`}
             >
@@ -724,10 +681,10 @@ export const ChatView: React.FC<ChatViewProps> = ({
                 )}
 
                 <div
-                  className={`p-4 md:p-5 rounded-2xl text-xs md:text-sm leading-relaxed shadow-lg ${
+                  className={`text-xs md:text-sm leading-relaxed ${
                     msg.role === 'user'
-                      ? 'bg-blue-600 text-white rounded-tr-none font-medium'
-                      : 'bg-slate-900 border border-slate-800 text-slate-100 rounded-tl-none'
+                      ? 'bg-slate-800 text-slate-100 rounded-3xl rounded-br-md px-4 py-2.5 font-medium shadow-md'
+                      : 'bg-transparent text-slate-100 px-1 py-0.5'
                   }`}
                 >
                   {msg.role === 'assistant' ? (
@@ -942,7 +899,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
 
         {/* Processing Indicator & Stop Button */}
         {isLoading && (
-          <div className="flex gap-3 max-w-4xl mx-auto justify-start items-center">
+          <div className="flex gap-3 max-w-3xl mx-auto justify-start items-center">
             <img
               src={activePersona.avatar}
               alt={activePersona.name}
@@ -969,7 +926,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
 
       {/* Bottom Input Area */}
       <div className="p-2 sm:p-3 md:p-4 bg-slate-900/90 border-t border-slate-800 shrink-0 backdrop-blur-md">
-        <div className="max-w-4xl mx-auto space-y-2">
+        <div className="max-w-3xl mx-auto space-y-2">
           {/* Attachment Previews */}
           <div className="flex items-center gap-2 overflow-x-auto">
             {attachedImage && (
@@ -1123,6 +1080,18 @@ export const ChatView: React.FC<ChatViewProps> = ({
                 </div>
 
                 <div className="flex items-center gap-2">
+                  {/* Live Voice - ChatGPT-style voice button in composer */}
+                  {onOpenVoiceModal && (
+                    <button
+                      type="button"
+                      onClick={onOpenVoiceModal}
+                      className="p-2.5 rounded-full border border-blue-500/40 text-blue-300 hover:bg-blue-600/20 transition-all"
+                      title="Live Voice Conversation"
+                    >
+                      <Radio className="w-4 h-4 animate-pulse" />
+                    </button>
+                  )}
+
                   {/* Send Button */}
                   <button
                     type="submit"
@@ -1136,6 +1105,9 @@ export const ChatView: React.FC<ChatViewProps> = ({
               </div>
             </div>
           </form>
+          <p className="text-center text-[11px] leading-snug text-slate-500 pt-1">
+            Alpha AI kabhi galti kar sakta hai — board exam ki jaankari official paper se zaroor check karein.
+          </p>
         </div>
       </div>
 

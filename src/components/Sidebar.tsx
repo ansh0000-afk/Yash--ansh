@@ -321,31 +321,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* New Chat Button & Live Voice Button */}
-        <div className="grid grid-cols-5 gap-2">
+        <div>
           <button
             onClick={() => {
               onNewSession();
               setCurrentView('chat');
               if (onCloseMobile) onCloseMobile();
             }}
-            className="col-span-4 py-2.5 px-3.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-blue-600/20 transition-all"
+            className="w-full py-2.5 px-3.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white rounded-full text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-blue-600/20 transition-all"
           >
             <Plus className="w-4 h-4" />
             <span>New Chat</span>
           </button>
 
-          {onOpenVoiceModal && (
-            <button
-              onClick={() => {
-                onOpenVoiceModal();
-                if (onCloseMobile) onCloseMobile();
-              }}
-              className="py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center justify-center shadow-lg shadow-blue-600/20 transition-all relative group"
-              title="Start Gemini Live Voice Conversation"
-            >
-              <Radio className="w-4 h-4 animate-pulse" />
-            </button>
-          )}
         </div>
       </div>
 
